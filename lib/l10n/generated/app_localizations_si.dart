@@ -111,7 +111,7 @@ class AppL10nSi extends AppL10n {
   String get authTermsConsentBold => 'භාවිත නියම හා රහස්‍යතා ප්‍රතිපත්තියටයි.';
 
   @override
-  String get authReadTerms => 'නියම කියවන්න';
+  String get authReadTerms => 'නියම හා කොන්දේසි කියවන්න';
 
   @override
   String get otpEnterTitle => 'OTP ඇතුළත් කරන්න';

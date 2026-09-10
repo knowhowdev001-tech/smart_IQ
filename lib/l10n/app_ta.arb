@@ -39,7 +39,7 @@
   "authHasAccount": "ஏற்கனவே கணக்கு உள்ளதா?",
   "authTermsConsent": "தொடர்வதன் மூலம் நீங்கள் ஒப்புக்கொள்வது",
   "authTermsConsentBold": "பயன்பாட்டு விதிமுறைகள் மற்றும் தனியுரிமைக் கொள்கை.",
-  "authReadTerms": "விதிமுறைகளைப் படி",
+  "authReadTerms": "விதிமுறைகள் மற்றும் நிபந்தனைகளைப் படி",
 
   "otpEnterTitle": "OTP உள்ளிடவும்",
   "otpSentTo": "{number} க்கு அனுப்பப்பட்டது",

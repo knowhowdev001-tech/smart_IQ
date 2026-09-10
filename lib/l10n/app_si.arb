@@ -39,7 +39,7 @@
   "authHasAccount": "දැනටමත් ගිණුමක් තිබේද?",
   "authTermsConsent": "ඉදිරියට යාමෙන් ඔබ එකඟ වන්නේ",
   "authTermsConsentBold": "භාවිත නියම හා රහස්‍යතා ප්‍රතිපත්තියටයි.",
-  "authReadTerms": "නියම කියවන්න",
+  "authReadTerms": "නියම හා කොන්දේසි කියවන්න",
 
   "otpEnterTitle": "OTP ඇතුළත් කරන්න",
   "otpSentTo": "{number} වෙත එවන ලදී",

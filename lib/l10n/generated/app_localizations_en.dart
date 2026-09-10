@@ -111,7 +111,7 @@ class AppL10nEn extends AppL10n {
   String get authTermsConsentBold => 'Terms of Use and Privacy Policy.';
 
   @override
-  String get authReadTerms => 'Read Terms';
+  String get authReadTerms => 'Read Terms & Conditions';
 
   @override
   String get otpEnterTitle => 'Enter OTP';

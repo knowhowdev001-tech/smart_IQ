@@ -39,7 +39,7 @@
   "authHasAccount": "Already have an account?",
   "authTermsConsent": "By continuing, you agree to",
   "authTermsConsentBold": "Terms of Use and Privacy Policy.",
-  "authReadTerms": "Read Terms",
+  "authReadTerms": "Read Terms & Conditions",
 
   "otpEnterTitle": "Enter OTP",
   "otpSentTo": "Sent to {number}",

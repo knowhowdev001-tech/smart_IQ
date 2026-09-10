@@ -300,7 +300,7 @@ abstract class AppL10n {
   /// No description provided for @authReadTerms.
   ///
   /// In en, this message translates to:
-  /// **'Read Terms'**
+  /// **'Read Terms & Conditions'**
   String get authReadTerms;
 
   /// No description provided for @otpEnterTitle.

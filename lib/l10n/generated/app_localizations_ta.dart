@@ -113,7 +113,7 @@ class AppL10nTa extends AppL10n {
       'பயன்பாட்டு விதிமுறைகள் மற்றும் தனியுரிமைக் கொள்கை.';
 
   @override
-  String get authReadTerms => 'விதிமுறைகளைப் படி';
+  String get authReadTerms => 'விதிமுறைகள் மற்றும் நிபந்தனைகளைப் படி';
 
   @override
   String get otpEnterTitle => 'OTP உள்ளிடவும்';
