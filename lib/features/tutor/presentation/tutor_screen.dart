@@ -310,43 +310,51 @@ class _Bubble extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(bottom: 10.dp(context)),
-      child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.sizeOf(context).width * 0.82,
-            ),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 13.dp(context),
-                vertical: 11.dp(context),
-              ),
-              decoration: BoxDecoration(
-                color: isUser ? colors.accent : colors.surfaceMuted,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(AppRadii.md.dp(context)),
-                  topRight: Radius.circular(AppRadii.md.dp(context)),
-                  bottomLeft: Radius.circular(
-                    isUser ? AppRadii.md.dp(context) : 4.dp(context),
+      // Bounded by the row it sits in, not by the screen. The content column
+      // caps at 520dp, so a width taken from MediaQuery overflowed on every
+      // display wider than that. Flexible is the backstop for a message with
+      // nowhere to wrap, which no fraction can save on its own.
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          mainAxisAlignment:
+              isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: constraints.maxWidth * 0.82,
+                ),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 13.dp(context),
+                    vertical: 11.dp(context),
                   ),
-                  bottomRight: Radius.circular(
-                    isUser ? 4.dp(context) : AppRadii.md.dp(context),
+                  decoration: BoxDecoration(
+                    color: isUser ? colors.accent : colors.surfaceMuted,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(AppRadii.md.dp(context)),
+                      topRight: Radius.circular(AppRadii.md.dp(context)),
+                      bottomLeft: Radius.circular(
+                        isUser ? AppRadii.md.dp(context) : 4.dp(context),
+                      ),
+                      bottomRight: Radius.circular(
+                        isUser ? 4.dp(context) : AppRadii.md.dp(context),
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    message.content,
+                    style: context.text(
+                      AppTextStyles.bodySmall,
+                      color: isUser ? colors.accentInk : colors.ink,
+                      height: 1.55,
+                    ),
                   ),
                 ),
               ),
-              child: Text(
-                message.content,
-                style: context.text(
-                  AppTextStyles.bodySmall,
-                  color: isUser ? colors.accentInk : colors.ink,
-                  height: 1.55,
-                ),
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
