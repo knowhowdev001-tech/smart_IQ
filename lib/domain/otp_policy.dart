@@ -10,7 +10,7 @@
 library;
 
 /// How long a code stays valid (PRD 6.1).
-const Duration kOtpValidity = Duration(minutes: 3);
+const Duration kOtpValidity = Duration(minutes: 5);
 
 /// How long before a resend is allowed. Each SMS is a direct cost, so this
 /// is a spend control as much as a security one.

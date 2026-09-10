@@ -20,7 +20,7 @@ import 'widgets/auth_scaffold.dart';
 /// OTP entry, with the expiry countdown and resend cooldown from PRD 6.1.
 ///
 /// Two separate clocks run here and they are not the same thing: the code
-/// expires after three minutes, while resend unlocks after sixty seconds. The
+/// expires after five minutes, while resend unlocks after sixty seconds. The
 /// cooldown exists because each SMS is a direct cost, not merely a security
 /// control.
 class OtpScreen extends ConsumerStatefulWidget {
