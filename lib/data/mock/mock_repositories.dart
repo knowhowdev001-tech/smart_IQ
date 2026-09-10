@@ -8,6 +8,7 @@ import '../../domain/models/content.dart';
 import '../../domain/models/entitlement.dart';
 import '../../domain/models/practice.dart';
 import '../../domain/models/user_profile.dart';
+import '../../domain/otp_policy.dart';
 import '../repositories/repositories.dart';
 import 'mock_content.dart';
 
@@ -38,7 +39,7 @@ class MockAuthRepository implements AuthRepository {
     await Future<void>.delayed(_latency);
     _state.pendingMsisdn = msisdn;
     _state.otpIssuedAt = DateTime.now();
-    return 60;
+    return kOtpResendCooldown.inSeconds;
   }
 
   @override
@@ -49,8 +50,7 @@ class MockAuthRepository implements AuthRepository {
     await Future<void>.delayed(_latency);
 
     final issued = _state.otpIssuedAt;
-    if (issued == null ||
-        DateTime.now().difference(issued) > const Duration(minutes: 5)) {
+    if (issued == null || DateTime.now().difference(issued) > kOtpValidity) {
       throw const OtpExpiredException();
     }
     // One fixed code verifies in the mock so the flow is predictable while

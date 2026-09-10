@@ -14,12 +14,13 @@ import '../../../core/utils/msisdn.dart';
 import '../../../core/widgets/siq_button.dart';
 import '../../../core/widgets/siq_field.dart';
 import '../../../data/mock/mock_repositories.dart';
+import '../../../domain/otp_policy.dart';
 import 'widgets/auth_scaffold.dart';
 
 /// OTP entry, with the expiry countdown and resend cooldown from PRD 6.1.
 ///
 /// Two separate clocks run here and they are not the same thing: the code
-/// expires after five minutes, while resend unlocks after sixty seconds. The
+/// expires after three minutes, while resend unlocks after sixty seconds. The
 /// cooldown exists because each SMS is a direct cost, not merely a security
 /// control.
 class OtpScreen extends ConsumerStatefulWidget {
@@ -33,15 +34,15 @@ class OtpScreen extends ConsumerStatefulWidget {
 }
 
 class _OtpScreenState extends ConsumerState<OtpScreen> {
-  static const _expiry = Duration(minutes: 5);
-  static const _resendCooldown = 60;
+  static const _expiry = kOtpValidity;
+  static const _resendCooldown = kOtpResendCooldown;
 
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
 
   Timer? _timer;
   int _secondsToExpiry = _expiry.inSeconds;
-  int _secondsToResend = _resendCooldown;
+  int _secondsToResend = _resendCooldown.inSeconds;
   String? _error;
   bool _verifying = false;
 
@@ -63,7 +64,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     _timer?.cancel();
     setState(() {
       _secondsToExpiry = _expiry.inSeconds;
-      _secondsToResend = _resendCooldown;
+      _secondsToResend = _resendCooldown.inSeconds;
     });
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
