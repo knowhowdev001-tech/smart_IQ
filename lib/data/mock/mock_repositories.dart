@@ -11,6 +11,10 @@ import '../../domain/models/user_profile.dart';
 import '../repositories/repositories.dart';
 import 'mock_content.dart';
 
+/// The only OTP the mock accepts, until the SMS gateway and the server-side
+/// verification of PRD 6.1 exist. Development convenience, never shipped.
+const String kMockOtpCode = '123456';
+
 /// In-memory stand-ins for the Supabase repositories.
 ///
 /// These exist so the client can be built and reviewed end to end before the
@@ -49,9 +53,11 @@ class MockAuthRepository implements AuthRepository {
         DateTime.now().difference(issued) > const Duration(minutes: 5)) {
       throw const OtpExpiredException();
     }
-    // Any six digits verify in the mock. The real check is server-side
-    // against a hashed, single-use OTP row (PRD 6.1).
-    if (code.length != 6 || int.tryParse(code) == null) {
+    // One fixed code verifies in the mock so the flow is predictable while
+    // there is no SMS gateway. The real check is server-side against a
+    // hashed, single-use OTP row (PRD 6.1), and nothing about this constant
+    // survives that swap.
+    if (code != kMockOtpCode) {
       throw const OtpInvalidException();
     }
 
