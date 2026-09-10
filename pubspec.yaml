@@ -14,22 +14,17 @@ dependencies:
 
   # State management
   flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
 
   # Navigation
   go_router: ^14.6.2
 
   # Models
-  freezed_annotation: ^2.4.4
-  json_annotation: ^4.9.0
 
   # Networking / backend
   dio: ^5.7.0
   supabase_flutter: ^2.8.1
 
   # Local storage
-  drift: ^2.22.1
-  sqlite3_flutter_libs: ^0.5.26
   path_provider: ^2.1.5
   path: ^1.9.0
   shared_preferences: ^2.3.3
@@ -43,11 +38,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.13
-  riverpod_generator: ^2.6.3
-  freezed: ^2.5.7
-  json_serializable: ^6.9.0
-  drift_dev: ^2.22.1
 
 flutter:
   uses-material-design: true
