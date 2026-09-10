@@ -1,0 +1,285 @@
+{
+  "@@locale": "ta",
+
+  "appName": "Smart IQ",
+  "appTagline": "பொது அறிவு மற்றும் திறனறி தேர்வுத் தயாரிப்பு",
+
+  "actionContinue": "தொடரவும்",
+  "actionBack": "பின்செல்",
+  "actionClose": "மூடு",
+  "actionRetry": "மீண்டும் முயற்சி",
+  "actionCancel": "ரத்து",
+  "actionSave": "சேமி",
+  "actionUpgrade": "மேம்படுத்து",
+  "actionChange": "மாற்று",
+
+  "landingWelcome": "வரவேற்கிறோம்",
+  "landingBlurb": "இலங்கை அரசாங்க மற்றும் போட்டித் தேர்வுகளுக்கான பொது அறிவு மற்றும் திறனறிப் பயிற்சியை உங்கள் மொழியில் செய்யுங்கள்.",
+  "landingGetStarted": "தொடங்கு",
+  "landingHaveAccount": "ஏற்கனவே கணக்கு உள்ளதா?",
+  "landingLogIn": "உள்நுழை",
+
+  "authLoginTitle": "மீண்டும் வரவேற்கிறோம்",
+  "authLoginSubtitle": "உங்கள் கைபேசி எண்ணால் உள்நுழையவும்",
+  "authSignupTitle": "கணக்கை உருவாக்கு",
+  "authSignupSubtitle": "ஒரு நிமிடத்திற்கும் குறைவு",
+  "authOtpTitle": "எண்ணை உறுதிப்படுத்து",
+  "authOtpSubtitle": "நாங்கள் அனுப்பிய குறியீட்டை உள்ளிடவும்",
+
+  "fieldMobileNumber": "கைபேசி எண்",
+  "fieldMobileHint": "உங்கள் கைபேசி எண்ணை உள்ளிடவும்",
+  "fieldUserName": "பயனர் பெயர்",
+  "fieldUserNameHint": "உங்கள் பெயரை உள்ளிடவும்",
+
+  "authOtpNoteLogin": "இந்த எண்ணுக்கு 6 இலக்கக் குறியீட்டை அனுப்புவோம்.",
+  "authOtpNoteSignup": "இந்த எண்ணை உறுதிப்படுத்த 6 இலக்கக் குறியீட்டை அனுப்புவோம்.",
+  "authSendOtp": "OTP அனுப்பு",
+  "authSignupAction": "பதிவு செய்",
+  "authNoAccount": "கணக்கு இல்லையா?",
+  "authHasAccount": "ஏற்கனவே கணக்கு உள்ளதா?",
+  "authTermsConsent": "தொடர்வதன் மூலம் நீங்கள் ஒப்புக்கொள்வது",
+  "authTermsConsentBold": "பயன்பாட்டு விதிமுறைகள் மற்றும் தனியுரிமைக் கொள்கை.",
+  "authReadTerms": "விதிமுறைகளைப் படி",
+
+  "otpEnterTitle": "OTP உள்ளிடவும்",
+  "otpSentTo": "{number} க்கு அனுப்பப்பட்டது",
+  "@otpSentTo": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "otpHelp": "வட்டங்களைத் தட்டி 6 இலக்கங்களைத் தட்டச்சு செய்யவும்",
+  "otpExpiresIn": "{time} இல் காலாவதியாகும்",
+  "@otpExpiresIn": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "otpExpired": "குறியீடு காலாவதியானது",
+  "otpVerify": "உறுதிப்படுத்து",
+  "otpResend": "OTP மீண்டும் அனுப்பு",
+  "otpResendIn": "{seconds} வினாடிகளில் மீண்டும் அனுப்பு",
+  "@otpResendIn": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "otpErrorInvalid": "அந்தக் குறியீடு சரியில்லை. மீண்டும் முயற்சிக்கவும்.",
+  "otpErrorExpired": "அந்தக் குறியீடு காலாவதியானது. புதியது ஒன்றைக் கோரவும்.",
+
+  "errorEnterMobile": "உங்கள் கைபேசி எண்ணை உள்ளிடவும்.",
+  "errorInvalidMobile": "செல்லுபடியாகும் இலங்கை கைபேசி எண்ணை உள்ளிடவும்.",
+  "errorEnterName": "உங்கள் பெயரை உள்ளிடவும்.",
+  "errorOffline": "இணைய இணைப்பு இல்லை.",
+  "errorOfflineBody": "வினாக்களை ஏற்ற Smart IQ க்கு இணைப்பு தேவை. உங்கள் இணையத்தைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+  "errorGeneric": "ஏதோ தவறு நடந்தது.",
+
+  "greetingMorning": "காலை வணக்கம்",
+  "greetingAfternoon": "மதிய வணக்கம்",
+  "greetingEvening": "மாலை வணக்கம்",
+
+  "statStreak": "தொடர்ச்சி",
+  "statReadiness": "தயார்நிலை",
+  "statExamIn": "தேர்வுக்கு",
+  "statDays": "{count, plural, =1{1 நாள்} other{{count} நாட்கள்}}",
+  "@statDays": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statDaysShort": "{count} நா",
+  "@statDaysShort": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statNoExamDate": "அமைக்கவில்லை",
+
+  "quotaQuestionsToday": "{tier} · இன்றைய வினாக்கள்",
+  "@quotaQuestionsToday": {
+    "placeholders": { "tier": { "type": "String" } }
+  },
+  "quotaUsedOf": "இன்று {total} இல் {used} பயன்படுத்தப்பட்டது",
+  "@quotaUsedOf": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "total": { "type": "String" }
+    }
+  },
+  "quotaLeft": "மீதம்",
+  "quotaUnlimited": "வரம்பற்றது",
+  "quotaResetsAt": "நள்ளிரவில் (SLT) மீள்அமைக்கப்படும்",
+
+  "dailyChallengeLabel": "தினசரி சவால்",
+  "dailyChallengeTitle": "இன்றைய 10 வினாத் தொகுப்பு",
+  "dailyChallengeBlurb": "கலவையான பொது அறிவு, திறனறி மற்றும் நடப்பு நிகழ்வுகள் · 00:00 SLT இல் மீள்அமைக்கப்படும்",
+  "dailyChallengeStart": "சவாலைத் தொடங்கு",
+  "dailyChallengeDone": "இன்று முடிக்கப்பட்டது",
+
+  "homePracticeByCategory": "பிரிவு வாரியான பயிற்சி",
+  "homePerformance": "செயல்திறன்",
+  "homeWeakAreasEmpty": "நீங்கள் எங்கே பலவீனமாக இருக்கிறீர்கள் என்பதைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.",
+
+  "practiceModeQuick": "விரைவு",
+  "practiceModeQuickMeta": "10 வினாக்கள்",
+  "practiceModeTimed": "நேர வரம்பு",
+  "practiceModeTimedMeta": "கடிகாரத்திற்கு எதிராக",
+  "practiceModeSpeed": "வேகப் பயிற்சி",
+  "practiceModeSpeedMeta": "குறைந்த நேரம்",
+  "practiceModeAdaptive": "தகவமைவு",
+  "practiceModeAdaptiveMeta": "உங்கள் நிலைக்கு ஏற்ப",
+  "practiceSubTopics": "துணைத் தலைப்புகள்",
+  "practiceStart": "பயிற்சியைத் தொடங்கு",
+  "practiceNoSubTopics": "இந்தப் பிரிவில் துணைத் தலைப்புகள் இன்னும் வெளியிடப்படவில்லை.",
+
+  "lockedTitle": "{feature} உங்கள் திட்டத்தில் இல்லை",
+  "@lockedTitle": {
+    "placeholders": { "feature": { "type": "String" } }
+  },
+  "lockedBody": "அதைத் திறக்க மேம்படுத்தவும். உங்கள் தற்போதைய திட்டம் {tier}.",
+  "@lockedBody": {
+    "placeholders": { "tier": { "type": "String" } }
+  },
+
+  "quizCheckAnswer": "விடையைச் சரிபார்",
+  "quizNextQuestion": "அடுத்த வினா",
+  "quizFinish": "முடி",
+  "quizVerdictCorrect": "சரி",
+  "quizVerdictIncorrect": "சரியில்லை",
+  "quizExplainWithAi": "AI ஆசிரியருடன் விளக்கு",
+  "quizBookmark": "புத்தகக்குறி",
+  "quizBookmarked": "குறிக்கப்பட்டது",
+  "quizCounter": "{current} / {total}",
+  "@quizCounter": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "quizQuitTitle": "இந்த அமர்வை விட்டு வெளியேறவா?",
+  "quizQuitBody": "இதுவரையான உங்கள் முன்னேற்றம் சேமிக்கப்படும், மீண்டும் தொடரலாம்.",
+  "quizQuitConfirm": "வெளியேறு",
+  "quizQuitStay": "பயிற்சியைத் தொடர்",
+  "quizDifficultyEasy": "எளிது",
+  "quizDifficultyMedium": "நடுத்தரம்",
+  "quizDifficultyHard": "கடினம்",
+  "quizImageFailed": "இந்த வினாவின் படத்தை ஏற்ற முடியவில்லை, எனவே அது தவிர்க்கப்பட்டது.",
+  "quizTapToZoom": "பெரிதாக்கத் தட்டவும்",
+
+  "resultsThisSession": "இந்த அமர்வு",
+  "resultsScoreLine": "{total} இல் {correct} சரி",
+  "@resultsScoreLine": {
+    "placeholders": {
+      "correct": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "resultsShowing": "காட்டுவது",
+  "resultsRangeSession": "அமர்வு",
+  "resultsRangeToday": "இன்று",
+  "resultsRangeWeek": "7 நாட்கள்",
+  "resultsStatCorrect": "சரி",
+  "resultsStatWrong": "தவறு",
+  "resultsStatSkipped": "தவிர்த்தது",
+  "resultsStatTime": "சராசரி நேரம்",
+  "resultsBreakdown": "துணைத் தலைப்பு வாரியான துல்லியம்",
+  "resultsNoBreakdown": "இன்று இன்னும் விடைகள் இல்லை. துணைத் தலைப்புத் துல்லியத்தைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.",
+  "resultsHistoryTitle": "உங்கள் சொந்த முந்தைய அமர்வுகளுடன்",
+  "resultsPrivacyNote": "முன்னேற்றம் தனிப்பட்டது. இங்கு எதுவும் உங்களை மற்றொரு பயனருடன் ஒப்பிடவில்லை.",
+  "resultsDrillWrong": "தவறான விடைகளைப் பயிற்சி செய்",
+  "resultsHome": "முகப்பு",
+
+  "tutorTitle": "AI ஆசிரியர்",
+  "tutorNewThread": "புதிய உரையாடல்",
+  "tutorInputHint": "சிங்களம், தமிழ் அல்லது ஆங்கிலத்தில் கேளுங்கள்",
+  "tutorQuotaLine": "இன்று {total} இல் {used} பயன்படுத்தப்பட்டது",
+  "@tutorQuotaLine": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "total": { "type": "String" }
+    }
+  },
+  "tutorExhaustedTitle": "தினசரி AI செய்திகள் முடிந்தன",
+  "tutorExhaustedBody": "உங்கள் திட்டம் நாளொன்றுக்கு {total} செய்திகளை அனுமதிக்கிறது. மேலும் தேவைப்பட்டால் மேம்படுத்தவும், அல்லது நள்ளிரவுக்குப் பிறகு வரவும்.",
+  "@tutorExhaustedBody": {
+    "placeholders": { "total": { "type": "String" } }
+  },
+  "tutorEmptyTitle": "எதையும் கேளுங்கள்",
+  "tutorEmptyBody": "தவறான விடையை விளக்கச் சொல்லுங்கள், குறிப்பு கேளுங்கள், அல்லது பயிற்சித் தொகுப்பு கோருங்கள் — சிங்களம், தமிழ் அல்லது ஆங்கிலத்தில்.",
+  "tutorThinking": "சிந்திக்கிறது…",
+  "tutorError": "ஆசிரியரைத் தொடர்பு கொள்ள முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+
+  "profileTitle": "சுயவிவரம்",
+  "profileVerified": "உறுதிப்படுத்தப்பட்டது",
+  "profileCurrentPlan": "தற்போதைய திட்டம்",
+  "profileStudyMaterial": "உங்கள் படிப்புப் பொருள்",
+  "profileStatAnswered": "விடையளித்தது",
+  "profileStatAccuracy": "துல்லியம்",
+  "profileStatSessions": "அமர்வுகள்",
+  "profileRowBookmarks": "புத்தகக்குறிகள்",
+  "profileRowBookmarksMeta": "நீங்கள் சேமித்த வினாக்கள்",
+  "profileRowWrongBank": "தவறான விடை வங்கி",
+  "profileRowWrongBankMeta": "இடைவெளி மீள்பயிற்சியால் மீண்டும் வரும்",
+  "profileRowMastery": "தலைப்புத் தேர்ச்சி",
+  "profileRowMasteryMeta": "துணைத் தலைப்புக்கான துல்லியம்",
+  "profileRowSettings": "அமைப்புகள்",
+  "profileRowSettingsMeta": "மொழி, தோற்றம் மற்றும் கணக்கு",
+
+  "settingsTitle": "அமைப்புகள்",
+  "settingsLanguage": "மொழி",
+  "settingsTheme": "தோற்றம்",
+  "settingsThemeLight": "ஒளி",
+  "settingsThemeDark": "இருள்",
+  "settingsThemeSystem": "அமைப்பு",
+  "settingsThemeNote": "முதல் தொடக்கத்தில் அமைப்பு இயல்பானது, முதல் சட்டகத்திற்கு முன் பயன்படுத்தப்படும்.",
+  "settingsLegal": "சட்டபூர்வம்",
+  "settingsTerms": "விதிமுறைகளும் நிபந்தனைகளும்",
+  "settingsTermsMeta": "சந்தா, கட்டணம் மற்றும் தரவுப் பயன்பாடு",
+  "settingsAccount": "கணக்கு",
+  "settingsDevices": "செயலில் உள்ள சாதனங்கள்",
+  "settingsDevicesMeta": "மற்ற சாதனங்களிலிருந்து வெளியேறு",
+  "settingsNotifications": "அறிவிப்புகள்",
+  "settingsExportData": "என் தரவை ஏற்றுமதி செய்",
+  "settingsDeleteAccount": "கணக்கை நீக்கு",
+  "settingsDeleteConfirmTitle": "உங்கள் கணக்கை நீக்கவா?",
+  "settingsDeleteConfirmBody": "இது உங்கள் சுயவிவரம், முன்னேற்றம் மற்றும் உரையாடல் வரலாற்றை நிரந்தரமாக நீக்கும். இதை மீட்டெடுக்க முடியாது.",
+  "settingsSignOut": "வெளியேறு",
+
+  "notificationsTitle": "அறிவிப்புகள்",
+  "notificationsMarkAllRead": "அனைத்தையும் படித்ததாகக் குறி",
+  "notificationsEmpty": "இப்போது புதிதாக எதுவும் இல்லை.",
+  "notificationPrefDaily": "தினசரி சவால்",
+  "notificationPrefStreak": "தொடர்ச்சி நினைவூட்டல்கள்",
+  "notificationPrefDigest": "நடப்பு நிகழ்வுச் சுருக்கம்",
+  "notificationPrefBilling": "சந்தா மற்றும் கட்டணம்",
+  "notificationPrefInactivity": "நீங்கள் விலகி இருக்கும்போது நினைவூட்டல்கள்",
+
+  "navHome": "முகப்பு",
+  "navPractice": "பயிற்சி",
+  "navTutor": "ஆசிரியர்",
+  "navProfile": "சுயவிவரம்",
+
+  "planSheetTitle": "உங்கள் திட்டத்தைத் தேர்வுசெய்",
+  "planSheetBlurb": "Basic க்கு தினசரி தொலைத்தொடர்புக் கட்டணம், Pro மற்றும் Pro+ க்கு அட்டைக் கட்டணம். முதல் நாளிலிருந்தே கட்டணம் தொடங்கும் — இலவச சோதனை இல்லை.",
+  "planCurrent": "தற்போதைய",
+  "tierFree": "இலவசம்",
+  "tierBasic": "Basic",
+  "tierPro": "Pro",
+  "tierProPlus": "Pro+",
+  "tierFreeBlurb": "கட்டணம் தோல்வியடைந்தது அல்லது இல்லை. நாளொன்றுக்கு இரண்டு வினாக்கள், இரண்டு AI செய்திகள் — செயலி நன்றாக இருப்பதை நினைவில் வைக்கப் போதுமானது, தயாராகப் போதாது.",
+  "tierBasicBlurb": "தினசரி தொலைத்தொடர்புக் கட்டணம். தினசரி சவால், நாளொன்றுக்கு 50 வினாக்கள், 10 AI செய்திகள், மாதம் 2 மாதிரித் தேர்வுகள்.",
+  "tierProBlurb": "மாதாந்திர அட்டைக் கட்டணம். தகவமைவு சிரமம், படிப்புத் திட்டம், வேகப் பயிற்சிகள், 90 நாள் உரையாடல் வரலாறு.",
+  "tierProPlusBlurb": "அனைத்தும் அதிகபட்ச வரம்புகளில்: வரம்பற்ற பயிற்சி, வரம்பற்ற மாதிரித் தேர்வுகள், வரம்பற்ற உரையாடல் வரலாறு.",
+  "planPriceDaily": "ரூ. {amount}/நாள்",
+  "@planPriceDaily": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "planPriceMonthly": "ரூ. {amount}/மாதம்",
+  "@planPriceMonthly": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "planPriceFree": "இலவசம்",
+
+  "termsTitle": "விதிமுறைகளும் நிபந்தனைகளும்",
+  "termsUpdated": "கடைசியாகப் புதுப்பிக்கப்பட்டது {date}",
+  "@termsUpdated": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "languageEnglish": "English",
+  "languageSinhala": "සිංහල",
+  "languageTamil": "தமிழ்",
+
+  "loadingEntitlement": "உங்கள் சந்தாவைச் சரிபார்க்கிறது…",
+  "loading": "ஏற்றுகிறது…"
+}
