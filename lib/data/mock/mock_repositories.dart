@@ -142,6 +142,10 @@ class OtpExpiredException implements Exception {
 }
 
 class MockContentRepository implements ContentRepository {
+  MockContentRepository(this._state);
+
+  final MockBackendState _state;
+
   @override
   Future<List<Category>> categories() async {
     await Future<void>.delayed(const Duration(milliseconds: 240));
@@ -151,7 +155,29 @@ class MockContentRepository implements ContentRepository {
   @override
   Future<List<SubTopic>> subTopics(String categoryKey) async {
     await Future<void>.delayed(const Duration(milliseconds: 240));
-    return MockContent.subTopics[categoryKey] ?? const [];
+    final topics = MockContent.subTopics[categoryKey] ?? const <SubTopic>[];
+
+    // Mastery is the user's own accuracy in that sub-topic, so it is
+    // overlaid from their answer history rather than shipped with the
+    // taxonomy. It stays null until they have attempted the sub-topic,
+    // which is what makes a new account show no percentages at all.
+    return [
+      for (final topic in topics)
+        () {
+          final tally = _state.subTopicTally[topic.id];
+          if (tally == null || tally.total == 0) return topic;
+          return SubTopic(
+            id: topic.id,
+            categoryKey: topic.categoryKey,
+            name: topic.name,
+            sortOrder: topic.sortOrder,
+            requiresImage: topic.requiresImage,
+            languageSpecific: topic.languageSpecific,
+            mastery: ((tally.correct / tally.total) * 100).round(),
+            questionCount: topic.questionCount,
+          );
+        }(),
+    ];
   }
 
   @override
@@ -307,10 +333,41 @@ class MockPracticeRepository implements PracticeRepository {
     final scorePct = answers.isEmpty
         ? 0
         : ((correct / answers.length) * 100).round();
-    _state.recentAccuracy = [
-      ..._state.recentAccuracy.skip(max(0, _state.recentAccuracy.length - 4)),
-      scorePct,
-    ];
+
+    // Fold this session into the running totals the progress dashboard reads
+    // from. The server does the equivalent inside
+    // rpc/submit_practice_session, which is also what updates mastery and
+    // the wrong-answer bank (PRD 9.3).
+    _state
+      ..recentAccuracy = [
+        ..._state.recentAccuracy.skip(max(0, _state.recentAccuracy.length - 4)),
+        scorePct,
+      ]
+      ..sessionsCompleted += 1
+      ..questionsAnswered += answers.length
+      ..answeredCorrectly += correct
+      // The first completed session starts the streak; the mock has no
+      // notion of separate days, so it simply never breaks.
+      ..streakDays = max(_state.streakDays, 1);
+
+    for (final entry in bySubTopic.entries) {
+      final previous =
+          _state.subTopicTally[entry.key] ?? (correct: 0, total: 0);
+      _state.subTopicTally[entry.key] = (
+        correct: previous.correct +
+            entry.value.where((a) => a.isCorrect).length,
+        total: previous.total + entry.value.length,
+      );
+    }
+
+    for (final answer in answers) {
+      if (answer.outcome == AnswerOutcome.incorrect) {
+        _state.wrongQuestionIds.add(answer.questionId);
+      } else if (answer.isCorrect) {
+        // Answering it right retires it from the review queue.
+        _state.wrongQuestionIds.remove(answer.questionId);
+      }
+    }
 
     return SessionResult(
       sessionId: sessionId,
@@ -338,9 +395,60 @@ class MockPracticeRepository implements PracticeRepository {
   @override
   Future<ProgressSummary> progress() async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
-    return MockContent.progress().copyWith(
+
+    // A user who has answered nothing has no progress to show. Everything
+    // below is derived, so a new account reports zeros and an empty weak-area
+    // list rather than a seeded history.
+    if (_state.questionsAnswered == 0) {
+      return const ProgressSummary();
+    }
+
+    final accuracy = _state.answeredCorrectly / _state.questionsAnswered;
+    final language = _state.profile?.language ?? AppLanguage.english;
+
+    // Weak areas are the sub-topics the user is actually underperforming in.
+    // A single attempt is not evidence of weakness, so a sub-topic needs a
+    // few answers before it can be called one.
+    const minimumSample = 3;
+    const weakThreshold = 70;
+
+    final weakAreas = <WeakArea>[
+      for (final entry in _state.subTopicTally.entries)
+        if (entry.value.total >= minimumSample)
+          if (((entry.value.correct / entry.value.total) * 100).round() <
+              weakThreshold)
+            WeakArea(
+              subTopicId: entry.key,
+              name: _subTopicName(entry.key, language),
+              accuracy:
+                  ((entry.value.correct / entry.value.total) * 100).round(),
+              sampleSize: entry.value.total,
+            ),
+    ]..sort((a, b) => a.accuracy.compareTo(b.accuracy));
+
+    // Readiness blends how accurate the user is with how much they have
+    // actually done, so a single lucky session does not read as ready.
+    final volume = (_state.questionsAnswered / 200).clamp(0.0, 1.0);
+    final readiness = (accuracy * 100 * (0.4 + 0.6 * volume)).round();
+
+    return ProgressSummary(
+      streakDays: _state.streakDays,
+      readinessScore: readiness,
+      questionsAnswered: _state.questionsAnswered,
+      sessionsCompleted: _state.sessionsCompleted,
+      overallAccuracy: accuracy,
+      weakAreas: weakAreas.take(3).toList(),
       recentAccuracy: _state.recentAccuracy,
     );
+  }
+
+  String _subTopicName(String subTopicId, AppLanguage language) {
+    for (final topics in MockContent.subTopics.values) {
+      for (final topic in topics) {
+        if (topic.id == subTopicId) return topic.name.resolve(language);
+      }
+    }
+    return subTopicId;
   }
 
   @override
@@ -369,9 +477,11 @@ class MockPracticeRepository implements PracticeRepository {
   Future<List<SavedQuestion>> wrongAnswerBank() async {
     await Future<void>.delayed(const Duration(milliseconds: 260));
     final language = _state.profile?.language ?? AppLanguage.english;
+    // Only questions the user actually got wrong, so the bank is empty
+    // until they have been wrong about something.
     return [
-      for (final q in MockContent.questions.take(3))
-        _saved(q.id, language).copyWith(
+      for (final id in _state.wrongQuestionIds)
+        _saved(id, language).copyWith(
           nextReviewAt: DateTime.now().add(const Duration(days: 1)),
           reviewCount: 1,
         ),
@@ -591,21 +701,29 @@ class MockBackendState {
   String? pendingMsisdn;
   DateTime? otpIssuedAt;
 
-  UserProfile? profile = UserProfile(
-    userId: 'user-mock-1',
-    fullName: 'Nimal Perera',
-    language: AppLanguage.english,
-    msisdn: '0771234821',
-    district: 'Colombo',
-    targetExamDate: DateTime.now().add(const Duration(days: 86)),
-    createdAt: DateTime.now().subtract(const Duration(days: 40)),
-  );
+  /// Null until the user creates a profile. A new account starts with no
+  /// history of any kind: seeding one here would show a freshly signed-up
+  /// user somebody else's streak, readiness and weak areas.
+  UserProfile? profile;
 
   Entitlement entitlement;
-  QuotaUsage usage = QuotaUsage(questionsToday: 12, aiMessagesToday: 3,
-      asOf: DateTime.now());
+  QuotaUsage usage = QuotaUsage(asOf: DateTime.now());
 
-  List<int> recentAccuracy = const [58, 64, 61, 73, 70];
+  /// Accuracy of each completed session, oldest first.
+  List<int> recentAccuracy = <int>[];
+
+  int sessionsCompleted = 0;
+  int questionsAnswered = 0;
+  int answeredCorrectly = 0;
+  int streakDays = 0;
+
+  /// Running correct/total per sub-topic, accumulated as sessions are
+  /// submitted. Weak areas are derived from this rather than from a fixed
+  /// list, so they only appear once the user has actually attempted
+  /// something.
+  final Map<String, ({int correct, int total})> subTopicTally = {};
+
+  final Set<String> wrongQuestionIds = {};
   final Set<String> bookmarkedIds = {};
   final List<ChatThread> threads = [];
   List<AppNotification> notifications = MockContent.notifications();

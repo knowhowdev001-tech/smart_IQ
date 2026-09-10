@@ -2,7 +2,6 @@ import '../../domain/enums.dart';
 import '../../domain/models/app_notification.dart';
 import '../../domain/models/content.dart';
 import '../../domain/models/localized_text.dart';
-import '../../domain/models/user_profile.dart';
 
 /// Seed content standing in for the Supabase question bank.
 ///
@@ -84,60 +83,60 @@ abstract final class MockContent {
   static final subTopics = <String, List<SubTopic>>{
     'gk': [
       _sub('gk-history', 'gk', 'Sri Lankan history', 'ශ්‍රී ලංකා ඉතිහාසය',
-          'இலங்கை வரலாறு', 72),
+          'இலங்கை வரலாறு'),
       _sub('gk-politics', 'gk', 'Politics and constitution',
-          'දේශපාලනය හා ව්‍යවස්ථාව', 'அரசியலும் அரசியலமைப்பும்', 54),
+          'දේශපාලනය හා ව්‍යවස්ථාව', 'அரசியலும் அரசியலமைப்பும்'),
       _sub('gk-geography', 'gk', 'Geography', 'භූගෝල විද්‍යාව',
-          'புவியியல்', 81),
-      _sub('gk-economy', 'gk', 'Economy', 'ආර්ථිකය', 'பொருளாதாரம்', 46),
+          'புவியியல்'),
+      _sub('gk-economy', 'gk', 'Economy', 'ආර්ථිකය', 'பொருளாதாரம்'),
       _sub('gk-science', 'gk', 'Science and technology',
-          'විද්‍යාව හා තාක්ෂණය', 'அறிவியலும் தொழில்நுட்பமும்', 63),
-      _sub('gk-sports', 'gk', 'Sports', 'ක්‍රීඩා', 'விளையாட்டு', null),
-      _sub('gk-literature', 'gk', 'Literature', 'සාහිත්‍යය', 'இலக்கியம்', null),
+          'විද්‍යාව හා තාක්ෂණය', 'அறிவியலும் தொழில்நுட்பமும்'),
+      _sub('gk-sports', 'gk', 'Sports', 'ක්‍රීඩා', 'விளையாட்டு'),
+      _sub('gk-literature', 'gk', 'Literature', 'සාහිත්‍යය', 'இலக்கியம்'),
       _sub('gk-world', 'gk', 'World affairs', 'ලෝක කටයුතු',
-          'உலக விவகாரங்கள்', 58),
+          'உலக விவகாரங்கள்'),
     ],
     'ca': [
       _sub('ca-daily', 'ca', 'Daily digest', 'දෛනික සාරාංශය',
-          'தினசரிச் சுருக்கம்', null),
+          'தினசரிச் சுருக்கம்'),
       _sub('ca-weekly', 'ca', 'Weekly digest', 'සතිපතා සාරාංශය',
-          'வாராந்திரச் சுருக்கம்', null),
+          'வாராந்திரச் சுருக்கம்'),
       _sub('ca-monthly', 'ca', 'Monthly compilation', 'මාසික සම්පාදනය',
-          'மாதாந்திரத் தொகுப்பு', null),
+          'மாதாந்திரத் தொகுப்பு'),
     ],
     'iq': [
       _sub('iq-age', 'iq', 'Age-related problems', 'වයස් සම්බන්ධ ගැටලු',
-          'வயது சார்ந்த கணக்குகள்', 68),
+          'வயது சார்ந்த கணக்குகள்'),
       _sub('iq-ratio', 'iq', 'Ratio and proportion', 'අනුපාත සම්බන්ධ ගැටලු',
-          'விகிதம் சார்ந்த கணக்குகள்', 74),
+          'விகிதம் சார்ந்த கணக்குகள்'),
       _sub('iq-speed', 'iq', 'Distance, speed and time', 'දුර වේගය කාලය',
-          'தூரம், வேகம், நேரம்', 52),
+          'தூரம், வேகம், நேரம்'),
       _sub('iq-direction', 'iq', 'Direction sense', 'දිශා ආශ්‍රිත ගැටලු',
-          'திசை சார்ந்த கணக்குகள்', 61),
+          'திசை சார்ந்த கணக்குகள்'),
       _sub('iq-coding', 'iq', 'Coding and decoding', 'රහස් භාෂා',
-          'இரகசிய மொழி', 45),
+          'இரகசிய மொழி'),
       _sub('iq-blood', 'iq', 'Blood relations', 'නෑදෑකම් ආශ්‍රිත ගැටලු',
-          'உறவுமுறை சார்ந்த கணக்குகள்', 57),
-      _sub('iq-calendar', 'iq', 'Calendars', 'දින දර්ශන', 'நாட்காட்டி', null),
+          'உறவுமுறை சார்ந்த கணக்குகள்'),
+      _sub('iq-calendar', 'iq', 'Calendars', 'දින දර්ශන', 'நாட்காட்டி'),
       _sub('iq-clocks', 'iq', 'Clocks and angles', 'ඕරලෝසු හා කෝණික ගැටලු',
-          'கடிகாரமும் கோணங்களும்', 38),
+          'கடிகாரமும் கோணங்களும்'),
       // Spatial sub-topics cannot render without their diagram (PRD A.6).
       _sub('iq-triangles', 'iq', 'Counting triangles', 'ත්‍රිකෝණ ගණන සෙවීම',
-          'முக்கோணங்களை எண்ணுதல்', 43, requiresImage: true),
+          'முக்கோணங்களை எண்ணுதல்', requiresImage: true),
       _sub('iq-squares', 'iq', 'Counting squares', 'සමචතුරස්‍ර ගණන සෙවීම',
-          'சதுரங்களை எண்ணுதல்', null, requiresImage: true),
+          'சதுரங்களை எண்ணுதல்', requiresImage: true),
       _sub('iq-dice', 'iq', 'Dice problems', 'දාදු කැට ගැටලු',
-          'பகடை கணக்குகள்', null, requiresImage: true),
+          'பகடை கணக்குகள்', requiresImage: true),
       _sub('iq-probability', 'iq', 'Probability', 'සම්භාවිතාව',
-          'நிகழ்தகவு', 66),
+          'நிகழ்தகவு'),
       _sub('iq-sets', 'iq', 'Sets and Venn diagrams', 'කුලක හා වෙන් රූප',
-          'கணங்களும் வென் படங்களும்', null, requiresImage: true),
+          'கணங்களும் வென் படங்களும்', requiresImage: true),
     ],
     'mock': [
       _sub('mock-full', 'mock', 'Full paper · 100 questions',
-          'සම්පූර්ණ ප්‍රශ්න පත්‍රය', 'முழுத் தாள் · 100 வினாக்கள்', null),
+          'සම්පූර්ණ ප්‍රශ්න පත්‍රය', 'முழுத் தாள் · 100 வினாக்கள்'),
       _sub('mock-half', 'mock', 'Half paper · 50 questions',
-          'අර්ධ ප්‍රශ්න පත්‍රය', 'அரைத் தாள் · 50 வினாக்கள்', null),
+          'අර්ධ ප්‍රශ්න පත්‍රය', 'அரைத் தாள் · 50 வினாக்கள்'),
     ],
   };
 
@@ -146,15 +145,13 @@ abstract final class MockContent {
     String category,
     String en,
     String si,
-    String ta,
-    int? mastery, {
+    String ta, {
     bool requiresImage = false,
   }) =>
       SubTopic(
         id: id,
         categoryKey: category,
         name: LocalizedText(en: en, si: si, ta: ta),
-        mastery: mastery,
         requiresImage: requiresImage,
         questionCount: 40,
       );
@@ -395,33 +392,4 @@ abstract final class MockContent {
       ),
     ];
   }
-
-  static ProgressSummary progress() => const ProgressSummary(
-        streakDays: 12,
-        readinessScore: 68,
-        questionsAnswered: 1284,
-        sessionsCompleted: 47,
-        overallAccuracy: 0.71,
-        recentAccuracy: [58, 64, 61, 73, 70],
-        weakAreas: [
-          WeakArea(
-            subTopicId: 'iq-clocks',
-            name: 'Clocks and angles',
-            accuracy: 38,
-            sampleSize: 26,
-          ),
-          WeakArea(
-            subTopicId: 'iq-coding',
-            name: 'Coding and decoding',
-            accuracy: 45,
-            sampleSize: 31,
-          ),
-          WeakArea(
-            subTopicId: 'gk-economy',
-            name: 'Economy',
-            accuracy: 46,
-            sampleSize: 40,
-          ),
-        ],
-      );
 }

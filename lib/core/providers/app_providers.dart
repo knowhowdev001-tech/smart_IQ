@@ -23,7 +23,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
 );
 
 final contentRepositoryProvider = Provider<ContentRepository>(
-  (ref) => MockContentRepository(),
+  (ref) => MockContentRepository(ref.watch(mockBackendProvider)),
 );
 
 final practiceRepositoryProvider = Provider<PracticeRepository>(
