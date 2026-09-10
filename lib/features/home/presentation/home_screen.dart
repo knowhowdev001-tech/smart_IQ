@@ -380,6 +380,12 @@ class _CategoryGrid extends StatelessWidget {
     final language = context.language;
     final scale = AppScale.of(context);
 
+    // The tile holds a fixed stack of icon, title and meta, so its height is
+    // driven by text rather than by the device. It has to grow with the
+    // user's font scale, otherwise an enlarged system font pushes the meta
+    // line straight out of the bottom.
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -391,7 +397,7 @@ class _CategoryGrid extends StatelessWidget {
         crossAxisSpacing: 9.dp(context),
         // A fixed extent rather than an aspect ratio, so a longer category
         // name in Sinhala or Tamil does not change the tile's height.
-        mainAxisExtent: 126.dp(context),
+        mainAxisExtent: (140 * textScale).dp(context),
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
