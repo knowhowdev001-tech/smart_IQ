@@ -80,8 +80,10 @@ class MockAuthRepository implements AuthRepository {
       language: language,
       msisdn: _state.pendingMsisdn ?? '0771234821',
       district: district,
-      targetExamDate: targetExamDate ??
-          DateTime.now().add(const Duration(days: 86)),
+      // Left null when the user skipped it. Inventing a date here would put
+      // a countdown on the home screen for an exam they never named, which
+      // is the same class of mistake as seeding progress.
+      targetExamDate: targetExamDate,
       createdAt: DateTime.now(),
     );
     _state.profile = profile;

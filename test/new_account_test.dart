@@ -41,6 +41,32 @@ void main() {
       expect(progress.weakAreas, isEmpty);
     });
 
+    test('has no exam countdown when the date was skipped', () async {
+      final auth = MockAuthRepository(state);
+      final profile = await auth.createProfile(
+        fullName: 'Efff',
+        language: AppLanguage.english,
+      );
+
+      // The home header reads "Exam in / Not set" off a null date. Filling
+      // one in would count down to an exam the user never named.
+      expect(profile.targetExamDate, isNull);
+      expect(profile.daysToExam, isNull);
+    });
+
+    test('keeps the exam date when one was given', () async {
+      final auth = MockAuthRepository(state);
+      final target = DateTime.now().add(const Duration(days: 40));
+      final profile = await auth.createProfile(
+        fullName: 'Efff',
+        language: AppLanguage.english,
+        targetExamDate: target,
+      );
+
+      expect(profile.targetExamDate, target);
+      expect(profile.daysToExam, 40);
+    });
+
     test('shows no mastery percentage on any sub-topic', () async {
       for (final category in ['gk', 'ca', 'iq', 'mock']) {
         for (final topic in await content.subTopics(category)) {
