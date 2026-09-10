@@ -647,6 +647,29 @@ class AppL10nTa extends AppL10n {
   }
 
   @override
+  String get actionSkip => 'இப்போதைக்குத் தவிர்';
+
+  @override
+  String get profileSetupTitle => 'கிட்டத்தட்ட முடிந்தது';
+
+  @override
+  String get profileSetupSubtitle =>
+      'சில விவரங்கள் உங்கள் படிப்புத் திட்டத்தை வகுக்க உதவும்';
+
+  @override
+  String get profileSetupOptionalNote =>
+      'இவை அனைத்தும் விருப்பத்தேர்வு, பின்னர் அமைப்புகளில் மாற்றலாம்.';
+
+  @override
+  String get fieldDistrict => 'மாவட்டம்';
+
+  @override
+  String get fieldTargetExamDate => 'இலக்குத் தேர்வு தேதி';
+
+  @override
+  String get labelOptional => 'விருப்பத்தேர்வு';
+
+  @override
   String get languageEnglish => 'English';
 
   @override

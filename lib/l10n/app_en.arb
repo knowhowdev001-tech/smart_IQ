@@ -276,6 +276,14 @@
     "placeholders": { "date": { "type": "String" } }
   },
 
+  "actionSkip": "Skip for now",
+  "profileSetupTitle": "Almost done",
+  "profileSetupSubtitle": "A little detail helps us pace your study plan",
+  "profileSetupOptionalNote": "All of this is optional and you can change it later in Settings.",
+  "fieldDistrict": "District",
+  "fieldTargetExamDate": "Target exam date",
+  "labelOptional": "Optional",
+
   "languageEnglish": "English",
   "languageSinhala": "සිංහල",
   "languageTamil": "தமிழ்",

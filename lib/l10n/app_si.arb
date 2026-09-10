@@ -276,6 +276,14 @@
     "placeholders": { "date": { "type": "String" } }
   },
 
+  "actionSkip": "දැනට මඟ හරින්න",
+  "profileSetupTitle": "තව ටිකයි",
+  "profileSetupSubtitle": "සුළු තොරතුරු කිහිපයක් ඔබේ අධ්‍යයන සැලසුම සැකසීමට උපකාරී වේ",
+  "profileSetupOptionalNote": "මේ සියල්ල විකල්ප වන අතර පසුව සැකසුම් තුළ වෙනස් කළ හැක.",
+  "fieldDistrict": "දිස්ත්‍රික්කය",
+  "fieldTargetExamDate": "විභාග දිනය",
+  "labelOptional": "විකල්ප",
+
   "languageEnglish": "English",
   "languageSinhala": "සිංහල",
   "languageTamil": "தமிழ்",

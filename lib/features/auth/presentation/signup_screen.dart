@@ -13,6 +13,7 @@ import '../../../core/utils/msisdn.dart';
 import '../../../core/widgets/siq_button.dart';
 import '../../../core/widgets/siq_field.dart';
 import '../../legal/presentation/terms_sheet.dart';
+import '../application/signup_draft.dart';
 import 'widgets/auth_scaffold.dart';
 
 /// Name and number for a new account.
@@ -59,6 +60,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     try {
       await ref.read(authRepositoryProvider).requestOtp(normalised!);
       if (!mounted) return;
+      // Carried through OTP so profile creation does not ask for it again.
+      ref.read(signupNameProvider.notifier).state = name;
       context.push('${Routes.otp}?msisdn=$normalised&signup=1');
     } catch (_) {
       if (!mounted) return;

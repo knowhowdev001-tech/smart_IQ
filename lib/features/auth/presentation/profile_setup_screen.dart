@@ -11,15 +11,20 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/siq_button.dart';
 import '../../../core/widgets/siq_field.dart';
-import '../../../domain/enums.dart';
+import '../application/signup_draft.dart';
 import 'widgets/auth_scaffold.dart';
 
-/// Mandatory profile creation, sitting between OTP and the first question.
+/// Profile creation, sitting between OTP and the first question.
 ///
-/// PRD 6.2 is emphatic that only name and language block progress. District
-/// and exam date are offered here because they drive the countdown and study
-/// plan, but they are presented as skippable rather than as an incomplete
-/// form, and everything is editable later from settings.
+/// PRD 6.2 says only name and language block progress, and warns that every
+/// extra field here is a drop-off risk. By this point the app already has
+/// both: the name came from the signup screen and the language was chosen on
+/// the landing screen. So neither is asked for again, and what remains —
+/// district and target exam date — is genuinely optional and skippable.
+///
+/// The name field reappears in one case only: a first-time number entered on
+/// the login screen never passed through signup, so there is no name to
+/// carry and it still has to be asked for.
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   const ProfileSetupScreen({super.key});
 
@@ -49,9 +54,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
+  /// Creates the profile and enters the app.
+  ///
+  /// [skipOptional] drops district and exam date regardless of what was
+  /// entered, which is what the skip action means.
+  Future<void> _save({bool skipOptional = false}) async {
     final l10n = context.l10n;
-    final name = _nameController.text.trim();
+    final carriedName = ref.read(signupNameProvider);
+    final name = carriedName ?? _nameController.text.trim();
 
     if (name.isEmpty) {
       setState(() => _nameError = l10n.errorEnterName);
@@ -66,12 +76,17 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     try {
       final profile = await ref.read(authRepositoryProvider).createProfile(
             fullName: name,
+            // Chosen on the landing screen and already persisted.
             language: ref.read(languageProvider),
-            district: _district,
-            targetExamDate: _examDate,
+            district: skipOptional ? null : _district,
+            targetExamDate: skipOptional ? null : _examDate,
           );
       if (!mounted) return;
+
       ref.read(profileProvider.notifier).set(profile);
+      // The draft has done its job; leaving it set would let a later signup
+      // inherit this name.
+      ref.read(signupNameProvider.notifier).state = null;
       context.go(Routes.home);
     } catch (_) {
       if (!mounted) return;
@@ -90,97 +105,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       lastDate: now.add(const Duration(days: 365 * 3)),
     );
     if (picked != null) setState(() => _examDate = picked);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final l10n = context.l10n;
-    final language = ref.watch(languageProvider);
-
-    return AuthScaffold(
-      title: l10n.authSignupTitle,
-      subtitle: l10n.authSignupSubtitle,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SiqField(
-            label: l10n.fieldUserName,
-            hint: l10n.fieldUserNameHint,
-            controller: _nameController,
-            keyboardType: TextInputType.name,
-            textInputAction: TextInputAction.done,
-            autofillHints: const [AutofillHints.name],
-            errorText: _nameError,
-            onChanged: (_) {
-              if (_nameError != null) setState(() => _nameError = null);
-            },
-          ),
-          SizedBox(height: AppSpacing.xl.dp(context)),
-          Text(
-            l10n.settingsLanguage,
-            style: context.text(
-              AppTextStyles.bodySmall,
-              weight: 600,
-              color: colors.ink,
-            ),
-          ),
-          SizedBox(height: 7.dp(context)),
-          _LanguageRow(
-            selected: language,
-            onSelected: (value) =>
-                ref.read(appSettingsProvider.notifier).setLanguage(value),
-          ),
-          SizedBox(height: AppSpacing.xl.dp(context)),
-
-          // Everything below is optional. The heading says so, so the screen
-          // does not read as a longer form than it is.
-          Row(
-            children: [
-              Expanded(
-                child: Divider(color: colors.border, thickness: 1.5),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md.dp(context),
-                ),
-                child: Text(
-                  'Optional',
-                  style: context.text(
-                    AppTextStyles.overline,
-                    weight: 700,
-                    color: colors.inkFaint,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Divider(color: colors.border, thickness: 1.5),
-              ),
-            ],
-          ),
-          SizedBox(height: AppSpacing.lg.dp(context)),
-          _PickerRow(
-            label: 'District',
-            value: _district ?? 'Not set',
-            onTap: _pickDistrict,
-          ),
-          SizedBox(height: AppSpacing.sm.dp(context)),
-          _PickerRow(
-            label: 'Target exam date',
-            value: _examDate == null
-                ? 'Not set'
-                : '${_examDate!.day}/${_examDate!.month}/${_examDate!.year}',
-            onTap: _pickExamDate,
-          ),
-          SizedBox(height: 28.dp(context)),
-          SiqButton(
-            label: l10n.actionContinue,
-            onPressed: _saving ? null : _submit,
-            loading: _saving,
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _pickDistrict() async {
@@ -211,97 +135,125 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     );
     if (picked != null) setState(() => _district = picked);
   }
-}
-
-class _LanguageRow extends StatelessWidget {
-  const _LanguageRow({required this.selected, required this.onSelected});
-
-  final AppLanguage selected;
-  final ValueChanged<AppLanguage> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    String labelFor(AppLanguage language) => switch (language) {
-          AppLanguage.sinhala => l10n.languageSinhala,
-          AppLanguage.tamil => l10n.languageTamil,
-          AppLanguage.english => l10n.languageEnglish,
-        };
-
-    return Row(
-      children: [
-        for (final language in AppLanguage.values)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                right: language == AppLanguage.values.last
-                    ? 0
-                    : 7.dp(context),
-              ),
-              child: _LanguageChip(
-                label: labelFor(language),
-                selected: language == selected,
-                onTap: () => onSelected(language),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _LanguageChip extends StatelessWidget {
-  const _LanguageChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final radius = BorderRadius.circular(15.dp(context));
+    final l10n = context.l10n;
 
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: Material(
-        color: selected ? colors.accentSoft : colors.surface,
-        borderRadius: radius,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: radius,
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              border: Border.all(
-                color: selected ? colors.accent : colors.border,
-                width: 1.5,
+    // Set when the user came through signup, which is the usual path.
+    final carriedName = ref.watch(signupNameProvider);
+    final needsName = carriedName == null;
+
+    return AuthScaffold(
+      title: l10n.profileSetupTitle,
+      subtitle: l10n.profileSetupSubtitle,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (needsName) ...[
+            SiqField(
+              label: l10n.fieldUserName,
+              hint: l10n.fieldUserNameHint,
+              controller: _nameController,
+              keyboardType: TextInputType.name,
+              textInputAction: TextInputAction.done,
+              autofillHints: const [AutofillHints.name],
+              errorText: _nameError,
+              onChanged: (_) {
+                if (_nameError != null) setState(() => _nameError = null);
+              },
+            ),
+            SizedBox(height: AppSpacing.xl.dp(context)),
+          ],
+
+          _OptionalDivider(label: l10n.labelOptional),
+          SizedBox(height: AppSpacing.lg.dp(context)),
+
+          _PickerRow(
+            label: l10n.fieldDistrict,
+            value: _district ?? l10n.statNoExamDate,
+            onTap: _pickDistrict,
+          ),
+          SizedBox(height: AppSpacing.sm.dp(context)),
+          _PickerRow(
+            label: l10n.fieldTargetExamDate,
+            value: _examDate == null
+                ? l10n.statNoExamDate
+                : MaterialLocalizations.of(context).formatMediumDate(_examDate!),
+            onTap: _pickExamDate,
+          ),
+
+          SizedBox(height: AppSpacing.md.dp(context)),
+          Text(
+            l10n.profileSetupOptionalNote,
+            style: context.text(
+              AppTextStyles.captionSmall,
+              color: colors.inkMuted,
+            ),
+          ),
+
+          SizedBox(height: 28.dp(context)),
+          SiqButton(
+            label: l10n.actionContinue,
+            onPressed: _saving ? null : _save,
+            loading: _saving,
+          ),
+          SizedBox(height: AppSpacing.md.dp(context)),
+          Center(
+            child: SiqButton(
+              label: l10n.actionSkip,
+              variant: SiqButtonVariant.secondary,
+              expand: false,
+              compact: true,
+              onPressed: _saving ? null : () => _save(skipOptional: true),
+            ),
+          ),
+          // An error on the name has nowhere to appear once the field is
+          // hidden, so it is repeated here for the carried-name path.
+          if (!needsName && _nameError != null) ...[
+            SizedBox(height: AppSpacing.md.dp(context)),
+            Text(
+              _nameError!,
+              textAlign: TextAlign.center,
+              style: context.text(
+                AppTextStyles.caption,
+                weight: 600,
+                color: colors.dangerInk,
               ),
             ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 11.dp(context)),
-              child: Center(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.text(
-                    AppTextStyles.caption,
-                    weight: 700,
-                    color: colors.ink,
-                  ),
-                ),
-              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _OptionalDivider extends StatelessWidget {
+  const _OptionalDivider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Row(
+      children: [
+        Expanded(child: Divider(color: colors.border, thickness: 1.5)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.dp(context)),
+          child: Text(
+            label.toUpperCase(),
+            style: context.text(
+              AppTextStyles.overline,
+              weight: 700,
+              color: colors.inkFaint,
             ),
           ),
         ),
-      ),
+        Expanded(child: Divider(color: colors.border, thickness: 1.5)),
+      ],
     );
   }
 }
@@ -350,11 +302,16 @@ class _PickerRow extends StatelessWidget {
                     ),
                   ),
                 ),
-                Text(
-                  value,
-                  style: context.text(
-                    AppTextStyles.captionSmall,
-                    color: colors.inkMuted,
+                Flexible(
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.end,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text(
+                      AppTextStyles.captionSmall,
+                      color: colors.inkMuted,
+                    ),
                   ),
                 ),
                 SizedBox(width: AppSpacing.xs.dp(context)),

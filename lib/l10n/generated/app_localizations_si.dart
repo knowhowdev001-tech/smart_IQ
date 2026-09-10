@@ -641,6 +641,29 @@ class AppL10nSi extends AppL10n {
   }
 
   @override
+  String get actionSkip => 'දැනට මඟ හරින්න';
+
+  @override
+  String get profileSetupTitle => 'තව ටිකයි';
+
+  @override
+  String get profileSetupSubtitle =>
+      'සුළු තොරතුරු කිහිපයක් ඔබේ අධ්‍යයන සැලසුම සැකසීමට උපකාරී වේ';
+
+  @override
+  String get profileSetupOptionalNote =>
+      'මේ සියල්ල විකල්ප වන අතර පසුව සැකසුම් තුළ වෙනස් කළ හැක.';
+
+  @override
+  String get fieldDistrict => 'දිස්ත්‍රික්කය';
+
+  @override
+  String get fieldTargetExamDate => 'විභාග දිනය';
+
+  @override
+  String get labelOptional => 'විකල්ප';
+
+  @override
   String get languageEnglish => 'English';
 
   @override

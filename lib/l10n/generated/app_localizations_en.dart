@@ -639,6 +639,29 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get actionSkip => 'Skip for now';
+
+  @override
+  String get profileSetupTitle => 'Almost done';
+
+  @override
+  String get profileSetupSubtitle =>
+      'A little detail helps us pace your study plan';
+
+  @override
+  String get profileSetupOptionalNote =>
+      'All of this is optional and you can change it later in Settings.';
+
+  @override
+  String get fieldDistrict => 'District';
+
+  @override
+  String get fieldTargetExamDate => 'Target exam date';
+
+  @override
+  String get labelOptional => 'Optional';
+
+  @override
   String get languageEnglish => 'English';
 
   @override

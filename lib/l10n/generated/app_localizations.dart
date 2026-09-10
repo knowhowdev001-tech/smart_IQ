@@ -1245,6 +1245,48 @@ abstract class AppL10n {
   /// **'Last updated {date}'**
   String termsUpdated(String date);
 
+  /// No description provided for @actionSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get actionSkip;
+
+  /// No description provided for @profileSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost done'**
+  String get profileSetupTitle;
+
+  /// No description provided for @profileSetupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A little detail helps us pace your study plan'**
+  String get profileSetupSubtitle;
+
+  /// No description provided for @profileSetupOptionalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'All of this is optional and you can change it later in Settings.'**
+  String get profileSetupOptionalNote;
+
+  /// No description provided for @fieldDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get fieldDistrict;
+
+  /// No description provided for @fieldTargetExamDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Target exam date'**
+  String get fieldTargetExamDate;
+
+  /// No description provided for @labelOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get labelOptional;
+
   /// No description provided for @languageEnglish.
   ///
   /// In en, this message translates to:
