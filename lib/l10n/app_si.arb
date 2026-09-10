@@ -1,0 +1,285 @@
+{
+  "@@locale": "si",
+
+  "appName": "Smart IQ",
+  "appTagline": "සාමාන්‍ය දැනීම හා බුද්ධි විභාග සූදානම",
+
+  "actionContinue": "ඉදිරියට",
+  "actionBack": "ආපසු",
+  "actionClose": "වසන්න",
+  "actionRetry": "නැවත උත්සාහ කරන්න",
+  "actionCancel": "අවලංගු කරන්න",
+  "actionSave": "සුරකින්න",
+  "actionUpgrade": "උසස් කරන්න",
+  "actionChange": "වෙනස් කරන්න",
+
+  "landingWelcome": "ආයුබෝවන්",
+  "landingBlurb": "ශ්‍රී ලංකා රාජ්‍ය හා තරඟකාරී විභාග සඳහා සාමාන්‍ය දැනීම හා බුද්ධි පරීක්ෂණ ඔබේ භාෂාවෙන් අභ්‍යාස කරන්න.",
+  "landingGetStarted": "ආරම්භ කරන්න",
+  "landingHaveAccount": "දැනටමත් ගිණුමක් තිබේද?",
+  "landingLogIn": "පිවිසෙන්න",
+
+  "authLoginTitle": "නැවත සාදරයෙන් පිළිගනිමු",
+  "authLoginSubtitle": "ඔබේ ජංගම දුරකථන අංකයෙන් පිවිසෙන්න",
+  "authSignupTitle": "ගිණුමක් සාදන්න",
+  "authSignupSubtitle": "මිනිත්තුවකටත් අඩු කාලයක්",
+  "authOtpTitle": "අංකය සත්‍යාපනය කරන්න",
+  "authOtpSubtitle": "අපි එවූ කේතය ඇතුළත් කරන්න",
+
+  "fieldMobileNumber": "ජංගම දුරකථන අංකය",
+  "fieldMobileHint": "ඔබේ ජංගම අංකය ඇතුළත් කරන්න",
+  "fieldUserName": "පරිශීලක නාමය",
+  "fieldUserNameHint": "ඔබේ නම ඇතුළත් කරන්න",
+
+  "authOtpNoteLogin": "අපි මෙම අංකයට ඉලක්කම් 6ක කේතයක් එවන්නෙමු.",
+  "authOtpNoteSignup": "මෙම අංකය සත්‍යාපනය කිරීමට ඉලක්කම් 6ක කේතයක් එවන්නෙමු.",
+  "authSendOtp": "OTP එවන්න",
+  "authSignupAction": "ලියාපදිංචි වන්න",
+  "authNoAccount": "ගිණුමක් නොමැතිද?",
+  "authHasAccount": "දැනටමත් ගිණුමක් තිබේද?",
+  "authTermsConsent": "ඉදිරියට යාමෙන් ඔබ එකඟ වන්නේ",
+  "authTermsConsentBold": "භාවිත නියම හා රහස්‍යතා ප්‍රතිපත්තියටයි.",
+  "authReadTerms": "නියම කියවන්න",
+
+  "otpEnterTitle": "OTP ඇතුළත් කරන්න",
+  "otpSentTo": "{number} වෙත එවන ලදී",
+  "@otpSentTo": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "otpHelp": "කවයන් තට්ටු කර ඉලක්කම් 6 ටයිප් කරන්න",
+  "otpExpiresIn": "{time} කින් කල් ඉකුත් වේ",
+  "@otpExpiresIn": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "otpExpired": "කේතය කල් ඉකුත් විය",
+  "otpVerify": "සත්‍යාපනය කරන්න",
+  "otpResend": "OTP නැවත එවන්න",
+  "otpResendIn": "තත්පර {seconds} කින් නැවත එවන්න",
+  "@otpResendIn": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "otpErrorInvalid": "එම කේතය නිවැරදි නැත. නැවත උත්සාහ කරන්න.",
+  "otpErrorExpired": "එම කේතය කල් ඉකුත් වී ඇත. නව එකක් ඉල්ලන්න.",
+
+  "errorEnterMobile": "ඔබේ ජංගම අංකය ඇතුළත් කරන්න.",
+  "errorInvalidMobile": "වලංගු ශ්‍රී ලාංකික ජංගම අංකයක් ඇතුළත් කරන්න.",
+  "errorEnterName": "ඔබේ නම ඇතුළත් කරන්න.",
+  "errorOffline": "අන්තර්ජාල සම්බන්ධතාවයක් නැත.",
+  "errorOfflineBody": "ප්‍රශ්න පූරණය කිරීමට Smart IQ හට සම්බන්ධතාවයක් අවශ්‍යයි. ඔබේ ජාලය පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+  "errorGeneric": "යම් දෝෂයක් ඇති විය.",
+
+  "greetingMorning": "සුබ උදෑසනක්",
+  "greetingAfternoon": "සුබ දහවලක්",
+  "greetingEvening": "සුබ සැන්දෑවක්",
+
+  "statStreak": "අඛණ්ඩතාව",
+  "statReadiness": "සූදානම",
+  "statExamIn": "විභාගයට",
+  "statDays": "{count, plural, =1{දින 1} other{දින {count}}}",
+  "@statDays": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statDaysShort": "දින {count}",
+  "@statDaysShort": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statNoExamDate": "සකසා නැත",
+
+  "quotaQuestionsToday": "{tier} · අද ප්‍රශ්න",
+  "@quotaQuestionsToday": {
+    "placeholders": { "tier": { "type": "String" } }
+  },
+  "quotaUsedOf": "අද {total} න් {used} ක් භාවිත කර ඇත",
+  "@quotaUsedOf": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "total": { "type": "String" }
+    }
+  },
+  "quotaLeft": "ඉතිරියි",
+  "quotaUnlimited": "සීමා රහිත",
+  "quotaResetsAt": "මධ්‍යම රාත්‍රියේ (SLT) යළි සකසේ",
+
+  "dailyChallengeLabel": "දෛනික අභියෝගය",
+  "dailyChallengeTitle": "අද ප්‍රශ්න 10 ක කට්ටලය",
+  "dailyChallengeBlurb": "මිශ්‍ර සාමාන්‍ය දැනීම, බුද්ධි හා තත්කාලීන කරුණු · 00:00 SLT ට යළි සකසේ",
+  "dailyChallengeStart": "අභියෝගය අරඹන්න",
+  "dailyChallengeDone": "අද සම්පූර්ණයි",
+
+  "homePracticeByCategory": "ප්‍රවර්ග අනුව අභ්‍යාස",
+  "homePerformance": "කාර්ය සාධනය",
+  "homeWeakAreasEmpty": "ඔබ දුර්වල කොතැනදැයි බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.",
+
+  "practiceModeQuick": "ඉක්මන්",
+  "practiceModeQuickMeta": "ප්‍රශ්න 10",
+  "practiceModeTimed": "කාල සීමිත",
+  "practiceModeTimedMeta": "ඔරලෝසුවට එරෙහිව",
+  "practiceModeSpeed": "වේග අභ්‍යාසය",
+  "practiceModeSpeedMeta": "අඩු කාලයක්",
+  "practiceModeAdaptive": "අනුවර්තී",
+  "practiceModeAdaptiveMeta": "ඔබේ මට්ටමට ගැලපේ",
+  "practiceSubTopics": "උප මාතෘකා",
+  "practiceStart": "අභ්‍යාසය අරඹන්න",
+  "practiceNoSubTopics": "මෙම ප්‍රවර්ගයේ උප මාතෘකා තවම ප්‍රකාශයට පත් කර නැත.",
+
+  "lockedTitle": "{feature} ඔබේ සැලසුමේ නැත",
+  "@lockedTitle": {
+    "placeholders": { "feature": { "type": "String" } }
+  },
+  "lockedBody": "එය විවෘත කිරීමට උසස් කරන්න. ඔබේ වත්මන් සැලසුම {tier} වේ.",
+  "@lockedBody": {
+    "placeholders": { "tier": { "type": "String" } }
+  },
+
+  "quizCheckAnswer": "පිළිතුර පරීක්ෂා කරන්න",
+  "quizNextQuestion": "ඊළඟ ප්‍රශ්නය",
+  "quizFinish": "අවසන් කරන්න",
+  "quizVerdictCorrect": "නිවැරදියි",
+  "quizVerdictIncorrect": "වැරදියි",
+  "quizExplainWithAi": "AI උපදේශකයෙන් විස්තර කරන්න",
+  "quizBookmark": "සලකුණු කරන්න",
+  "quizBookmarked": "සලකුණු කර ඇත",
+  "quizCounter": "{current} / {total}",
+  "@quizCounter": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "quizQuitTitle": "මෙම සැසියෙන් ඉවත් වන්නද?",
+  "quizQuitBody": "මේ දක්වා ඔබේ ප්‍රගතිය සුරකින අතර නැවත ආරම්භ කළ හැක.",
+  "quizQuitConfirm": "ඉවත් වන්න",
+  "quizQuitStay": "අභ්‍යාසය කරගෙන යන්න",
+  "quizDifficultyEasy": "පහසු",
+  "quizDifficultyMedium": "මධ්‍යම",
+  "quizDifficultyHard": "අසීරු",
+  "quizImageFailed": "මෙම ප්‍රශ්නයේ රූපය පූරණය කළ නොහැකි වූ බැවින් එය මඟ හරින ලදී.",
+  "quizTapToZoom": "විශාල කිරීමට තට්ටු කරන්න",
+
+  "resultsThisSession": "මෙම සැසිය",
+  "resultsScoreLine": "{total} න් {correct} ක් නිවැරදියි",
+  "@resultsScoreLine": {
+    "placeholders": {
+      "correct": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "resultsShowing": "පෙන්වන්නේ",
+  "resultsRangeSession": "සැසිය",
+  "resultsRangeToday": "අද",
+  "resultsRangeWeek": "දින 7",
+  "resultsStatCorrect": "නිවැරදි",
+  "resultsStatWrong": "වැරදි",
+  "resultsStatSkipped": "මඟ හැරි",
+  "resultsStatTime": "සාමාන්‍ය කාලය",
+  "resultsBreakdown": "උප මාතෘකා අනුව නිරවද්‍යතාව",
+  "resultsNoBreakdown": "අද තවම පිළිතුරු නැත. උප මාතෘකා නිරවද්‍යතාව බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.",
+  "resultsHistoryTitle": "ඔබේම පෙර සැසිවලට එරෙහිව",
+  "resultsPrivacyNote": "ප්‍රගතිය පෞද්ගලිකයි. මෙහි කිසිවක් ඔබ වෙනත් පරිශීලකයෙකු සමඟ සසඳන්නේ නැත.",
+  "resultsDrillWrong": "වැරදි පිළිතුරු අභ්‍යාස කරන්න",
+  "resultsHome": "මුල් පිටුව",
+
+  "tutorTitle": "AI උපදේශක",
+  "tutorNewThread": "නව සංවාදය",
+  "tutorInputHint": "සිංහල, දෙමළ හෝ ඉංග්‍රීසියෙන් අසන්න",
+  "tutorQuotaLine": "අද {total} න් {used} ක් භාවිත කර ඇත",
+  "@tutorQuotaLine": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "total": { "type": "String" }
+    }
+  },
+  "tutorExhaustedTitle": "දෛනික AI පණිවිඩ අවසන්",
+  "tutorExhaustedBody": "ඔබේ සැලසුම දිනකට පණිවිඩ {total} ක් ලබා දේ. තවත් අවශ්‍ය නම් උසස් කරන්න, නැතහොත් මධ්‍යම රාත්‍රියෙන් පසු නැවත එන්න.",
+  "@tutorExhaustedBody": {
+    "placeholders": { "total": { "type": "String" } }
+  },
+  "tutorEmptyTitle": "ඕනෑම දෙයක් අසන්න",
+  "tutorEmptyBody": "වැරදි පිළිතුරක් විස්තර කරන්න, ඉඟියක් ඉල්ලන්න, හෝ අභ්‍යාස කට්ටලයක් ඉල්ලන්න — සිංහල, දෙමළ හෝ ඉංග්‍රීසියෙන්.",
+  "tutorThinking": "සිතමින්…",
+  "tutorError": "උපදේශක වෙත සම්බන්ධ විය නොහැකි විය. නැවත උත්සාහ කරන්න.",
+
+  "profileTitle": "පැතිකඩ",
+  "profileVerified": "සත්‍යාපිතයි",
+  "profileCurrentPlan": "වත්මන් සැලසුම",
+  "profileStudyMaterial": "ඔබේ අධ්‍යයන ද්‍රව්‍ය",
+  "profileStatAnswered": "පිළිතුරු දුන්",
+  "profileStatAccuracy": "නිරවද්‍යතාව",
+  "profileStatSessions": "සැසි",
+  "profileRowBookmarks": "සලකුණු",
+  "profileRowBookmarksMeta": "ඔබ සුරැකි ප්‍රශ්න",
+  "profileRowWrongBank": "වැරදි පිළිතුරු බැංකුව",
+  "profileRowWrongBankMeta": "පරතර පුනරාවර්තනයෙන් යළි ඉදිරිපත් වේ",
+  "profileRowMastery": "මාතෘකා ප්‍රවීණතාව",
+  "profileRowMasteryMeta": "උප මාතෘකාවකට නිරවද්‍යතාව",
+  "profileRowSettings": "සැකසුම්",
+  "profileRowSettingsMeta": "භාෂාව, තේමාව හා ගිණුම",
+
+  "settingsTitle": "සැකසුම්",
+  "settingsLanguage": "භාෂාව",
+  "settingsTheme": "තේමාව",
+  "settingsThemeLight": "දීප්ත",
+  "settingsThemeDark": "අඳුරු",
+  "settingsThemeSystem": "පද්ධතිය",
+  "settingsThemeNote": "පළමු දියත් කිරීමේදී පද්ධතිය පෙරනිමි වන අතර පළමු රාමුවට පෙර යොදනු ලැබේ.",
+  "settingsLegal": "නීතිමය",
+  "settingsTerms": "නියම හා කොන්දේසි",
+  "settingsTermsMeta": "දායකත්වය, අය කිරීම් හා දත්ත භාවිතය",
+  "settingsAccount": "ගිණුම",
+  "settingsDevices": "සක්‍රීය උපාංග",
+  "settingsDevicesMeta": "වෙනත් උපාංගවලින් ඉවත් වන්න",
+  "settingsNotifications": "දැනුම්දීම්",
+  "settingsExportData": "මගේ දත්ත නිර්යාත කරන්න",
+  "settingsDeleteAccount": "ගිණුම මකන්න",
+  "settingsDeleteConfirmTitle": "ඔබේ ගිණුම මකන්නද?",
+  "settingsDeleteConfirmBody": "මෙය ඔබේ පැතිකඩ, ප්‍රගතිය හා සංවාද ඉතිහාසය ස්ථිරව ඉවත් කරයි. එය පසුව හරවා ගත නොහැක.",
+  "settingsSignOut": "ඉවත් වන්න",
+
+  "notificationsTitle": "දැනුම්දීම්",
+  "notificationsMarkAllRead": "සියල්ල කියවූ ලෙස සලකුණු කරන්න",
+  "notificationsEmpty": "දැනට අලුත් දෙයක් නැත.",
+  "notificationPrefDaily": "දෛනික අභියෝගය",
+  "notificationPrefStreak": "අඛණ්ඩතා මතක් කිරීම්",
+  "notificationPrefDigest": "තත්කාලීන කරුණු සාරාංශය",
+  "notificationPrefBilling": "දායකත්වය හා අය කිරීම්",
+  "notificationPrefInactivity": "ඔබ ඈත් වූ විට මතක් කිරීම්",
+
+  "navHome": "මුල් පිටුව",
+  "navPractice": "අභ්‍යාස",
+  "navTutor": "උපදේශක",
+  "navProfile": "පැතිකඩ",
+
+  "planSheetTitle": "ඔබේ සැලසුම තෝරන්න",
+  "planSheetBlurb": "Basic සඳහා දෛනික ටෙල්කෝ අය කිරීම, Pro හා Pro+ සඳහා කාඩ්පත් අය කිරීම. පළමු දිනයේ සිට අය කිරීම ආරම්භ වේ — නොමිලේ අත්හදා බැලීමක් නැත.",
+  "planCurrent": "වත්මන්",
+  "tierFree": "නොමිලේ",
+  "tierBasic": "Basic",
+  "tierPro": "Pro",
+  "tierProPlus": "Pro+",
+  "tierFreeBlurb": "අය කිරීම අසාර්ථකයි හෝ නොමැත. දිනකට ප්‍රශ්න දෙකක් හා AI පණිවිඩ දෙකක් — යෙදුම හොඳ බව මතක තබා ගැනීමට ප්‍රමාණවත්, සූදානම් වීමට නොවේ.",
+  "tierBasicBlurb": "දෛනික ටෙල්කෝ අය කිරීම. දෛනික අභියෝගය, දිනකට ප්‍රශ්න 50, AI පණිවිඩ 10, මාසයකට ආදර්ශ විභාග 2.",
+  "tierProBlurb": "මාසික කාඩ්පත් අය කිරීම. අනුවර්තී දුෂ්කරතාව, අධ්‍යයන සැලසුම, වේග අභ්‍යාස, දින 90 සංවාද ඉතිහාසය.",
+  "tierProPlusBlurb": "සියල්ල ඉහළම සීමාවන්හි: සීමා රහිත අභ්‍යාස, සීමා රහිත ආදර්ශ විභාග, සීමා රහිත සංවාද ඉතිහාසය.",
+  "planPriceDaily": "රු. {amount}/දිනකට",
+  "@planPriceDaily": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "planPriceMonthly": "රු. {amount}/මසකට",
+  "@planPriceMonthly": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "planPriceFree": "නොමිලේ",
+
+  "termsTitle": "නියම හා කොන්දේසි",
+  "termsUpdated": "අවසන් වරට යාවත්කාලීන {date}",
+  "@termsUpdated": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "languageEnglish": "English",
+  "languageSinhala": "සිංහල",
+  "languageTamil": "தமிழ்",
+
+  "loadingEntitlement": "ඔබේ දායකත්වය පරීක්ෂා කරමින්…",
+  "loading": "පූරණය වෙමින්…"
+}

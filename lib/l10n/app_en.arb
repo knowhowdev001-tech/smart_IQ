@@ -1,0 +1,285 @@
+{
+  "@@locale": "en",
+
+  "appName": "Smart IQ",
+  "appTagline": "GK & IQ exam preparation",
+
+  "actionContinue": "Continue",
+  "actionBack": "Back",
+  "actionClose": "Close",
+  "actionRetry": "Retry",
+  "actionCancel": "Cancel",
+  "actionSave": "Save",
+  "actionUpgrade": "Upgrade",
+  "actionChange": "Change",
+
+  "landingWelcome": "Welcome",
+  "landingBlurb": "Practise general knowledge and aptitude for Sri Lankan government and competitive exams, in your own language.",
+  "landingGetStarted": "Get started",
+  "landingHaveAccount": "Have an account?",
+  "landingLogIn": "Log in",
+
+  "authLoginTitle": "Welcome back",
+  "authLoginSubtitle": "Log in with your mobile number",
+  "authSignupTitle": "Create account",
+  "authSignupSubtitle": "It takes less than a minute",
+  "authOtpTitle": "Verify your number",
+  "authOtpSubtitle": "Enter the code we sent you",
+
+  "fieldMobileNumber": "Mobile Number",
+  "fieldMobileHint": "enter your mobile number",
+  "fieldUserName": "User Name",
+  "fieldUserNameHint": "enter your name",
+
+  "authOtpNoteLogin": "We will send a 6-digit code to this number.",
+  "authOtpNoteSignup": "We will send a 6-digit code to verify this number.",
+  "authSendOtp": "Send OTP",
+  "authSignupAction": "Signup",
+  "authNoAccount": "Don't have an account?",
+  "authHasAccount": "Already have an account?",
+  "authTermsConsent": "By continuing, you agree to",
+  "authTermsConsentBold": "Terms of Use and Privacy Policy.",
+  "authReadTerms": "Read Terms",
+
+  "otpEnterTitle": "Enter OTP",
+  "otpSentTo": "Sent to {number}",
+  "@otpSentTo": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "otpHelp": "Tap the circles and type the 6 digits",
+  "otpExpiresIn": "Expires in {time}",
+  "@otpExpiresIn": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "otpExpired": "Code expired",
+  "otpVerify": "Verify",
+  "otpResend": "Resend OTP",
+  "otpResendIn": "Resend in {seconds}s",
+  "@otpResendIn": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "otpErrorInvalid": "That code is not correct. Try again.",
+  "otpErrorExpired": "That code has expired. Request a new one.",
+
+  "errorEnterMobile": "Enter your mobile number.",
+  "errorInvalidMobile": "Enter a valid Sri Lankan mobile number.",
+  "errorEnterName": "Enter your name.",
+  "errorOffline": "No internet connection.",
+  "errorOfflineBody": "Smart IQ needs a connection to load questions. Check your network and try again.",
+  "errorGeneric": "Something went wrong.",
+
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+
+  "statStreak": "Streak",
+  "statReadiness": "Readiness",
+  "statExamIn": "Exam in",
+  "statDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@statDays": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statDaysShort": "{count} d",
+  "@statDaysShort": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statNoExamDate": "Not set",
+
+  "quotaQuestionsToday": "{tier} · questions today",
+  "@quotaQuestionsToday": {
+    "placeholders": { "tier": { "type": "String" } }
+  },
+  "quotaUsedOf": "{used} of {total} used today",
+  "@quotaUsedOf": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "total": { "type": "String" }
+    }
+  },
+  "quotaLeft": "left",
+  "quotaUnlimited": "Unlimited",
+  "quotaResetsAt": "Resets at midnight SLT",
+
+  "dailyChallengeLabel": "Daily challenge",
+  "dailyChallengeTitle": "Today's 10-question set",
+  "dailyChallengeBlurb": "Mixed GK, aptitude and current affairs · resets 00:00 SLT",
+  "dailyChallengeStart": "Start challenge",
+  "dailyChallengeDone": "Completed today",
+
+  "homePracticeByCategory": "Practice by category",
+  "homePerformance": "Performance",
+  "homeWeakAreasEmpty": "Finish a practice session to see where you are weakest.",
+
+  "practiceModeQuick": "Quick",
+  "practiceModeQuickMeta": "10 questions",
+  "practiceModeTimed": "Timed",
+  "practiceModeTimedMeta": "Against the clock",
+  "practiceModeSpeed": "Speed drill",
+  "practiceModeSpeedMeta": "Reduced time",
+  "practiceModeAdaptive": "Adaptive",
+  "practiceModeAdaptiveMeta": "Matches your level",
+  "practiceSubTopics": "Sub-topics",
+  "practiceStart": "Start practice",
+  "practiceNoSubTopics": "No sub-topics published in this category yet.",
+
+  "lockedTitle": "{feature} is not on your plan",
+  "@lockedTitle": {
+    "placeholders": { "feature": { "type": "String" } }
+  },
+  "lockedBody": "Upgrade to unlock it. Your current plan is {tier}.",
+  "@lockedBody": {
+    "placeholders": { "tier": { "type": "String" } }
+  },
+
+  "quizCheckAnswer": "Check answer",
+  "quizNextQuestion": "Next question",
+  "quizFinish": "Finish",
+  "quizVerdictCorrect": "Correct",
+  "quizVerdictIncorrect": "Not quite",
+  "quizExplainWithAi": "Explain with AI tutor",
+  "quizBookmark": "Bookmark",
+  "quizBookmarked": "Bookmarked",
+  "quizCounter": "{current} / {total}",
+  "@quizCounter": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "quizQuitTitle": "Leave this session?",
+  "quizQuitBody": "Your progress so far is saved and you can resume it.",
+  "quizQuitConfirm": "Leave",
+  "quizQuitStay": "Keep practising",
+  "quizDifficultyEasy": "Easy",
+  "quizDifficultyMedium": "Medium",
+  "quizDifficultyHard": "Hard",
+  "quizImageFailed": "This question's image could not be loaded, so it was skipped.",
+  "quizTapToZoom": "Tap to zoom",
+
+  "resultsThisSession": "This session",
+  "resultsScoreLine": "{correct} of {total} correct",
+  "@resultsScoreLine": {
+    "placeholders": {
+      "correct": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "resultsShowing": "Showing",
+  "resultsRangeSession": "Session",
+  "resultsRangeToday": "Today",
+  "resultsRangeWeek": "7 days",
+  "resultsStatCorrect": "Correct",
+  "resultsStatWrong": "Wrong",
+  "resultsStatSkipped": "Skipped",
+  "resultsStatTime": "Avg time",
+  "resultsBreakdown": "Accuracy by sub-topic",
+  "resultsNoBreakdown": "No answers today yet. Finish a practice session to see your sub-topic accuracy.",
+  "resultsHistoryTitle": "Against your own last sessions",
+  "resultsPrivacyNote": "Progress is private. Nothing here compares you to another user.",
+  "resultsDrillWrong": "Drill wrong answers",
+  "resultsHome": "Home",
+
+  "tutorTitle": "AI Tutor",
+  "tutorNewThread": "New thread",
+  "tutorInputHint": "Ask in Sinhala, Tamil or English",
+  "tutorQuotaLine": "{used} of {total} messages used today",
+  "@tutorQuotaLine": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "total": { "type": "String" }
+    }
+  },
+  "tutorExhaustedTitle": "Daily AI messages used up",
+  "tutorExhaustedBody": "Your plan allows {total} messages a day. Upgrade for more, or come back after midnight SLT.",
+  "@tutorExhaustedBody": {
+    "placeholders": { "total": { "type": "String" } }
+  },
+  "tutorEmptyTitle": "Ask anything",
+  "tutorEmptyBody": "Explain a wrong answer, ask for a hint, or request a practice set — in Sinhala, Tamil or English.",
+  "tutorThinking": "Thinking…",
+  "tutorError": "The tutor could not be reached. Try again.",
+
+  "profileTitle": "Profile",
+  "profileVerified": "verified",
+  "profileCurrentPlan": "Current plan",
+  "profileStudyMaterial": "Your study material",
+  "profileStatAnswered": "Answered",
+  "profileStatAccuracy": "Accuracy",
+  "profileStatSessions": "Sessions",
+  "profileRowBookmarks": "Bookmarks",
+  "profileRowBookmarksMeta": "Questions you saved",
+  "profileRowWrongBank": "Wrong-answer bank",
+  "profileRowWrongBankMeta": "Resurfaced by spaced repetition",
+  "profileRowMastery": "Topic mastery",
+  "profileRowMasteryMeta": "Accuracy per sub-topic",
+  "profileRowSettings": "Settings",
+  "profileRowSettingsMeta": "Language, theme and account",
+
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "settingsTheme": "Theme",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeSystem": "System",
+  "settingsThemeNote": "System is the default on first launch and is applied before the first frame.",
+  "settingsLegal": "Legal",
+  "settingsTerms": "Terms & Conditions",
+  "settingsTermsMeta": "Subscription, charging and data use",
+  "settingsAccount": "Account",
+  "settingsDevices": "Active devices",
+  "settingsDevicesMeta": "Sign out of other devices",
+  "settingsNotifications": "Notifications",
+  "settingsExportData": "Export my data",
+  "settingsDeleteAccount": "Delete account",
+  "settingsDeleteConfirmTitle": "Delete your account?",
+  "settingsDeleteConfirmBody": "This removes your profile, progress and chat history permanently. It cannot be undone.",
+  "settingsSignOut": "Sign out",
+
+  "notificationsTitle": "Notifications",
+  "notificationsMarkAllRead": "Mark all read",
+  "notificationsEmpty": "Nothing new right now.",
+  "notificationPrefDaily": "Daily challenge",
+  "notificationPrefStreak": "Streak reminders",
+  "notificationPrefDigest": "Current affairs digest",
+  "notificationPrefBilling": "Subscription and charging",
+  "notificationPrefInactivity": "Reminders when you are away",
+
+  "navHome": "Home",
+  "navPractice": "Practice",
+  "navTutor": "Tutor",
+  "navProfile": "Profile",
+
+  "planSheetTitle": "Choose your plan",
+  "planSheetBlurb": "Telco daily charging for Basic, card billing for Pro and Pro+. Charging starts on day one — no trial.",
+  "planCurrent": "Current",
+  "tierFree": "Free Fallback",
+  "tierBasic": "Basic",
+  "tierPro": "Pro",
+  "tierProPlus": "Pro+",
+  "tierFreeBlurb": "Charging failed or absent. Two questions and two AI messages a day — enough to remember the app is good, not enough to prepare with.",
+  "tierBasicBlurb": "Telco daily charging. Daily challenge, 50 questions a day, 10 AI messages, 2 mock exams a month.",
+  "tierProBlurb": "Monthly card billing. Adaptive difficulty, study-plan generator, speed drills, 90-day chat history.",
+  "tierProPlusBlurb": "Everything at the highest limits: unlimited practice, unlimited mock exams, unlimited chat history.",
+  "planPriceDaily": "Rs. {amount}/day",
+  "@planPriceDaily": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "planPriceMonthly": "Rs. {amount}/month",
+  "@planPriceMonthly": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "planPriceFree": "Free",
+
+  "termsTitle": "Terms & Conditions",
+  "termsUpdated": "Last updated {date}",
+  "@termsUpdated": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "languageEnglish": "English",
+  "languageSinhala": "සිංහල",
+  "languageTamil": "தமிழ்",
+
+  "loadingEntitlement": "Checking your subscription…",
+  "loading": "Loading…"
+}
