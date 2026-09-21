@@ -164,6 +164,10 @@ class AppL10nTa extends AppL10n {
   String get errorEnterName => 'உங்கள் பெயரை உள்ளிடவும்.';
 
   @override
+  String get errorAccountExists =>
+      'இந்த எண்ணுக்கு ஏற்கனவே கணக்கு உள்ளது. தயவுசெய்து உள்நுழையவும்.';
+
+  @override
   String get errorOffline => 'இணைய இணைப்பு இல்லை.';
 
   @override
@@ -252,8 +256,11 @@ class AppL10nTa extends AppL10n {
   String get homePerformance => 'செயல்திறன்';
 
   @override
+  String get homePerformanceShowMore => 'மேலும் பார்க்க';
+
+  @override
   String get homeWeakAreasEmpty =>
-      'நீங்கள் எங்கே பலவீனமாக இருக்கிறீர்கள் என்பதைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.';
+      'துணைத் தலைப்பு வாரியான உங்கள் துல்லியத்தைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.';
 
   @override
   String get practiceModeQuick => 'விரைவு';
@@ -356,6 +363,21 @@ class AppL10nTa extends AppL10n {
 
   @override
   String get quizTapToZoom => 'பெரிதாக்கத் தட்டவும்';
+
+  @override
+  String get quizNoQuestionsTitle =>
+      'இங்கு இன்னும் பயிற்சி செய்ய எதுவும் இல்லை';
+
+  @override
+  String get quizNoQuestionsBody =>
+      'இந்தத் தேர்வுக்கு கேள்விகள் இல்லை. வேறு தலைப்பை முயற்சிக்கவும்.';
+
+  @override
+  String get quizAlreadySubmittedTitle => 'ஏற்கனவே சமர்ப்பிக்கப்பட்டது';
+
+  @override
+  String get quizAlreadySubmittedBody =>
+      'இந்த அமர்வு மதிப்பிடப்பட்டுவிட்டது. தொடர புதிய அமர்வைத் தொடங்குங்கள்.';
 
   @override
   String get resultsThisSession => 'இந்த அமர்வு';
@@ -569,7 +591,10 @@ class AppL10nTa extends AppL10n {
   String get notificationPrefDigest => 'நடப்பு நிகழ்வுச் சுருக்கம்';
 
   @override
-  String get notificationPrefBilling => 'சந்தா மற்றும் கட்டணம்';
+  String get notificationPrefChargeFailed => 'தோல்வியடைந்த சந்தா கட்டணங்கள்';
+
+  @override
+  String get notificationPrefRenewal => 'சந்தா புதுப்பிப்பு நினைவூட்டல்கள்';
 
   @override
   String get notificationPrefInactivity =>

@@ -64,6 +64,7 @@
   "errorEnterMobile": "ඔබේ ජංගම අංකය ඇතුළත් කරන්න.",
   "errorInvalidMobile": "වලංගු ශ්‍රී ලාංකික ජංගම අංකයක් ඇතුළත් කරන්න.",
   "errorEnterName": "ඔබේ නම ඇතුළත් කරන්න.",
+  "errorAccountExists": "මෙම අංකය සඳහා දැනටමත් ගිණුමක් ඇත. කරුණාකර පිවිසෙන්න.",
   "errorOffline": "අන්තර්ජාල සම්බන්ධතාවයක් නැත.",
   "errorOfflineBody": "ප්‍රශ්න පූරණය කිරීමට Smart IQ හට සම්බන්ධතාවයක් අවශ්‍යයි. ඔබේ ජාලය පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
   "errorGeneric": "යම් දෝෂයක් ඇති විය.",
@@ -108,7 +109,8 @@
 
   "homePracticeByCategory": "ප්‍රවර්ග අනුව අභ්‍යාස",
   "homePerformance": "කාර්ය සාධනය",
-  "homeWeakAreasEmpty": "ඔබ දුර්වල කොතැනදැයි බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.",
+  "homePerformanceShowMore": "තව බලන්න",
+  "homeWeakAreasEmpty": "උප මාතෘකා අනුව ඔබේ නිරවද්‍යතාව බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.",
 
   "practiceModeQuick": "ඉක්මන්",
   "practiceModeQuickMeta": "ප්‍රශ්න 10",
@@ -155,6 +157,10 @@
   "quizDifficultyHard": "අසීරු",
   "quizImageFailed": "මෙම ප්‍රශ්නයේ රූපය පූරණය කළ නොහැකි වූ බැවින් එය මඟ හරින ලදී.",
   "quizTapToZoom": "විශාල කිරීමට තට්ටු කරන්න",
+  "quizNoQuestionsTitle": "මෙහි තවම පුහුණු වීමට කිසිවක් නැත",
+  "quizNoQuestionsBody": "මෙම තේරීම සඳහා ප්‍රශ්න නොමැත. වෙනත් මාතෘකාවක් උත්සාහ කරන්න.",
+  "quizAlreadySubmittedTitle": "දැනටමත් ඉදිරිපත් කර ඇත",
+  "quizAlreadySubmittedBody": "මෙම සැසිය ලකුණු කර අවසන්. දිගටම පුහුණු වීමට නව සැසියක් අරඹන්න.",
 
   "resultsThisSession": "මෙම සැසිය",
   "resultsScoreLine": "{total} න් {correct} ක් නිවැරදියි",
@@ -241,7 +247,8 @@
   "notificationPrefDaily": "දෛනික අභියෝගය",
   "notificationPrefStreak": "අඛණ්ඩතා මතක් කිරීම්",
   "notificationPrefDigest": "තත්කාලීන කරුණු සාරාංශය",
-  "notificationPrefBilling": "දායකත්වය හා අය කිරීම්",
+  "notificationPrefChargeFailed": "අසාර්ථක දායක ගාස්තු",
+  "notificationPrefRenewal": "දායකත්ව අලුත් කිරීමේ මතක් කිරීම්",
   "notificationPrefInactivity": "ඔබ ඈත් වූ විට මතක් කිරීම්",
 
   "navHome": "මුල් පිටුව",

@@ -11,6 +11,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/siq_surfaces.dart';
 import '../../../domain/enums.dart';
+import '../../../domain/models/app_notification.dart';
 import '../../legal/presentation/terms_sheet.dart';
 
 /// Language, theme, notification preferences, legal and account actions.
@@ -275,12 +276,17 @@ class _NotificationToggles extends ConsumerWidget {
         final prefs = snapshot.data;
         if (prefs == null) return const SizedBox.shrink();
 
-        Widget toggle(String label, bool value, ValueChanged<bool> onChanged) {
+        Widget toggle(
+          String label,
+          bool value,
+          NotificationPreferences Function(bool) update,
+        ) {
           return SwitchListTile.adaptive(
             value: value,
             onChanged: (next) async {
-              onChanged(next);
-              // Rebuild so the FutureBuilder reflects the saved value.
+              // Awaited so the FutureBuilder re-reads the saved value rather
+              // than racing the write and flicking the switch back.
+              await repository.savePreferences(update(next));
               ref.invalidate(notificationRepositoryProvider);
             },
             title: Text(
@@ -301,28 +307,32 @@ class _NotificationToggles extends ConsumerWidget {
             toggle(
               l10n.notificationPrefDaily,
               prefs.dailyChallenge,
-              (v) => repository
-                  .savePreferences(prefs.copyWith(dailyChallenge: v)),
+              (v) => prefs.copyWith(dailyChallenge: v),
             ),
             toggle(
               l10n.notificationPrefStreak,
               prefs.streak,
-              (v) => repository.savePreferences(prefs.copyWith(streak: v)),
+              (v) => prefs.copyWith(streak: v),
             ),
             toggle(
               l10n.notificationPrefDigest,
               prefs.digest,
-              (v) => repository.savePreferences(prefs.copyWith(digest: v)),
+              (v) => prefs.copyWith(digest: v),
             ),
             toggle(
-              l10n.notificationPrefBilling,
-              prefs.billing,
-              (v) => repository.savePreferences(prefs.copyWith(billing: v)),
+              l10n.notificationPrefChargeFailed,
+              prefs.chargeFailed,
+              (v) => prefs.copyWith(chargeFailed: v),
+            ),
+            toggle(
+              l10n.notificationPrefRenewal,
+              prefs.renewal,
+              (v) => prefs.copyWith(renewal: v),
             ),
             toggle(
               l10n.notificationPrefInactivity,
               prefs.inactivity,
-              (v) => repository.savePreferences(prefs.copyWith(inactivity: v)),
+              (v) => prefs.copyWith(inactivity: v),
             ),
           ],
         );

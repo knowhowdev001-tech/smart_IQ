@@ -117,11 +117,16 @@ class _QuizError extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
-    // A refused set is the conversion moment PRD 7.7 describes, so it gets
-    // the plan sheet rather than a generic error.
-    if (error is QuotaExceededException) {
-      final quota = error as QuotaExceededException;
-      final tierName = switch (quota.tier) {
+    // Two different refusals, one prompt: the allowance is spent, or the
+    // tier never included this mode at all. Both are the conversion moment
+    // PRD 7.7 describes, so both get the plan sheet rather than an error.
+    final failure = error;
+    if (failure is QuotaExceededException ||
+        failure is UpgradeRequiredException) {
+      final tier = failure is QuotaExceededException
+          ? failure.tier
+          : ref.watch(currentEntitlementProvider).tier;
+      final tierName = switch (tier) {
         Tier.free => l10n.tierFree,
         Tier.basic => l10n.tierBasic,
         Tier.pro => l10n.tierPro,
@@ -147,6 +152,30 @@ class _QuizError extends ConsumerWidget {
             ),
           ],
         ),
+      );
+    }
+
+    // An exhausted bank is an empty state, not a failure: retrying the same
+    // filter would return the same nothing.
+    if (failure is EmptyPracticeSetException) {
+      return SiqMessageState(
+        title: l10n.quizNoQuestionsTitle,
+        body: l10n.quizNoQuestionsBody,
+        icon: Icons.inbox_rounded,
+        retryLabel: l10n.resultsHome,
+        onRetry: context.pop,
+      );
+    }
+
+    // Where a retry after a dropped connection lands once the first attempt
+    // actually reached the server.
+    if (failure is AlreadySubmittedException) {
+      return SiqMessageState(
+        title: l10n.quizAlreadySubmittedTitle,
+        body: l10n.quizAlreadySubmittedBody,
+        icon: Icons.check_circle_outline_rounded,
+        retryLabel: l10n.resultsHome,
+        onRetry: context.pop,
       );
     }
 

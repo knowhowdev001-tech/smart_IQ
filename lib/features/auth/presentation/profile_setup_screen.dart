@@ -11,6 +11,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/siq_button.dart';
 import '../../../core/widgets/siq_field.dart';
+import '../../../data/repositories/repositories.dart';
 import '../application/signup_draft.dart';
 import 'widgets/auth_scaffold.dart';
 
@@ -88,6 +89,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       // inherit this name.
       ref.read(signupNameProvider.notifier).state = null;
       context.go(Routes.home);
+    } on OfflineException {
+      if (!mounted) return;
+      setState(() => _nameError = l10n.errorOffline);
     } catch (_) {
       if (!mounted) return;
       setState(() => _nameError = l10n.errorGeneric);

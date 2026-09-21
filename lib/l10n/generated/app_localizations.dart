@@ -381,6 +381,12 @@ abstract class AppL10n {
   /// **'Enter your name.'**
   String get errorEnterName;
 
+  /// No description provided for @errorAccountExists.
+  ///
+  /// In en, this message translates to:
+  /// **'An account already exists for this number. Please log in.'**
+  String get errorAccountExists;
+
   /// No description provided for @errorOffline.
   ///
   /// In en, this message translates to:
@@ -525,10 +531,16 @@ abstract class AppL10n {
   /// **'Performance'**
   String get homePerformance;
 
+  /// No description provided for @homePerformanceShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get homePerformanceShowMore;
+
   /// No description provided for @homeWeakAreasEmpty.
   ///
   /// In en, this message translates to:
-  /// **'Finish a practice session to see where you are weakest.'**
+  /// **'Finish a practice session to see your accuracy by sub-topic.'**
   String get homeWeakAreasEmpty;
 
   /// No description provided for @practiceModeQuick.
@@ -716,6 +728,30 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Tap to zoom'**
   String get quizTapToZoom;
+
+  /// No description provided for @quizNoQuestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to practise here yet'**
+  String get quizNoQuestionsTitle;
+
+  /// No description provided for @quizNoQuestionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions are available for this selection. Try another topic.'**
+  String get quizNoQuestionsBody;
+
+  /// No description provided for @quizAlreadySubmittedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Already submitted'**
+  String get quizAlreadySubmittedTitle;
+
+  /// No description provided for @quizAlreadySubmittedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This session has been scored. Start a new one to keep practising.'**
+  String get quizAlreadySubmittedBody;
 
   /// No description provided for @resultsThisSession.
   ///
@@ -1113,11 +1149,17 @@ abstract class AppL10n {
   /// **'Current affairs digest'**
   String get notificationPrefDigest;
 
-  /// No description provided for @notificationPrefBilling.
+  /// No description provided for @notificationPrefChargeFailed.
   ///
   /// In en, this message translates to:
-  /// **'Subscription and charging'**
-  String get notificationPrefBilling;
+  /// **'Failed subscription charges'**
+  String get notificationPrefChargeFailed;
+
+  /// No description provided for @notificationPrefRenewal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription renewal reminders'**
+  String get notificationPrefRenewal;
 
   /// No description provided for @notificationPrefInactivity.
   ///

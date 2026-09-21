@@ -64,6 +64,7 @@
   "errorEnterMobile": "உங்கள் கைபேசி எண்ணை உள்ளிடவும்.",
   "errorInvalidMobile": "செல்லுபடியாகும் இலங்கை கைபேசி எண்ணை உள்ளிடவும்.",
   "errorEnterName": "உங்கள் பெயரை உள்ளிடவும்.",
+  "errorAccountExists": "இந்த எண்ணுக்கு ஏற்கனவே கணக்கு உள்ளது. தயவுசெய்து உள்நுழையவும்.",
   "errorOffline": "இணைய இணைப்பு இல்லை.",
   "errorOfflineBody": "வினாக்களை ஏற்ற Smart IQ க்கு இணைப்பு தேவை. உங்கள் இணையத்தைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
   "errorGeneric": "ஏதோ தவறு நடந்தது.",
@@ -108,7 +109,8 @@
 
   "homePracticeByCategory": "பிரிவு வாரியான பயிற்சி",
   "homePerformance": "செயல்திறன்",
-  "homeWeakAreasEmpty": "நீங்கள் எங்கே பலவீனமாக இருக்கிறீர்கள் என்பதைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.",
+  "homePerformanceShowMore": "மேலும் பார்க்க",
+  "homeWeakAreasEmpty": "துணைத் தலைப்பு வாரியான உங்கள் துல்லியத்தைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.",
 
   "practiceModeQuick": "விரைவு",
   "practiceModeQuickMeta": "10 வினாக்கள்",
@@ -155,6 +157,10 @@
   "quizDifficultyHard": "கடினம்",
   "quizImageFailed": "இந்த வினாவின் படத்தை ஏற்ற முடியவில்லை, எனவே அது தவிர்க்கப்பட்டது.",
   "quizTapToZoom": "பெரிதாக்கத் தட்டவும்",
+  "quizNoQuestionsTitle": "இங்கு இன்னும் பயிற்சி செய்ய எதுவும் இல்லை",
+  "quizNoQuestionsBody": "இந்தத் தேர்வுக்கு கேள்விகள் இல்லை. வேறு தலைப்பை முயற்சிக்கவும்.",
+  "quizAlreadySubmittedTitle": "ஏற்கனவே சமர்ப்பிக்கப்பட்டது",
+  "quizAlreadySubmittedBody": "இந்த அமர்வு மதிப்பிடப்பட்டுவிட்டது. தொடர புதிய அமர்வைத் தொடங்குங்கள்.",
 
   "resultsThisSession": "இந்த அமர்வு",
   "resultsScoreLine": "{total} இல் {correct} சரி",
@@ -241,7 +247,8 @@
   "notificationPrefDaily": "தினசரி சவால்",
   "notificationPrefStreak": "தொடர்ச்சி நினைவூட்டல்கள்",
   "notificationPrefDigest": "நடப்பு நிகழ்வுச் சுருக்கம்",
-  "notificationPrefBilling": "சந்தா மற்றும் கட்டணம்",
+  "notificationPrefChargeFailed": "தோல்வியடைந்த சந்தா கட்டணங்கள்",
+  "notificationPrefRenewal": "சந்தா புதுப்பிப்பு நினைவூட்டல்கள்",
   "notificationPrefInactivity": "நீங்கள் விலகி இருக்கும்போது நினைவூட்டல்கள்",
 
   "navHome": "முகப்பு",

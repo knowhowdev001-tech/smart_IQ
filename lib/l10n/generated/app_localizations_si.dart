@@ -160,6 +160,10 @@ class AppL10nSi extends AppL10n {
   String get errorEnterName => 'ඔබේ නම ඇතුළත් කරන්න.';
 
   @override
+  String get errorAccountExists =>
+      'මෙම අංකය සඳහා දැනටමත් ගිණුමක් ඇත. කරුණාකර පිවිසෙන්න.';
+
+  @override
   String get errorOffline => 'අන්තර්ජාල සම්බන්ධතාවයක් නැත.';
 
   @override
@@ -248,8 +252,11 @@ class AppL10nSi extends AppL10n {
   String get homePerformance => 'කාර්ය සාධනය';
 
   @override
+  String get homePerformanceShowMore => 'තව බලන්න';
+
+  @override
   String get homeWeakAreasEmpty =>
-      'ඔබ දුර්වල කොතැනදැයි බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.';
+      'උප මාතෘකා අනුව ඔබේ නිරවද්‍යතාව බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.';
 
   @override
   String get practiceModeQuick => 'ඉක්මන්';
@@ -352,6 +359,20 @@ class AppL10nSi extends AppL10n {
 
   @override
   String get quizTapToZoom => 'විශාල කිරීමට තට්ටු කරන්න';
+
+  @override
+  String get quizNoQuestionsTitle => 'මෙහි තවම පුහුණු වීමට කිසිවක් නැත';
+
+  @override
+  String get quizNoQuestionsBody =>
+      'මෙම තේරීම සඳහා ප්‍රශ්න නොමැත. වෙනත් මාතෘකාවක් උත්සාහ කරන්න.';
+
+  @override
+  String get quizAlreadySubmittedTitle => 'දැනටමත් ඉදිරිපත් කර ඇත';
+
+  @override
+  String get quizAlreadySubmittedBody =>
+      'මෙම සැසිය ලකුණු කර අවසන්. දිගටම පුහුණු වීමට නව සැසියක් අරඹන්න.';
 
   @override
   String get resultsThisSession => 'මෙම සැසිය';
@@ -564,7 +585,10 @@ class AppL10nSi extends AppL10n {
   String get notificationPrefDigest => 'තත්කාලීන කරුණු සාරාංශය';
 
   @override
-  String get notificationPrefBilling => 'දායකත්වය හා අය කිරීම්';
+  String get notificationPrefChargeFailed => 'අසාර්ථක දායක ගාස්තු';
+
+  @override
+  String get notificationPrefRenewal => 'දායකත්ව අලුත් කිරීමේ මතක් කිරීම්';
 
   @override
   String get notificationPrefInactivity => 'ඔබ ඈත් වූ විට මතක් කිරීම්';

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../enums.dart';
 import 'content.dart';
+import 'localized_text.dart';
 
 /// A set of questions served by `rpc/get_practice_set`.
 ///
@@ -20,6 +21,37 @@ class PracticeSet {
     this.totalSeconds,
     this.negativeMarkPerWrong = 0,
   });
+
+  /// Reads what `rpc/get_practice_set`, `rpc/get_daily_challenge` and
+  /// `rpc/get_mock_exam` return.
+  ///
+  /// Timing and negative marking are not server fields: they follow from the
+  /// mode (PRD 6.3), so they are derived here rather than round-tripped.
+  factory PracticeSet.fromJson(
+    Map<String, dynamic> json, {
+    String? subTopicId,
+    String? categoryKey,
+  }) {
+    final mode = PracticeMode.fromKey(json['mode'] as String?);
+    final questions = [
+      for (final q in (json['questions'] as List? ?? const []))
+        Question.fromJson(Map<String, dynamic>.from(q as Map)),
+    ];
+    final perQuestion = mode.secondsPerQuestion;
+
+    return PracticeSet(
+      sessionId: json['session_id'] as String,
+      mode: mode,
+      questions: questions,
+      subTopicId: subTopicId,
+      categoryKey: categoryKey,
+      startedAt: DateTime.now(),
+      totalSeconds: mode == PracticeMode.mockExam && perQuestion != null
+          ? questions.length * perQuestion
+          : null,
+      negativeMarkPerWrong: mode == PracticeMode.mockExam ? 0.25 : 0,
+    );
+  }
 
   final String sessionId;
   final PracticeMode mode;
@@ -133,6 +165,19 @@ class SubTopicScore {
     required this.total,
   });
 
+  /// The server sends `name` as all three languages at once, the same as
+  /// everywhere else content is returned; the result screen shows one.
+  factory SubTopicScore.fromJson(
+    Map<String, dynamic> json,
+    AppLanguage language,
+  ) =>
+      SubTopicScore(
+        subTopicId: json['sub_topic_id'] as String,
+        name: LocalizedText.fromJson(Map<String, dynamic>.from(json['name'] as Map)).resolve(language),
+        correct: (json['correct'] as num?)?.toInt() ?? 0,
+        total: (json['total'] as num?)?.toInt() ?? 0,
+      );
+
   final String subTopicId;
   final String name;
   final int correct;
@@ -168,6 +213,39 @@ class SessionResult {
     this.wrongQuestionIds = const <String>[],
     this.completedAt,
   });
+
+  /// Reads what `rpc/submit_practice_session` returns.
+  ///
+  /// [totalTime] is passed in rather than parsed: the server records a
+  /// duration but does not return it, and the client already knows how long
+  /// each question took.
+  factory SessionResult.fromJson(
+    Map<String, dynamic> json, {
+    required AppLanguage language,
+    required Duration totalTime,
+  }) =>
+      SessionResult(
+        sessionId: json['session_id'] as String,
+        mode: PracticeMode.fromKey(json['mode'] as String?),
+        correct: (json['correct_count'] as num?)?.toInt() ?? 0,
+        incorrect: (json['incorrect_count'] as num?)?.toInt() ?? 0,
+        skipped: (json['skipped_count'] as num?)?.toInt() ?? 0,
+        totalTime: totalTime,
+        breakdown: [
+          for (final b in (json['breakdown'] as List? ?? const []))
+            SubTopicScore.fromJson(
+                Map<String, dynamic>.from(b as Map), language),
+        ],
+        ownHistory: [
+          for (final a in (json['own_history'] as List? ?? const []))
+            (a as num).toInt(),
+        ],
+        wrongQuestionIds: [
+          for (final id in (json['wrong_question_ids'] as List? ?? const []))
+            id as String,
+        ],
+        completedAt: DateTime.now(),
+      );
 
   final String sessionId;
   final PracticeMode mode;

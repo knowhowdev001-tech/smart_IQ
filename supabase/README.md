@@ -27,7 +27,7 @@ modified client cannot page through the bank without touching a counter.
 | --- | --- | --- |
 | A | PostgREST + RLS | Reference data and the user's own rows |
 | B | `SECURITY DEFINER` RPC | Anything that consumes quota or writes a row the client is not trusted with |
-| C | Edge Function | Third-party calls and token minting — **not yet built** |
+| C | Edge Function | Third-party calls and token minting |
 
 ## RPCs
 
@@ -44,6 +44,9 @@ modified client cannot page through the bank without touching a counter.
 | `get_questions_by_ids` | Bookmarked, wrong-banked or previously served questions only |
 | `get_current_affairs` | Published digests |
 | `delete_account` | Cascading deletion in one transaction |
+| `register_device_token` | Attaches this install's FCM token to the caller, detaching it from any other account |
+| `enqueue_notification` | Service role only. Queues one push for one user, respecting their preferences |
+| `claim_push_batch` | Service role only. Hands `push-dispatch` its next batch |
 
 Errors carry a `hint` the client can branch on: `quota_exceeded`,
 `upgrade_required`, `empty_set`, `already_submitted`.
@@ -58,10 +61,9 @@ Lanka day boundary via `app.sl_today()`, never the server's own date.
 
 ## What is not built yet
 
-- **Edge Functions.** `/auth/otp/request`, `/auth/otp/verify`,
-  `/auth/refresh`, `/ai/chat`, `/payment-status`, `/webhooks/revenuecat`.
-  The tables they write are in place; the functions are not. Until they
-  exist the app cannot sign anyone in against this database.
+- **The remaining Edge Functions.** `otp-request`, `otp-verify`,
+  `auth-refresh` and `push-dispatch` are built and deployed (see below);
+  `/ai/chat`, `/payment-status` and `/webhooks/revenuecat` are not.
 - **The question bank.** Schema and validation are ready; no questions are
   loaded. `assert_question_publishable` refuses to publish anything missing
   a correct option, a stem, an explanation or option content in any of the
@@ -78,6 +80,147 @@ Lanka day boundary via `app.sl_today()`, never the server's own date.
 - **Storage buckets.** `media_path` columns hold Storage object paths, not
   URLs, so the bucket can be created and the host changed without a data
   migration.
+
+## Edge Functions
+
+`functions/otp-request` and `functions/otp-verify` are the sign-in path, and
+the only reason signup reaches the database at all. Both are public
+(`verify_jwt = false` in `config.toml`) because a user asking for a code has
+no session yet, in the same way GoTrue's own token endpoint is public. They
+are rate limited on the MSISDN cooldown and on `attempt_count` instead.
+
+`otp-verify` is where a signup becomes a row: it upserts `users` on the
+unique MSISDN, writes the device into `auth_sessions`, and mints the HS256
+JWT with `sub` set to `users.id`. The profile is not created there — PRD 6.1
+step 5 has a verified user without one, and `create_profile` is what makes it.
+
+`functions/auth-refresh` keeps a signed-in device signed in. The access
+token lasts an hour, so without it a returning user was sent back to the
+landing screen; the app now renews the token five minutes before it expires,
+on whatever request comes first. The refresh token is single-use and rotates
+on every call, the session is looked up by its hash rather than by the token,
+and a device idle for 90 days has to sign in again. A refusal
+(`session_expired`, `account_suspended`) clears the local session, while a
+network failure keeps it: being offline is not being signed out.
+
+`functions/push-dispatch` sends push notifications (PRD 6.8); see
+[Push notifications](#push-notifications) below.
+
+### Secrets
+
+Set these under Project Settings → Edge Functions → Secrets, or with
+`supabase secrets set`. Nothing works without the first two:
+
+| Secret | What it is |
+| --- | --- |
+| `APP_JWT_SECRET` | The project's JWT secret (Settings → API → JWT Settings). What the minted token is signed with, and therefore what makes PostgREST accept it. Set it under **this** name: the CLI refuses to set anything prefixed `SUPABASE_` (`Env name cannot start with SUPABASE_, skipping`), so `SUPABASE_JWT_SECRET` is read first but can only be set on a platform that allows the prefix. |
+| `OTP_PEPPER` | A long random string, never rotated casually — rotating it invalidates every live OTP and every refresh token. |
+| `OTP_FIXED_CODE` | Six digits. **Development only.** |
+| `ALLOW_DEV_OTP` | `true` issues the constant `123456`. **Development only** — it is a universal password for every phone number. |
+
+`ALLOW_DEV_OTP` and `OTP_FIXED_CODE` exist because no SMS gateway is wired
+yet: every `msisdn_prefix_routing` row is inactive with an empty endpoint, so
+a real random code would be undeliverable. `ALLOW_DEV_OTP=true` issues the
+constant `123456`; `OTP_FIXED_CODE` overrides that value. Either way the code
+verifies for *every* number, so both belong only on a development project.
+Leave them unset and the code is random, which is what production should be:
+production is simply the deployment that sets neither.
+
+`OTP_PEPPER` now has a development fallback in `_shared/tokens.ts`, so the
+flow runs on a project with no secrets configured. That fallback is committed
+to this repository and therefore protects nothing: an `otp_requests` row
+hashed with it can be reversed by trying a million six-digit codes. Set a
+real `OTP_PEPPER` before the table holds anyone's actual number.
+
+## Loading questions
+
+Questions span five tables (question, options and their translations in three
+languages), so they are loaded through a flat staging table rather than by
+hand. One spreadsheet row is one question.
+
+1. Fill in a CSV with the columns of `public.question_import`:
+   `batch, sub_topic_key, difficulty, stem_en|si|ta, explanation_en|si|ta,
+   option_a|b|c|d_en|si|ta, correct_option, shuffle_options`.
+   `sub_topic_key` is a key from `sub_topics` (`gk_geography`, `iq_numerical`,
+   ...), `correct_option` is `A`-`D`, and blank option columns simply mean
+   fewer than four choices. Sinhala and Tamil fall back to the English cell
+   when left empty, because a blank one cannot be published.
+2. Dashboard -> Table editor -> `question_import` -> Import data from CSV.
+3. `select app.import_questions('<batch>');`
+
+It returns `{imported, failed, errors[]}`. Each row is imported in its own
+block, so a bad row records its reason in `question_import.error` and the rest
+of the batch still lands; fix those rows and re-run, since imported rows are
+skipped.
+
+`supabase/seed/fake_questions.csv` is 65 placeholder questions (batch
+`fake-v1`) covering all 13 sub-topics, for exercising the app before real
+content exists. Its Sinhala and Tamil are English text tagged `[SI]`/`[TA]`,
+so it can never be mistaken for reviewed content. Remove it once real
+questions are in:
+
+```sql
+delete from public.questions where id in (
+  select question_id from public.question_import where batch = 'fake-v1');
+delete from public.question_import where batch = 'fake-v1';
+```
+
+The daily challenge composes itself: `app.job_build_daily_challenge()` runs at
+06:00 SL (an hour before the notification) and picks ten live questions,
+preferring ones not used in the last 30 days.
+
+## Push notifications
+
+`notifications` is both the in-app inbox and the push outbox (migration
+0020). Nothing sends a push directly: every trigger inserts a row, and
+`push-dispatch` drains the `pending` ones through FCM.
+
+| Kind | Fires | From |
+| --- | --- | --- |
+| `daily_challenge` | 07:00 SL, if today's challenge exists and the user's tier includes it and they have not started it | `app.job_daily_challenge()` |
+| `streak` | 20:00 SL, if they practised yesterday but not today | `app.job_streak_at_risk()` |
+| `digest` | When a `current_affairs` row goes `live` | trigger on `current_affairs` |
+| `charge_failed` | When a `telco_charges` row is `failed`; the RevenueCat webhook calls `enqueue_notification` | trigger on `telco_charges` |
+| `renewal` | 10:00 SL, `renewal_reminder_days` before a RevenueCat plan's `valid_until` | `app.job_renewal_reminder()` |
+| `inactivity` | 18:00 SL, once per stretch of `inactivity_days` without practice or sign-in | `app.job_inactivity()` |
+
+- **Preferences** are checked when the row is written (`app.push_audience`).
+  A kind the user turned off produces nothing, not even an inbox entry.
+- **Duplicates** are prevented by `dedupe_key`, so re-running a job is safe.
+- **Copy** lives in `notification_templates`, in all three languages, because
+  a push is rendered while the app is closed. Edit that table to change
+  wording. The Sinhala and Tamil rows are drafts and need review by the
+  content team.
+- **Tunables** are in `app_settings`: `inactivity_days` and
+  `renewal_reminder_days`. Change send times with `cron.alter_job`. pg_cron
+  runs in UTC, and SL is UTC+05:30.
+
+### Turning it on
+
+1. Create a Firebase project, and add an Android app (`lk.knowhow.smart_iq`)
+   and an iOS app (`lk.knowhow.smartIq`). Upload an APNs auth key (.p8)
+   under Cloud Messaging.
+2. Run `flutterfire configure --project=smartiq-notification`. It writes
+   `lib/firebase_options.dart` and `android/app/google-services.json`. This
+   is already done for Android and iOS.
+3. Set the Edge Function secrets and deploy:
+   ```
+   npx supabase secrets set FCM_SERVICE_ACCOUNT="$(cat service-account.json)" PUSH_DISPATCH_SECRET=<random>
+   npx supabase functions deploy push-dispatch
+   ```
+   `FCM_SERVICE_ACCOUNT` is the JSON key of a service account with the
+   *Firebase Cloud Messaging API Admin* role.
+4. Tell the database where to call, using the same secret:
+   ```sql
+   select vault.create_secret('https://glmryghkrpnmlqymsxuz.supabase.co/functions/v1/push-dispatch', 'push_dispatch_url');
+   select vault.create_secret('<same random>', 'push_dispatch_secret');
+   ```
+   Until both exist, `app.kick_push_dispatch()` does nothing and rows just
+   accumulate in the inbox.
+
+To check it's working: `select * from cron.job_run_details order by start_time desc`,
+`select push_status, count(*) from notifications group by 1`, and the
+`push-dispatch` function logs, which print a per-run tally.
 
 ## Working on it
 

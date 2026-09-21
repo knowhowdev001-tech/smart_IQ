@@ -10,6 +10,7 @@ import '../../../core/theme/app_scale.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/msisdn.dart';
+import '../../../data/repositories/repositories.dart';
 import '../../../core/widgets/siq_button.dart';
 import '../../../core/widgets/siq_field.dart';
 import '../../legal/presentation/terms_sheet.dart';
@@ -58,11 +59,24 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     setState(() => _sending = true);
     try {
-      await ref.read(authRepositoryProvider).requestOtp(normalised!);
+      await ref
+          .read(authRepositoryProvider)
+          .requestOtp(normalised!, fullName: name);
       if (!mounted) return;
       // Carried through OTP so profile creation does not ask for it again.
       ref.read(signupNameProvider.notifier).state = name;
       context.push('${Routes.otp}?msisdn=$normalised&signup=1');
+    } on AccountExistsException {
+      // Against the number field rather than the name, because the number is
+      // what is already taken and what they would change to proceed.
+      if (!mounted) return;
+      setState(() => _phoneError = l10n.errorAccountExists);
+    } on OfflineException {
+      // Distinguished from the generic failure because the remedy is the
+      // user's, not ours. It is also the shape a missing INTERNET permission
+      // takes on Android, where nothing reaches the server to explain itself.
+      if (!mounted) return;
+      setState(() => _phoneError = l10n.errorOffline);
     } catch (_) {
       if (!mounted) return;
       setState(() => _phoneError = l10n.errorGeneric);

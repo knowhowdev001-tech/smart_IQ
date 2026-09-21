@@ -58,28 +58,50 @@ class AppNotification {
   int get hashCode => Object.hash(id, unread);
 }
 
-/// Per-type push preferences (PRD 6.8).
+/// Per-type push preferences (PRD 6.8), one switch per [NotificationKind].
 @immutable
 class NotificationPreferences {
   const NotificationPreferences({
     this.dailyChallenge = true,
     this.streak = true,
     this.digest = true,
-    this.billing = true,
+    this.chargeFailed = true,
+    this.renewal = true,
     this.inactivity = true,
   });
+
+  /// Rows from `notification_preferences`. A kind with no row counts as on,
+  /// which is what `create_profile` seeds and what the server assumes.
+  factory NotificationPreferences.fromRows(List<Map<String, dynamic>> rows) {
+    final enabled = {
+      for (final row in rows)
+        NotificationKind.fromKey(row['kind'] as String?):
+            row['enabled'] as bool? ?? true,
+    };
+    bool on(NotificationKind kind) => enabled[kind] ?? true;
+    return NotificationPreferences(
+      dailyChallenge: on(NotificationKind.dailyChallenge),
+      streak: on(NotificationKind.streak),
+      digest: on(NotificationKind.digest),
+      chargeFailed: on(NotificationKind.chargeFailed),
+      renewal: on(NotificationKind.renewal),
+      inactivity: on(NotificationKind.inactivity),
+    );
+  }
 
   final bool dailyChallenge;
   final bool streak;
   final bool digest;
-  final bool billing;
+  final bool chargeFailed;
+  final bool renewal;
   final bool inactivity;
 
   bool enabledFor(NotificationKind kind) => switch (kind) {
         NotificationKind.dailyChallenge => dailyChallenge,
         NotificationKind.streak => streak,
         NotificationKind.digest => digest,
-        NotificationKind.chargeFailed || NotificationKind.renewal => billing,
+        NotificationKind.chargeFailed => chargeFailed,
+        NotificationKind.renewal => renewal,
         NotificationKind.inactivity => inactivity,
       };
 
@@ -87,14 +109,16 @@ class NotificationPreferences {
     bool? dailyChallenge,
     bool? streak,
     bool? digest,
-    bool? billing,
+    bool? chargeFailed,
+    bool? renewal,
     bool? inactivity,
   }) =>
       NotificationPreferences(
         dailyChallenge: dailyChallenge ?? this.dailyChallenge,
         streak: streak ?? this.streak,
         digest: digest ?? this.digest,
-        billing: billing ?? this.billing,
+        chargeFailed: chargeFailed ?? this.chargeFailed,
+        renewal: renewal ?? this.renewal,
         inactivity: inactivity ?? this.inactivity,
       );
 
@@ -105,10 +129,11 @@ class NotificationPreferences {
           other.dailyChallenge == dailyChallenge &&
           other.streak == streak &&
           other.digest == digest &&
-          other.billing == billing &&
+          other.chargeFailed == chargeFailed &&
+          other.renewal == renewal &&
           other.inactivity == inactivity;
 
   @override
-  int get hashCode =>
-      Object.hash(dailyChallenge, streak, digest, billing, inactivity);
+  int get hashCode => Object.hash(
+      dailyChallenge, streak, digest, chargeFailed, renewal, inactivity);
 }

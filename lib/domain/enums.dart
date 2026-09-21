@@ -101,6 +101,28 @@ enum PracticeMode {
         _ => null,
       };
 
+  /// The `practice_mode` enum value in the database, which is also what
+  /// `rpc/get_practice_set` takes as `p_mode`.
+  String get key => switch (this) {
+        PracticeMode.quick => 'quick',
+        PracticeMode.timed => 'timed',
+        PracticeMode.speed => 'speed',
+        PracticeMode.adaptive => 'adaptive',
+        PracticeMode.dailyChallenge => 'daily_challenge',
+        PracticeMode.mockExam => 'mock_exam',
+        PracticeMode.wrongAnswerDrill => 'wrong_answer_drill',
+      };
+
+  static PracticeMode fromKey(String? key) => switch (key) {
+        'timed' => PracticeMode.timed,
+        'speed' => PracticeMode.speed,
+        'adaptive' => PracticeMode.adaptive,
+        'daily_challenge' => PracticeMode.dailyChallenge,
+        'mock_exam' => PracticeMode.mockExam,
+        'wrong_answer_drill' => PracticeMode.wrongAnswerDrill,
+        _ => PracticeMode.quick,
+      };
+
   /// PRD 7.5 gates adaptive difficulty and speed drills to Pro and above.
   Tier get minimumTier => switch (this) {
         PracticeMode.speed || PracticeMode.adaptive => Tier.pro,
@@ -128,6 +150,17 @@ enum NotificationKind {
         'renewal' => NotificationKind.renewal,
         'inactivity' => NotificationKind.inactivity,
         _ => NotificationKind.dailyChallenge,
+      };
+
+  /// The `notification_kind` enum value in the database, which is also the
+  /// Android notification channel id the dispatcher sends on.
+  String get key => switch (this) {
+        NotificationKind.dailyChallenge => 'daily_challenge',
+        NotificationKind.streak => 'streak',
+        NotificationKind.digest => 'digest',
+        NotificationKind.chargeFailed => 'charge_failed',
+        NotificationKind.renewal => 'renewal',
+        NotificationKind.inactivity => 'inactivity',
       };
 }
 

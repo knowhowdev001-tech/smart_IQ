@@ -32,9 +32,49 @@ class QuotaExceededException implements Exception {
   final DateTime? resetsAt;
 }
 
+/// Raised when the tier does not include the feature at all, as opposed to
+/// having spent its allowance. PRD 7.7: the prompt is an upgrade, not a
+/// "come back tomorrow".
+class UpgradeRequiredException implements Exception {
+  const UpgradeRequiredException();
+}
+
+/// Raised when the question bank has nothing left to serve for the chosen
+/// filter -- every question seen recently, or no content published yet.
+class EmptyPracticeSetException implements Exception {
+  const EmptyPracticeSetException();
+}
+
+/// Raised when a session has already been scored. A retry after a dropped
+/// connection lands here, so it reads as "already done", not as an error.
+class AlreadySubmittedException implements Exception {
+  const AlreadySubmittedException();
+}
+
 /// Raised when a request needs a session the client does not have.
 class UnauthenticatedException implements Exception {
   const UnauthenticatedException();
+}
+
+/// Raised when the submitted OTP does not match the live code.
+class OtpInvalidException implements Exception {
+  const OtpInvalidException();
+}
+
+/// Raised when there is no live code left to check — expired, already used,
+/// or burned by too many wrong guesses. The screen offers a resend for all
+/// of these, so they are one exception rather than three.
+class OtpExpiredException implements Exception {
+  const OtpExpiredException();
+}
+
+/// Raised when signup is attempted with a number that already has an account.
+///
+/// Only the signup screen can see this. Login deliberately cannot: there,
+/// an existing account is the expected case, and `otp-verify` treats signup
+/// and login as one call precisely so a returning user is never turned away.
+class AccountExistsException implements Exception {
+  const AccountExistsException();
 }
 
 /// Phone + OTP authentication against our own schema.
@@ -44,7 +84,12 @@ class UnauthenticatedException implements Exception {
 abstract interface class AuthRepository {
   /// Issues an OTP to [msisdn]. Returns the seconds until a resend is
   /// allowed, so the client can render the cooldown countdown (PRD 6.1).
-  Future<int> requestOtp(String msisdn);
+  ///
+  /// [fullName] is set only by the signup screen, which is the one caller
+  /// that has a name to give. It is held server-side against the unverified
+  /// number and cleared once the code is checked. Login and a resend pass
+  /// nothing and leave any pending row alone.
+  Future<int> requestOtp(String msisdn, {String? fullName});
 
   /// Verifies [code] and establishes a session. Returns null for a new user
   /// who must still create a profile, or the existing profile otherwise.
@@ -190,4 +235,8 @@ abstract interface class NotificationRepository {
   Future<NotificationPreferences> preferences();
 
   Future<void> savePreferences(NotificationPreferences prefs);
+
+  /// Records this install's push token against the signed-in user, taking it
+  /// away from any other account that last signed in on the same phone.
+  Future<void> registerDevice(String pushToken, {required String platform});
 }

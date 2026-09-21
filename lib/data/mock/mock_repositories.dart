@@ -12,6 +12,12 @@ import '../../domain/otp_policy.dart';
 import '../repositories/repositories.dart';
 import 'mock_content.dart';
 
+// The OTP exceptions moved to the repository contract when the real
+// implementation landed: they are part of the interface, not of the mock.
+// Re-exported so screens that catch them keep one import.
+export '../repositories/repositories.dart'
+    show OfflineException, OtpExpiredException, OtpInvalidException;
+
 /// The only OTP the mock accepts, until the SMS gateway and the server-side
 /// verification of PRD 6.1 exist. Development convenience, never shipped.
 const String kMockOtpCode = '123456';
@@ -35,9 +41,12 @@ class MockAuthRepository implements AuthRepository {
   static const _latency = Duration(milliseconds: 550);
 
   @override
-  Future<int> requestOtp(String msisdn) async {
+  Future<int> requestOtp(String msisdn, {String? fullName}) async {
     await Future<void>.delayed(_latency);
     _state.pendingMsisdn = msisdn;
+    // Stands in for the `temp` row the real backend writes: held against the
+    // unverified number, and cleared on verify.
+    _state.pendingName = fullName?.trim();
     _state.otpIssuedAt = DateTime.now();
     return kOtpResendCooldown.inSeconds;
   }
@@ -62,6 +71,9 @@ class MockAuthRepository implements AuthRepository {
     }
 
     _state.signedIn = true;
+    // Verified, so the pending row has done its job — the same point at which
+    // otp-verify deletes it server-side.
+    _state.pendingName = null;
     _state.profile = _state.profile?.copyWith(msisdn: msisdn);
     return _state.profile;
   }
@@ -141,13 +153,6 @@ class MockAuthRepository implements AuthRepository {
   }
 }
 
-class OtpInvalidException implements Exception {
-  const OtpInvalidException();
-}
-
-class OtpExpiredException implements Exception {
-  const OtpExpiredException();
-}
 
 class MockContentRepository implements ContentRepository {
   MockContentRepository(this._state);
@@ -434,6 +439,21 @@ class MockPracticeRepository implements PracticeRepository {
             ),
     ]..sort((a, b) => a.accuracy.compareTo(b.accuracy));
 
+    // What the home dashboard reports: every sub-topic the user has touched,
+    // however briefly, worst first. No floor and no threshold — a user who is
+    // doing well still deserves to see where they stand.
+    final subTopicAccuracy = <WeakArea>[
+      for (final entry in _state.subTopicTally.entries)
+        if (entry.value.total > 0)
+          WeakArea(
+            subTopicId: entry.key,
+            name: _subTopicName(entry.key, language),
+            accuracy:
+                ((entry.value.correct / entry.value.total) * 100).round(),
+            sampleSize: entry.value.total,
+          ),
+    ]..sort((a, b) => a.accuracy.compareTo(b.accuracy));
+
     // Readiness blends how accurate the user is with how much they have
     // actually done, so a single lucky session does not read as ready.
     final volume = (_state.questionsAnswered / 200).clamp(0.0, 1.0);
@@ -446,6 +466,7 @@ class MockPracticeRepository implements PracticeRepository {
       sessionsCompleted: _state.sessionsCompleted,
       overallAccuracy: accuracy,
       weakAreas: weakAreas.take(3).toList(),
+      subTopicAccuracy: subTopicAccuracy,
       recentAccuracy: _state.recentAccuracy,
     );
   }
@@ -692,6 +713,9 @@ class MockNotificationRepository implements NotificationRepository {
   Future<void> savePreferences(NotificationPreferences prefs) async {
     _state.notifyPrefs = prefs;
   }
+
+  @override
+  Future<void> registerDevice(String pushToken, {required String platform}) async {}
 }
 
 /// Shared mutable state behind the mock repositories, so a quota spent in
@@ -707,6 +731,9 @@ class MockBackendState {
 
   bool signedIn = false;
   String? pendingMsisdn;
+  /// The name given at signup, held while the number is unverified. Mirrors
+  /// the `temp` row the real backend writes, and cleared at the same point.
+  String? pendingName;
   DateTime? otpIssuedAt;
 
   /// Null until the user creates a profile. A new account starts with no

@@ -1,0 +1,22 @@
+project_id = "glmryghkrpnmlqymsxuz"
+
+# The two OTP endpoints are the app's front door, so they cannot require a
+# token: a user requesting a code has no session yet, by definition. They are
+# public in the same way GoTrue's own token endpoint is, and are rate limited
+# on the MSISDN (cooldown) and on wrong guesses (attempt_count) instead.
+[functions.otp-request]
+verify_jwt = false
+
+[functions.otp-verify]
+verify_jwt = false
+
+# The caller's access token has expired by definition, so there is nothing to
+# verify. The refresh token in the body is the credential, and it is checked
+# against the hash in auth_sessions.
+[functions.auth-refresh]
+verify_jwt = false
+
+# Called by pg_cron through pg_net, never by the app. It checks the
+# `x-dispatch-secret` header against PUSH_DISPATCH_SECRET instead of a JWT.
+[functions.push-dispatch]
+verify_jwt = false

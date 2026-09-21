@@ -82,6 +82,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       await ref.read(authRepositoryProvider).requestOtp(widget.msisdn);
       _controller.clear();
       _startClocks();
+    } on OfflineException {
+      if (mounted) setState(() => _error = context.l10n.errorOffline);
     } catch (_) {
       if (mounted) setState(() => _error = context.l10n.errorGeneric);
     }
@@ -115,6 +117,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       if (mounted) setState(() => _error = l10n.otpErrorInvalid);
     } on OtpExpiredException {
       if (mounted) setState(() => _error = l10n.otpErrorExpired);
+    } on OfflineException {
+      if (mounted) setState(() => _error = l10n.errorOffline);
     } catch (_) {
       if (mounted) setState(() => _error = l10n.errorGeneric);
     } finally {

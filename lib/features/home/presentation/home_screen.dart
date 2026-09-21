@@ -17,9 +17,10 @@ import '../../../domain/models/entitlement.dart';
 import '../../../domain/models/user_profile.dart';
 import '../../billing/presentation/plan_sheet.dart';
 import '../../quiz/application/quiz_controller.dart';
+import '../../results/presentation/results_screen.dart';
 
 /// The home dashboard: greeting, own-progress stats, today's quota, the
-/// daily challenge, the category grid and weak areas.
+/// daily challenge, the category grid and accuracy by sub-topic.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -31,6 +32,9 @@ class HomeScreen extends ConsumerWidget {
     final categories = ref.watch(categoriesProvider);
     final progress = ref.watch(progressProvider);
     final unread = ref.watch(unreadCountProvider);
+    // Results are per-session, so the link out only makes sense once the
+    // user has finished one.
+    final hasResult = ref.watch(lastResultProvider) != null;
 
     return Scaffold(
       backgroundColor: colors.page,
@@ -78,11 +82,16 @@ class HomeScreen extends ConsumerWidget {
                       data: (items) => _CategoryGrid(categories: items),
                     ),
                     SizedBox(height: AppSpacing.lg.dp(context)),
-                    SectionHeading(context.l10n.homePerformance),
+                    SectionHeading(
+                      context.l10n.homePerformance,
+                      trailing: hasResult ? const _PerformanceShowMore() : null,
+                    ),
                     progress.when(
                       loading: () => const SiqLoader(),
                       error: (_, __) => const SizedBox.shrink(),
-                      data: (summary) => _WeakAreas(areas: summary.weakAreas),
+                      data: (summary) => _SubTopicAccuracy(
+                        areas: summary.subTopicAccuracy.take(3).toList(),
+                      ),
                     ),
                   ],
                 ),
@@ -452,8 +461,49 @@ class _CategoryGrid extends StatelessWidget {
   }
 }
 
-class _WeakAreas extends ConsumerWidget {
-  const _WeakAreas({required this.areas});
+/// The "Show more" action on the Performance heading, out to the full
+/// breakdown of the session just finished.
+class _PerformanceShowMore extends StatelessWidget {
+  const _PerformanceShowMore();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return TextButton(
+      onPressed: () => context.push(Routes.results),
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs.dp(context)),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            context.l10n.homePerformanceShowMore,
+            style: context.text(
+              AppTextStyles.captionSmall,
+              weight: 700,
+              color: colors.accentSoftInk,
+            ),
+          ),
+          SizedBox(width: 3.dp(context)),
+          Icon(
+            Icons.chevron_right_rounded,
+            size: 14.dp(context),
+            color: colors.accentSoftInk,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Accuracy in the sub-topics the user has practised, worst first. Tapping a
+/// row drills that sub-topic.
+class _SubTopicAccuracy extends ConsumerWidget {
+  const _SubTopicAccuracy({required this.areas});
 
   final List<WeakArea> areas;
 

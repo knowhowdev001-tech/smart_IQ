@@ -64,6 +64,7 @@
   "errorEnterMobile": "Enter your mobile number.",
   "errorInvalidMobile": "Enter a valid Sri Lankan mobile number.",
   "errorEnterName": "Enter your name.",
+  "errorAccountExists": "An account already exists for this number. Please log in.",
   "errorOffline": "No internet connection.",
   "errorOfflineBody": "Smart IQ needs a connection to load questions. Check your network and try again.",
   "errorGeneric": "Something went wrong.",
@@ -108,7 +109,8 @@
 
   "homePracticeByCategory": "Practice by category",
   "homePerformance": "Performance",
-  "homeWeakAreasEmpty": "Finish a practice session to see where you are weakest.",
+  "homePerformanceShowMore": "Show more",
+  "homeWeakAreasEmpty": "Finish a practice session to see your accuracy by sub-topic.",
 
   "practiceModeQuick": "Quick",
   "practiceModeQuickMeta": "10 questions",
@@ -155,6 +157,10 @@
   "quizDifficultyHard": "Hard",
   "quizImageFailed": "This question's image could not be loaded, so it was skipped.",
   "quizTapToZoom": "Tap to zoom",
+  "quizNoQuestionsTitle": "Nothing to practise here yet",
+  "quizNoQuestionsBody": "No questions are available for this selection. Try another topic.",
+  "quizAlreadySubmittedTitle": "Already submitted",
+  "quizAlreadySubmittedBody": "This session has been scored. Start a new one to keep practising.",
 
   "resultsThisSession": "This session",
   "resultsScoreLine": "{correct} of {total} correct",
@@ -241,7 +247,8 @@
   "notificationPrefDaily": "Daily challenge",
   "notificationPrefStreak": "Streak reminders",
   "notificationPrefDigest": "Current affairs digest",
-  "notificationPrefBilling": "Subscription and charging",
+  "notificationPrefChargeFailed": "Failed subscription charges",
+  "notificationPrefRenewal": "Subscription renewal reminders",
   "notificationPrefInactivity": "Reminders when you are away",
 
   "navHome": "Home",

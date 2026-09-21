@@ -268,10 +268,6 @@ class QuizController extends StateNotifier<AsyncValue<QuizState>> {
   }
 }
 
-class EmptyPracticeSetException implements Exception {
-  const EmptyPracticeSetException();
-}
-
 /// Describes the set to load. Held as provider state so the quiz screen can
 /// be entered by route without threading a set through navigation.
 @immutable

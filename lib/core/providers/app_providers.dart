@@ -1,12 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../data/auth/session_store.dart';
 import '../../data/mock/mock_repositories.dart';
 import '../../data/repositories/repositories.dart';
+import '../../data/repositories/supabase_auth_repository.dart';
+import '../../data/repositories/supabase_content_repository.dart';
+import '../../data/repositories/supabase_entitlement_repository.dart';
+import '../../data/repositories/supabase_notification_repository.dart';
+import '../../data/repositories/supabase_practice_repository.dart';
 import '../../domain/enums.dart';
 import '../../domain/models/app_notification.dart';
 import '../../domain/models/content.dart';
 import '../../domain/models/entitlement.dart';
 import '../../domain/models/user_profile.dart';
+import '../config/supabase_config.dart';
+import '../settings/app_settings.dart';
 
 /// Shared state behind the mock repositories.
 ///
@@ -18,29 +27,90 @@ final mockBackendProvider = Provider<MockBackendState>(
   (ref) => MockBackendState(tier: Tier.basic),
 );
 
-final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => MockAuthRepository(ref.watch(mockBackendProvider)),
+/// Whether the Supabase client has been initialised and a session store is
+/// available. main() overrides this to true; widget tests leave it alone and
+/// get the mocks, which is what lets them run with no network and no
+/// keystore.
+final backendReadyProvider = Provider<bool>((ref) => false);
+
+/// The stored session. Overridden in main() with the instance that was
+/// restored before the first frame, so nothing has to wait on the keystore.
+final sessionStoreProvider = Provider<SessionStore>(
+  (ref) => throw UnimplementedError('sessionStoreProvider was not overridden'),
 );
 
-final contentRepositoryProvider = Provider<ContentRepository>(
-  (ref) => MockContentRepository(ref.watch(mockBackendProvider)),
+/// Auth is the first repository to leave the mocks behind: signup now writes
+/// a real `users` row and a real profile. The rest still run in memory, which
+/// is exactly what the seam above was for - this provider changed, and no
+/// screen did.
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  if (!ref.watch(backendReadyProvider)) {
+    return MockAuthRepository(ref.watch(mockBackendProvider));
+  }
+  return SupabaseAuthRepository(
+    client: Supabase.instance.client,
+    sessions: ref.watch(sessionStoreProvider),
+  );
+});
+
+/// The Supabase content repository, also used by the practice repository:
+/// the catalogue RPCs take a category uuid while every screen works in keys,
+/// and this instance holds the map between them.
+final _supabaseContentProvider = Provider<SupabaseContentRepository>(
+  (ref) => SupabaseContentRepository(client: Supabase.instance.client),
 );
 
-final practiceRepositoryProvider = Provider<PracticeRepository>(
-  (ref) => MockPracticeRepository(ref.watch(mockBackendProvider)),
-);
+/// Practice, its catalogue and its quota move together: served sample
+/// questions with server-side quota, or server questions with sample quota,
+/// would each be a state no user is ever in. See
+/// SupabaseConfig.practiceFromBackend for why they are currently sampled.
+bool _practiceOnServer(Ref ref) =>
+    ref.watch(backendReadyProvider) && SupabaseConfig.practiceFromBackend;
+
+final contentRepositoryProvider = Provider<ContentRepository>((ref) {
+  if (!_practiceOnServer(ref)) {
+    return MockContentRepository(ref.watch(mockBackendProvider));
+  }
+  return ref.watch(_supabaseContentProvider);
+});
+
+final practiceRepositoryProvider = Provider<PracticeRepository>((ref) {
+  if (!_practiceOnServer(ref)) {
+    return MockPracticeRepository(ref.watch(mockBackendProvider));
+  }
+  return SupabasePracticeRepository(
+    client: Supabase.instance.client,
+    sessions: ref.watch(sessionStoreProvider),
+    content: ref.watch(_supabaseContentProvider),
+    // Read on use, not captured: a result opened after the user switches
+    // language should read in the language they switched to.
+    language: () => ref.read(languageProvider),
+  );
+});
 
 final tutorRepositoryProvider = Provider<TutorRepository>(
   (ref) => MockTutorRepository(ref.watch(mockBackendProvider)),
 );
 
-final entitlementRepositoryProvider = Provider<EntitlementRepository>(
-  (ref) => MockEntitlementRepository(ref.watch(mockBackendProvider)),
-);
+final entitlementRepositoryProvider = Provider<EntitlementRepository>((ref) {
+  if (!_practiceOnServer(ref)) {
+    return MockEntitlementRepository(ref.watch(mockBackendProvider));
+  }
+  return SupabaseEntitlementRepository(
+    client: Supabase.instance.client,
+    prefs: ref.watch(sharedPreferencesProvider),
+  );
+});
 
-final notificationRepositoryProvider = Provider<NotificationRepository>(
-  (ref) => MockNotificationRepository(ref.watch(mockBackendProvider)),
-);
+final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
+  if (!ref.watch(backendReadyProvider)) {
+    return MockNotificationRepository(ref.watch(mockBackendProvider));
+  }
+  return SupabaseNotificationRepository(
+    client: Supabase.instance.client,
+    sessions: ref.watch(sessionStoreProvider),
+  );
+});
 
 /// The signed-in user's profile, or null when signed out.
 class ProfileController extends StateNotifier<AsyncValue<UserProfile?>> {

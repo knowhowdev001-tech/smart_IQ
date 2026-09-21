@@ -159,6 +159,10 @@ class AppL10nEn extends AppL10n {
   String get errorEnterName => 'Enter your name.';
 
   @override
+  String get errorAccountExists =>
+      'An account already exists for this number. Please log in.';
+
+  @override
   String get errorOffline => 'No internet connection.';
 
   @override
@@ -247,8 +251,11 @@ class AppL10nEn extends AppL10n {
   String get homePerformance => 'Performance';
 
   @override
+  String get homePerformanceShowMore => 'Show more';
+
+  @override
   String get homeWeakAreasEmpty =>
-      'Finish a practice session to see where you are weakest.';
+      'Finish a practice session to see your accuracy by sub-topic.';
 
   @override
   String get practiceModeQuick => 'Quick';
@@ -351,6 +358,20 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get quizTapToZoom => 'Tap to zoom';
+
+  @override
+  String get quizNoQuestionsTitle => 'Nothing to practise here yet';
+
+  @override
+  String get quizNoQuestionsBody =>
+      'No questions are available for this selection. Try another topic.';
+
+  @override
+  String get quizAlreadySubmittedTitle => 'Already submitted';
+
+  @override
+  String get quizAlreadySubmittedBody =>
+      'This session has been scored. Start a new one to keep practising.';
 
   @override
   String get resultsThisSession => 'This session';
@@ -562,7 +583,10 @@ class AppL10nEn extends AppL10n {
   String get notificationPrefDigest => 'Current affairs digest';
 
   @override
-  String get notificationPrefBilling => 'Subscription and charging';
+  String get notificationPrefChargeFailed => 'Failed subscription charges';
+
+  @override
+  String get notificationPrefRenewal => 'Subscription renewal reminders';
 
   @override
   String get notificationPrefInactivity => 'Reminders when you are away';

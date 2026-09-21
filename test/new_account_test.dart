@@ -146,6 +146,30 @@ void main() {
       expect((await practice.progress()).weakAreas, isEmpty);
     });
 
+    test('a single well-answered sub-topic still reports its accuracy',
+        () async {
+      await answer('q-age-1', correct: true);
+
+      final summary = await practice.progress();
+
+      // Nothing is weak, but the home dashboard still has something to show:
+      // one attempt is below the weak-area sample floor, and that floor does
+      // not apply to the accuracy report.
+      expect(summary.weakAreas, isEmpty);
+      expect(summary.subTopicAccuracy, hasLength(1));
+      expect(summary.subTopicAccuracy.single.subTopicId, 'iq-age');
+      expect(summary.subTopicAccuracy.single.accuracy, 100);
+    });
+
+    test('accuracy by sub-topic is reported worst first', () async {
+      await answer('q-age-1', correct: true);
+      await answer('q-direction-1', correct: false);
+
+      final areas = (await practice.progress()).subTopicAccuracy;
+
+      expect(areas.map((a) => a.subTopicId), ['iq-direction', 'iq-age']);
+    });
+
     test('mastery appears on the attempted sub-topic only', () async {
       await answer('q-age-1', correct: true);
       await answer('q-age-1', correct: false);

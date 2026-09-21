@@ -6,6 +6,7 @@ import 'core/router/app_router.dart';
 import 'core/settings/app_settings.dart';
 import 'core/theme/app_scale.dart';
 import 'core/theme/app_theme.dart';
+import 'data/push/push_service.dart';
 import 'domain/enums.dart';
 import 'l10n/generated/app_localizations.dart';
 
@@ -16,6 +17,7 @@ class SmartIqApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(appSettingsProvider);
     final router = ref.watch(routerProvider);
+    ref.watch(pushBootstrapProvider);
 
     return MaterialApp.router(
       title: 'Smart IQ',

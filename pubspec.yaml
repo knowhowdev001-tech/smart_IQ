@@ -34,10 +34,33 @@ dependencies:
   cached_network_image: ^3.4.1
   intl: any
 
+  # Push notifications (PRD 6.8)
+  firebase_core: ^4.15.0
+  firebase_messaging: ^16.7.0
+  flutter_local_notifications: ^22.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+
+# Regenerate with: dart run flutter_launcher_icons
+#
+# `app_icon.png` is derived from `app_logo.png` — squared, zoomed past the
+# logo's own rounded corners so it bleeds to the edge, and flattened to remove
+# the alpha channel that iOS icons may not carry.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/app_icon.png
+  remove_alpha_ios: true
+  # The adaptive foreground uses the same cleaned source, not app_logo.png:
+  # the raw logo keeps white arcs at its rounded corners, which show as white
+  # slivers once the launcher masks it over the blue background. app_icon.png
+  # already shares this background colour, so the inset blends into it.
+  adaptive_icon_background: "#17345E"
+  adaptive_icon_foreground: assets/images/app_icon.png
 
 flutter:
   uses-material-design: true

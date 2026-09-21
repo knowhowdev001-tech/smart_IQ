@@ -10,6 +10,7 @@ import '../../../core/theme/app_scale.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/msisdn.dart';
+import '../../../data/repositories/repositories.dart';
 import '../../../core/widgets/siq_button.dart';
 import '../../../core/widgets/siq_field.dart';
 import 'widgets/auth_scaffold.dart';
@@ -59,6 +60,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(authRepositoryProvider).requestOtp(normalised);
       if (!mounted) return;
       context.push('${Routes.otp}?msisdn=$normalised');
+    } on OfflineException {
+      if (!mounted) return;
+      setState(() => _error = l10n.errorOffline);
     } catch (_) {
       if (!mounted) return;
       setState(() => _error = l10n.errorGeneric);

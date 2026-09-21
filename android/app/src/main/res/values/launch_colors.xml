@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Splash background: the mint brand colour (AppColors.brand, #12E29B), so
+     cold start runs straight into the mint header of the first screen. Kept
+     apart from ic_launcher_background, which is the app icon's navy. -->
+<resources>
+    <color name="launch_background">#12E29B</color>
+</resources>

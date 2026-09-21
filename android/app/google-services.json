@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "647639979501",
+    "project_id": "smartiq-notification",
+    "storage_bucket": "smartiq-notification.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647639979501:android:e1ac6ae95be11ddad683e4",
+        "android_client_info": {
+          "package_name": "lk.knowhow.smart_iq"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUbMilsplyzrcZKu1SDFiQwdOduddyd1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

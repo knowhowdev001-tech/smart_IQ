@@ -42,9 +42,15 @@ final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _shellKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 final routerProvider = Provider<GoRouter>((ref) {
+  // A stored session is known before the first frame, while the profile
+  // behind it still has to be fetched. Starting a returning user at home
+  // rather than at the landing screen is what makes reopening the app feel
+  // like it stayed open.
+  final hasSession = ref.read(sessionStoreProvider).isSignedIn;
+
   return GoRouter(
     navigatorKey: _rootKey,
-    initialLocation: Routes.landing,
+    initialLocation: hasSession ? Routes.home : Routes.landing,
     // The signed-in check gates the whole authenticated tree. A user who has
     // verified but not yet created a profile cannot reach the app at all
     // (PRD 6.1), so that case redirects to profile setup rather than home.
@@ -61,6 +67,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         Routes.profileSetup,
       };
       final inAuthFlow = authRoutes.contains(path);
+
+      // "Not loaded yet" is not "signed out": bouncing to the landing screen
+      // while the profile is in flight would show a returning user the
+      // sign-in page for a moment and then yank it away.
+      if (profile.isLoading && ref.read(sessionStoreProvider).isSignedIn) {
+        return null;
+      }
 
       if (!signedIn && !inAuthFlow) return Routes.landing;
       if (signedIn && inAuthFlow && path != Routes.profileSetup) {

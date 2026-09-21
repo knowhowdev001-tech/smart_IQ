@@ -181,8 +181,32 @@ class ProgressSummary {
     this.sessionsCompleted = 0,
     this.overallAccuracy = 0,
     this.weakAreas = const <WeakArea>[],
+    this.subTopicAccuracy = const <WeakArea>[],
     this.recentAccuracy = const <int>[],
   });
+
+  /// Reads what `rpc/get_progress` returns. `weak_areas[].name` arrives
+  /// already resolved to the user's language, unlike content elsewhere.
+  factory ProgressSummary.fromJson(Map<String, dynamic> json) =>
+      ProgressSummary(
+        streakDays: (json['streak_days'] as num?)?.toInt() ?? 0,
+        readinessScore: (json['readiness_score'] as num?)?.toInt() ?? 0,
+        questionsAnswered: (json['questions_answered'] as num?)?.toInt() ?? 0,
+        sessionsCompleted: (json['sessions_completed'] as num?)?.toInt() ?? 0,
+        overallAccuracy: (json['overall_accuracy'] as num?)?.toDouble() ?? 0,
+        weakAreas: [
+          for (final w in (json['weak_areas'] as List? ?? const []))
+            WeakArea.fromJson(Map<String, dynamic>.from(w as Map)),
+        ],
+        subTopicAccuracy: [
+          for (final w in (json['sub_topic_accuracy'] as List? ?? const []))
+            WeakArea.fromJson(Map<String, dynamic>.from(w as Map)),
+        ],
+        recentAccuracy: [
+          for (final a in (json['recent_accuracy'] as List? ?? const []))
+            (a as num).toInt(),
+        ],
+      );
 
   final int streakDays;
   final int readinessScore;
@@ -190,6 +214,11 @@ class ProgressSummary {
   final int sessionsCompleted;
   final double overallAccuracy;
   final List<WeakArea> weakAreas;
+
+  /// Accuracy in every sub-topic the user has attempted, worst first. Unlike
+  /// [weakAreas] this has no sample floor and no accuracy threshold — it is a
+  /// report of where the user stands, not a finding about where they are weak.
+  final List<WeakArea> subTopicAccuracy;
 
   /// Accuracy of the last few sessions, oldest first, for the trend bars.
   final List<int> recentAccuracy;
@@ -201,6 +230,7 @@ class ProgressSummary {
     int? sessionsCompleted,
     double? overallAccuracy,
     List<WeakArea>? weakAreas,
+    List<WeakArea>? subTopicAccuracy,
     List<int>? recentAccuracy,
   }) =>
       ProgressSummary(
@@ -210,6 +240,7 @@ class ProgressSummary {
         sessionsCompleted: sessionsCompleted ?? this.sessionsCompleted,
         overallAccuracy: overallAccuracy ?? this.overallAccuracy,
         weakAreas: weakAreas ?? this.weakAreas,
+        subTopicAccuracy: subTopicAccuracy ?? this.subTopicAccuracy,
         recentAccuracy: recentAccuracy ?? this.recentAccuracy,
       );
 
@@ -221,7 +252,8 @@ class ProgressSummary {
           other.readinessScore == readinessScore &&
           other.questionsAnswered == questionsAnswered &&
           listEquals(other.recentAccuracy, recentAccuracy) &&
-          listEquals(other.weakAreas, weakAreas);
+          listEquals(other.weakAreas, weakAreas) &&
+          listEquals(other.subTopicAccuracy, subTopicAccuracy);
 
   @override
   int get hashCode => Object.hash(streakDays, readinessScore,
