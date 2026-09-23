@@ -57,9 +57,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     try {
-      await ref.read(authRepositoryProvider).requestOtp(normalised);
+      await ref.read(authRepositoryProvider).requestOtp(
+            normalised,
+            login: true,
+          );
       if (!mounted) return;
       context.push('${Routes.otp}?msisdn=$normalised');
+    } on NoAccountException {
+      if (!mounted) return;
+      setState(() => _error = l10n.errorNoAccount);
     } on OfflineException {
       if (!mounted) return;
       setState(() => _error = l10n.errorOffline);

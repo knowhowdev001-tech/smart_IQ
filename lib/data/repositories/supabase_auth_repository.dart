@@ -49,7 +49,11 @@ class SupabaseAuthRepository implements AuthRepository {
   final Dio _http;
 
   @override
-  Future<int> requestOtp(String msisdn, {String? fullName}) async {
+  Future<int> requestOtp(
+    String msisdn, {
+    String? fullName,
+    bool login = false,
+  }) async {
     final trimmed = fullName?.trim();
 
     final response = await _post('/otp-request', {
@@ -58,6 +62,9 @@ class SupabaseAuthRepository implements AuthRepository {
       // Omitted rather than sent null on the login and resend paths, so the
       // function can tell "no name to record" from "name cleared".
       if (trimmed != null && trimmed.isNotEmpty) 'full_name': trimmed,
+      // A resend sends neither flag, so it is checked as neither a signup
+      // nor a login and simply reissues the code.
+      if (login) 'login': true,
     });
 
     final body = _asMap(response.data);
@@ -272,6 +279,8 @@ class SupabaseAuthRepository implements AuthRepository {
         throw const OtpExpiredException();
       case 'account_exists':
         throw const AccountExistsException();
+      case 'no_account':
+        throw const NoAccountException();
       case 'account_suspended':
         throw const UnauthenticatedException();
     }

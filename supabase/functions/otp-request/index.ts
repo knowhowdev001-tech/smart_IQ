@@ -51,7 +51,12 @@ function resolveCode(): string {
 serve(async (req) => {
   if (req.method !== "POST") return fail(405, "method_not_allowed");
 
-  let body: { msisdn?: string; device_id?: string; full_name?: string };
+  let body: {
+    msisdn?: string;
+    device_id?: string;
+    full_name?: string;
+    login?: boolean;
+  };
   try {
     body = await req.json();
   } catch {
@@ -67,28 +72,36 @@ serve(async (req) => {
     { auth: { persistSession: false } },
   );
 
-  // A name means this came from the signup screen, which is the only caller
-  // for which an existing account is a mistake rather than a login. Checked
-  // before anything is written and before a code is issued, so a duplicate
-  // signup costs nothing and leaves no OTP outstanding.
+  // A name means this came from the signup screen, and `login` means it came
+  // from the login screen. Each has the opposite precondition: signup needs
+  // the number to be free, login needs it to have an account. Both are
+  // checked before anything is written and before a code is issued, so a
+  // wrong door costs no SMS and leaves no OTP outstanding.
   //
-  // Login and resend send no name and skip this, which is what keeps signup
-  // and login the same underlying call everywhere else.
+  // A resend from the OTP screen sends neither flag: whichever check applied
+  // has already passed, and repeating it would fail a signup whose account
+  // does not exist yet.
   const isSignup = (body.full_name ?? "").trim() !== "";
+  const isLogin = body.login === true;
 
-  if (isSignup) {
-    const { data: existing, error: existingError } = await supabase
+  if (isSignup || isLogin) {
+    // An account is a *profile*, not merely a users row. A number that
+    // verified but never finished signup is half a signup, not an account:
+    // calling it one would lock it out of login (no profile to load) and out
+    // of signup (number taken) at the same time.
+    const { data: account, error: accountError } = await supabase
       .from("users")
-      .select("id")
+      .select("id, profiles!inner(user_id)")
       .eq("msisdn", msisdn)
       .maybeSingle();
 
-    if (existingError) {
-      console.error("otp-request: account lookup failed", existingError);
+    if (accountError) {
+      console.error("otp-request: account lookup failed", accountError);
       return fail(500, "server_error");
     }
 
-    if (existing) return fail(409, "account_exists");
+    if (isSignup && account) return fail(409, "account_exists");
+    if (isLogin && !account) return fail(404, "no_account");
   }
 
   // Each SMS is a direct cost, so the cooldown is a spend control as much as
