@@ -49,6 +49,18 @@ function config(): { baseUrl: string; apiKey: string; secret: string } {
   return { baseUrl, apiKey, secret };
 }
 
+/// The one number allowed to skip the carrier, and the code it accepts.
+///
+/// Null unless both secrets are set, which is what makes unsetting either
+/// one the kill switch, with no deploy. Deliberately not a constant in this
+/// file: a fixed code in a public repository is a password for every
+/// account, which is what the development OTP was before it was removed.
+export function testBypass(): { msisdn: string; otp: string } | null {
+  const msisdn = Deno.env.get("TEST_MSISDN");
+  const otp = Deno.env.get("TEST_OTP");
+  return msisdn && otp ? { msisdn, otp } : null;
+}
+
 /// The number shape the service wants: `tel:94XXXXXXXXX`, no `+`, no
 /// leading zero. Ours are stored E.164 as `+94XXXXXXXXX`.
 export function toTel(msisdn: string): string {
@@ -153,10 +165,28 @@ export async function verifyOtp(args: {
   });
 }
 
+/// Mobitel answers "not subscribed" with an error code rather than a
+/// status, and pairs it with "invalid address" in the same code. We build
+/// the address ourselves in [toTel], so between the two readings the
+/// unregistered one is the only one that can be true here.
+const NOT_REGISTERED = "E1951";
+
 /// `REGISTERED` or `UNREGISTERED`. Safe to retry.
-export async function subscriberStatus(msisdn: string): Promise<string | null> {
-  const data = await call("subscriber-status", { subscriberId: toTel(msisdn) });
-  return (data.subscriptionStatus as string) ?? null;
+///
+/// Never throws for a subscriber who simply is not subscribed: that is an
+/// answer, and the billing rail treats it as one.
+export async function subscriberStatus(msisdn: string): Promise<string> {
+  try {
+    const data = await call("subscriber-status", {
+      subscriberId: toTel(msisdn),
+    });
+    return (data.subscriptionStatus as string) ?? "UNREGISTERED";
+  } catch (error) {
+    if (error instanceof ChargingError && error.statusCode === NOT_REGISTERED) {
+      return "UNREGISTERED";
+    }
+    throw error;
+  }
 }
 
 /// Subscribes (`true`) or unsubscribes (`false`) the number.

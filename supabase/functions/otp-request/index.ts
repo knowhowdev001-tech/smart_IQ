@@ -11,7 +11,12 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { fail, json, requireEnv, serve } from "../_shared/http.ts";
-import { ChargingError, requestOtp } from "../_shared/charging.ts";
+import {
+  ChargingError,
+  requestOtp,
+  subscriberStatus,
+  testBypass,
+} from "../_shared/charging.ts";
 import { toE164 } from "../_shared/msisdn.ts";
 
 // Must match `kOtpValidity` and `kOtpResendCooldown` in
@@ -77,20 +82,33 @@ serve(async (req) => {
     if (isLogin && !account) return fail(404, "no_account");
   }
 
+  // One number may skip the carrier entirely, so development does not cost
+  // an SMS and a code per login. Both secrets have to be set for it to
+  // exist at all, and it is one number with one code -- not the blanket
+  // development code this replaced.
+  const bypass = testBypass();
+  const isTestNumber = bypass !== null && msisdn === bypass.msisdn;
+
   // Each SMS is a direct cost, so the cooldown is a spend control as much as
   // a security one, and the client's own timer cannot be trusted with it.
-  const { data: recent, error: recentError } = await supabase
-    .from("otp_requests")
-    .select("created_at")
-    .eq("msisdn", msisdn)
-    .is("consumed_at", null)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  // The test number pays for no SMS, so it waits for nothing.
+  let recent: { created_at: string } | null = null;
 
-  if (recentError) {
-    console.error("otp-request: cooldown lookup failed", recentError);
-    return fail(500, "server_error");
+  if (!isTestNumber) {
+    const { data, error } = await supabase
+      .from("otp_requests")
+      .select("created_at")
+      .eq("msisdn", msisdn)
+      .is("consumed_at", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error("otp-request: cooldown lookup failed", error);
+      return fail(500, "server_error");
+    }
+    recent = data;
   }
 
   if (recent) {
@@ -121,23 +139,42 @@ serve(async (req) => {
     }
   }
 
-  // The carrier sends the SMS and owns the code. A failure here is the end
-  // of the attempt: no row is written, so the user can try again at once
-  // rather than waiting out a cooldown for a code that never arrived.
-  let referenceNo: string;
-  try {
-    referenceNo = await requestOtp(msisdn, body.application_hash);
-  } catch (error) {
-    console.error("otp-request: carrier refused", error);
-    if (error instanceof ChargingError) {
-      return fail(502, "sms_failed", error.message);
+  // `test-bypass` is what tells the verify side to check the code against
+  // the secret rather than against the carrier.
+  let referenceNo = "test-bypass";
+  let baseline: string | null = null;
+
+  if (isTestNumber) {
+    console.warn(`otp-request: TEST BYPASS used for ${msisdn}`);
+  } else {
+    // The carrier sends the SMS and owns the code. A failure here is the end
+    // of the attempt: no row is written, so the user can try again at once
+    // rather than waiting out a cooldown for a code that never arrived.
+    try {
+      referenceNo = await requestOtp(msisdn, body.application_hash);
+    } catch (error) {
+      console.error("otp-request: carrier refused", error);
+      if (error instanceof ChargingError) {
+        return fail(502, "sms_failed", error.message);
+      }
+      return fail(502, "sms_failed");
     }
-    return fail(502, "sms_failed");
+
+    // Taken before the code is verified, because the verify step may itself
+    // subscribe the number and we need to know which of the two happened. A
+    // failure here must not cost the user their login, so it records null
+    // and the verify side treats that as "unknown, leave it alone".
+    try {
+      baseline = await subscriberStatus(msisdn);
+    } catch (error) {
+      console.error("otp-request: subscriber status unavailable", error);
+    }
   }
 
   const { error: insertError } = await supabase.from("otp_requests").insert({
     msisdn,
     reference_no: referenceNo,
+    subscriber_status: baseline,
     expires_at: new Date(Date.now() + OTP_VALIDITY_SECONDS * 1000).toISOString(),
     device_id: body.device_id ?? null,
     request_ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,

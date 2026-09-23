@@ -17,7 +17,12 @@ import {
   newRefreshToken,
   otpPepper,
 } from "../_shared/tokens.ts";
-import { ChargingError, verifyOtp } from "../_shared/charging.ts";
+import {
+  ChargingError,
+  setSubscription,
+  testBypass,
+  verifyOtp,
+} from "../_shared/charging.ts";
 import { toE164 } from "../_shared/msisdn.ts";
 
 const ACCESS_TOKEN_TTL_SECONDS = 60 * 60;
@@ -62,7 +67,7 @@ serve(async (req) => {
   // expects.
   const { data: otp, error: otpError } = await supabase
     .from("otp_requests")
-    .select("id, reference_no, expires_at, attempt_count")
+    .select("id, reference_no, expires_at, attempt_count, subscriber_status")
     .eq("msisdn", msisdn)
     .is("consumed_at", null)
     .order("created_at", { ascending: false })
@@ -92,16 +97,34 @@ serve(async (req) => {
   // check against, and its code was never sent anyway.
   if (!otp.reference_no) return fail(410, "otp_expired");
 
+  // The row the test bypass wrote is checked against the secret instead of
+  // the carrier. One number, one code, and only while both secrets are set.
+  const bypass = testBypass();
+  const isTestRow = otp.reference_no === "test-bypass";
+
+  if (isTestRow) {
+    if (!bypass || msisdn !== bypass.msisdn || code !== bypass.otp) {
+      await supabase
+        .from("otp_requests")
+        .update({ attempt_count: otp.attempt_count + 1 })
+        .eq("id", otp.id);
+      return fail(401, "otp_invalid");
+    }
+    console.warn(`otp-verify: TEST BYPASS used for ${msisdn}`);
+  }
+
   // The carrier owns the code and the comparison. The attempt cap above is
   // still ours: the service documents no cap of its own, and six digits is a
   // million guesses from someone else's account.
-  let verified: Record<string, unknown>;
+  let verified: Record<string, unknown> = {};
   try {
-    verified = await verifyOtp({
-      msisdn,
-      referenceNo: otp.reference_no,
-      otp: code,
-    });
+    if (!isTestRow) {
+      verified = await verifyOtp({
+        msisdn,
+        referenceNo: otp.reference_no,
+        otp: code,
+      });
+    }
   } catch (error) {
     await supabase
       .from("otp_requests")
@@ -159,14 +182,33 @@ serve(async (req) => {
 
   if (user.status !== "active") return fail(403, "account_suspended");
 
-  // The carrier told us, in the verify reply, whether this number is already
-  // subscribed. Acting on it here saves the user a day of free limits while
-  // they wait for the nightly reconcile to notice.
+  const registeredNow = verified.subscriptionStatus === "REGISTERED";
+  const registeredBefore = otp.subscriber_status === "REGISTERED";
+
+  // Logging in must never start a subscription. The charging spec is
+  // ambiguous about whether its verify subscribes on its own; if it did,
+  // this is the number that would be paying for a login it never asked to
+  // be charged for, so it is put back.
+  if (registeredNow && otp.subscriber_status === "UNREGISTERED") {
+    console.error(
+      "otp-verify: carrier subscribed this number during verification -- " +
+        "undoing; the subscribe flow is the only thing allowed to do that",
+    );
+    try {
+      await setSubscription(msisdn, false);
+    } catch (error) {
+      console.error("otp-verify: could not undo the subscription", error);
+    }
+  }
+
+  // The carrier told us, in the verify reply, whether this number was
+  // already subscribed. Acting on it here saves the user a day of free
+  // limits while they wait for the nightly reconcile to notice.
   //
-  // Only upwards: a REGISTERED answer activates, an UNREGISTERED one is left
-  // to the reconcile. Cancelling a paying subscriber because one status call
-  // hiccuped during their login is the worse mistake of the two.
-  if (verified.subscriptionStatus === "REGISTERED") {
+  // Only upwards, and only when the subscription predates this login: an
+  // UNREGISTERED answer is left to the reconcile, because cancelling a
+  // paying subscriber over one hiccuping status call is the worse mistake.
+  if (registeredNow && registeredBefore) {
     const { error: statusError } = await supabase
       .from("payment_status")
       .upsert({

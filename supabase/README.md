@@ -115,16 +115,25 @@ Set these under Project Settings → Edge Functions → Secrets, or with
 | --- | --- |
 | `APP_JWT_SECRET` | The project's JWT secret (Settings → API → JWT Settings). What the minted token is signed with, and therefore what makes PostgREST accept it. Set it under **this** name: the CLI refuses to set anything prefixed `SUPABASE_` (`Env name cannot start with SUPABASE_, skipping`), so `SUPABASE_JWT_SECRET` is read first but can only be set on a platform that allows the prefix. |
 | `OTP_PEPPER` | A long random string, never rotated casually — rotating it invalidates every live OTP and every refresh token. |
-| `OTP_FIXED_CODE` | Six digits. **Development only.** |
-| `ALLOW_DEV_OTP` | `true` issues the constant `123456`. **Development only** — it is a universal password for every phone number. |
+| `CHARGING_BASE_URL` | The Mobile Charging API's root. Signup and login send the OTP through it, so an unset value stops both: the functions fail closed rather than issuing a code nobody can receive. |
+| `CHARGING_API_KEY` | Its `X-API-Key`. Server-side only — this key can subscribe numbers and send SMS, and an APK is decompilable. |
+| `CHARGING_SECRET` | Its body `secret`. Both this and the key are required on every call; either missing is a 401. |
+| `TEST_MSISDN` | One number, E.164 (`+94787332965`). **Development only.** |
+| `TEST_OTP` | The code that number accepts. **Development only.** |
 
-`ALLOW_DEV_OTP` and `OTP_FIXED_CODE` exist because no SMS gateway is wired
-yet: every `msisdn_prefix_routing` row is inactive with an empty endpoint, so
-a real random code would be undeliverable. `ALLOW_DEV_OTP=true` issues the
-constant `123456`; `OTP_FIXED_CODE` overrides that value. Either way the code
-verifies for *every* number, so both belong only on a development project.
-Leave them unset and the code is random, which is what production should be:
-production is simply the deployment that sets neither.
+`TEST_MSISDN` and `TEST_OTP` let one number verify without an SMS, so
+development does not cost a message and a relayed code per login. The bypass
+exists only while **both** are set, which makes unsetting either one the kill
+switch — no deploy needed. Its use is logged as `TEST BYPASS` on both
+functions.
+
+Between them they are a working login for that one number, so unset them
+before the app is public. They replaced `ALLOW_DEV_OTP` and `OTP_FIXED_CODE`,
+which were worse in the way that matters: those issued a constant that this
+repository contains and that verified for *every* number, which is a password
+for every account in the database.
+
+Every other number goes to the carrier, whether or not the test pair is set.
 
 `OTP_PEPPER` now has a development fallback in `_shared/tokens.ts`, so the
 flow runs on a project with no secrets configured. That fallback is committed
