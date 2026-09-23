@@ -41,8 +41,17 @@ class MockAuthRepository implements AuthRepository {
   static const _latency = Duration(milliseconds: 550);
 
   @override
-  Future<int> requestOtp(String msisdn, {String? fullName}) async {
+  Future<int> requestOtp(
+    String msisdn, {
+    String? fullName,
+    bool login = false,
+  }) async {
     await Future<void>.delayed(_latency);
+
+    // The login screen asks for a code on a number that must already have an
+    // account; the mock's account is its one profile.
+    if (login && _state.profile == null) throw const NoAccountException();
+
     _state.pendingMsisdn = msisdn;
     // Stands in for the `temp` row the real backend writes: held against the
     // unverified number, and cleared on verify.
@@ -483,17 +492,21 @@ class MockPracticeRepository implements PracticeRepository {
   }
 
   @override
-  Future<RangeStats> rangeStats(ResultsRange range) async {
+  Future<RangeStats> rangeStats(ResultsWindow window) async {
     await Future<void>.delayed(const Duration(milliseconds: 220));
 
-    final since = switch (range) {
+    final today = _sltDay(DateTime.now());
+    final from = switch (window.range) {
       ResultsRange.allTime => null,
-      ResultsRange.today => _lastSltMidnight(),
-      ResultsRange.week => _lastSltMidnight().subtract(const Duration(days: 6)),
+      ResultsRange.today => today,
+      ResultsRange.week => today.subtract(const Duration(days: 6)),
+      // Today counts as one of them, so N days reaches back N - 1.
+      ResultsRange.custom =>
+        today.subtract(Duration(days: max(0, (window.days ?? 1) - 1))),
     };
     final sessions = [
       for (final record in _state.sessionLog)
-        if (since == null || !record.at.isBefore(since)) record,
+        if (from == null || !_sltDay(record.at).isBefore(from)) record,
     ];
 
     if (sessions.isEmpty) return const RangeStats();
@@ -521,6 +534,18 @@ class MockPracticeRepository implements PracticeRepository {
         ),
     ]..sort((a, b) => a.accuracyPct.compareTo(b.accuracyPct));
 
+    // One bar per day, not per session: three sessions of 3, 5 and 2 out of
+    // 10 are one day at 33%.
+    final daily = <DateTime, ({int correct, int total})>{};
+    for (final record in sessions) {
+      final day = _sltDay(record.at);
+      final previous = daily[day] ?? (correct: 0, total: 0);
+      daily[day] = (
+        correct: previous.correct + record.correct,
+        total: previous.total + record.total,
+      );
+    }
+
     return RangeStats(
       answered: sessions.fold(0, (sum, r) => sum + r.answered),
       correct: sessions.fold(0, (sum, r) => sum + r.correct),
@@ -529,12 +554,54 @@ class MockPracticeRepository implements PracticeRepository {
         milliseconds: sessions.fold(0, (sum, r) => sum + r.totalMs),
       ),
       breakdown: breakdown,
-      // The chart holds eight bars; older sessions fall off the left.
+      // The most recent session overall, not the most recent in the window:
+      // the header calls it the last session and means it.
+      lastSession: _state.sessionLog.isEmpty
+          ? null
+          : SessionTotals(
+              correct: _state.sessionLog.last.correct,
+              incorrect: _state.sessionLog.last.incorrect,
+              skipped: _state.sessionLog.last.skipped,
+            ),
       history: [
-        for (final record in sessions.skip(max(0, sessions.length - 8)))
-          SessionPoint(at: record.at, accuracyPct: record.accuracyPct),
+        for (final day in _historyDays(window, today, daily.keys))
+          DayPoint(
+            at: day,
+            accuracyPct: switch (daily[day]) {
+              // A day inside the window with no practice is still a bar, so
+              // a gap in the habit is visible rather than closed up.
+              null || (correct: _, total: 0) => 0,
+              final tally => ((tally.correct / tally.total) * 100).round(),
+            },
+          ),
       ],
     );
+  }
+
+  /// Every calendar day in the window, oldest first. The three ranges are
+  /// the same shape and differ only in where they start: today, six days
+  /// back, or the first day the user ever practised.
+  List<DateTime> _historyDays(
+    ResultsWindow window,
+    DateTime today,
+    Iterable<DateTime> practised,
+  ) {
+    final first = switch (window.range) {
+      ResultsRange.today => today,
+      ResultsRange.week => today.subtract(const Duration(days: 6)),
+      ResultsRange.custom =>
+        today.subtract(Duration(days: max(0, (window.days ?? 1) - 1))),
+      ResultsRange.allTime => practised.isEmpty
+          ? today
+          : practised.reduce((a, b) => a.isBefore(b) ? a : b),
+    };
+
+    return [
+      for (var day = first;
+          !day.isAfter(today);
+          day = day.add(const Duration(days: 1)))
+        day,
+    ];
   }
 
   String _subTopicName(String subTopicId, AppLanguage language) {
@@ -860,10 +927,14 @@ class MockSessionRecord {
   int get accuracyPct => total == 0 ? 0 : ((correct / total) * 100).round();
 }
 
-/// The most recent Sri Lanka midnight, UTC+5:30 — the boundary "today" and
-/// the seven-day window are measured from.
-DateTime _lastSltMidnight() =>
-    _nextSltMidnight().subtract(const Duration(days: 1));
+/// The Sri Lanka calendar day a moment falls in, UTC+5:30, as that date's
+/// midnight. Days are the unit the results chart is drawn in, and a session
+/// at 23:00 local belongs to the SLT day, not the device's.
+DateTime _sltDay(DateTime at) {
+  const slt = Duration(hours: 5, minutes: 30);
+  final inSlt = at.toUtc().add(slt);
+  return DateTime(inSlt.year, inSlt.month, inSlt.day);
+}
 
 /// Quota counters reset on the Sri Lanka day boundary, UTC+5:30 (PRD 7.6).
 DateTime _nextSltMidnight() {

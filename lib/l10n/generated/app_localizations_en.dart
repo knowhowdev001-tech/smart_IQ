@@ -40,6 +40,12 @@ class AppL10nEn extends AppL10n {
   String get actionChange => 'Change';
 
   @override
+  String get actionEdit => 'Edit';
+
+  @override
+  String get actionConfirm => 'Confirm';
+
+  @override
   String get landingWelcome => 'Welcome';
 
   @override
@@ -81,6 +87,9 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get fieldUserName => 'User Name';
+
+  @override
+  String get fieldNewName => 'New name';
 
   @override
   String get fieldUserNameHint => 'enter your name';
@@ -367,7 +376,7 @@ class AppL10nEn extends AppL10n {
       'This session has been scored. Start a new one to keep practising.';
 
   @override
-  String get resultsThisSession => 'This session';
+  String get resultsLastSession => 'Last session';
 
   @override
   String resultsScoreLine(int correct, int total) {
@@ -378,7 +387,7 @@ class AppL10nEn extends AppL10n {
   String get resultsNoAnswersYet => 'no answers yet';
 
   @override
-  String get resultsShowing => 'Showing';
+  String get resultsSortBy => 'Sort by';
 
   @override
   String get resultsRangeSession => 'Session';
@@ -391,6 +400,28 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get resultsRangeAllTime => 'All time';
+
+  @override
+  String get resultsRangeCustom => 'Custom';
+
+  @override
+  String get resultsCustomTitle => 'Custom range';
+
+  @override
+  String get resultsCustomBlurb =>
+      'How far back should the figures reach? Today counts as day one.';
+
+  @override
+  String get fieldDays => 'Days';
+
+  @override
+  String get fieldDaysHint => 'e.g. 30';
+
+  @override
+  String get unitDays => 'days';
+
+  @override
+  String get errorEnterDays => 'Enter a whole number of days, 1 to 365.';
 
   @override
   String get resultsStatCorrect => 'Correct';
@@ -417,8 +448,11 @@ class AppL10nEn extends AppL10n {
       'No answers in this range yet. Finish a practice session to see your sub-topic accuracy.';
 
   @override
+  String get resultsNoSessions => 'No sessions in this range yet.';
+
+  @override
   String get resultsHistoryTitle =>
-      'Against your own last sessions correct answers percentage';
+      'Your correct answers percentage, day by day';
 
   @override
   String get resultsPrivacyNote =>
@@ -512,6 +546,12 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsEditNameTitle => 'Edit your name';
+
+  @override
+  String get settingsCurrentName => 'Current name';
 
   @override
   String get settingsLanguage => 'Language';

@@ -139,8 +139,14 @@ class SupabasePracticeRepository implements PracticeRepository {
   }
 
   @override
-  Future<RangeStats> rangeStats(ResultsRange range) async {
-    final json = await _rpc('get_results_summary', {'p_range': range.key});
+  Future<RangeStats> rangeStats(ResultsWindow window) async {
+    final json = await _rpc('get_results_summary', {
+      'p_range': window.range.key,
+      // Always sent, null for the named ranges: the RPC takes both
+      // arguments, and naming them both is what keeps PostgREST from having
+      // to guess between overloads.
+      'p_days': window.days,
+    });
     return RangeStats.fromJson(json, _language());
   }
 

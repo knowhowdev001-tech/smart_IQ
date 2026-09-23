@@ -40,6 +40,12 @@ class AppL10nTa extends AppL10n {
   String get actionChange => 'மாற்று';
 
   @override
+  String get actionEdit => 'திருத்து';
+
+  @override
+  String get actionConfirm => 'உறுதிப்படுத்து';
+
+  @override
   String get landingWelcome => 'வரவேற்கிறோம்';
 
   @override
@@ -81,6 +87,9 @@ class AppL10nTa extends AppL10n {
 
   @override
   String get fieldUserName => 'பயனர் பெயர்';
+
+  @override
+  String get fieldNewName => 'புதிய பெயர்';
 
   @override
   String get fieldUserNameHint => 'உங்கள் பெயரை உள்ளிடவும்';
@@ -373,7 +382,7 @@ class AppL10nTa extends AppL10n {
       'இந்த அமர்வு மதிப்பிடப்பட்டுவிட்டது. தொடர புதிய அமர்வைத் தொடங்குங்கள்.';
 
   @override
-  String get resultsThisSession => 'இந்த அமர்வு';
+  String get resultsLastSession => 'கடைசி அமர்வு';
 
   @override
   String resultsScoreLine(int correct, int total) {
@@ -384,7 +393,7 @@ class AppL10nTa extends AppL10n {
   String get resultsNoAnswersYet => 'இன்னும் விடைகள் இல்லை';
 
   @override
-  String get resultsShowing => 'காட்டுவது';
+  String get resultsSortBy => 'வரிசைப்படுத்து';
 
   @override
   String get resultsRangeSession => 'அமர்வு';
@@ -397,6 +406,29 @@ class AppL10nTa extends AppL10n {
 
   @override
   String get resultsRangeAllTime => 'எல்லா காலமும்';
+
+  @override
+  String get resultsRangeCustom => 'தனிப்பயன்';
+
+  @override
+  String get resultsCustomTitle => 'தனிப்பயன் காலவரம்பு';
+
+  @override
+  String get resultsCustomBlurb =>
+      'எவ்வளவு பின்னோக்கி எண்ணிக்கைகள் செல்ல வேண்டும்? இன்று முதல் நாளாகக் கணக்கிடப்படும்.';
+
+  @override
+  String get fieldDays => 'நாட்கள்';
+
+  @override
+  String get fieldDaysHint => 'எ.கா. 30';
+
+  @override
+  String get unitDays => 'நாட்கள்';
+
+  @override
+  String get errorEnterDays =>
+      '1 முதல் 365 வரை முழு எண்ணிக்கையிலான நாட்களை உள்ளிடவும்.';
 
   @override
   String get resultsStatCorrect => 'சரி';
@@ -423,8 +455,11 @@ class AppL10nTa extends AppL10n {
       'இந்தக் காலவரம்பில் இன்னும் விடைகள் இல்லை. துணைத் தலைப்புத் துல்லியத்தைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.';
 
   @override
+  String get resultsNoSessions => 'இந்தக் காலவரம்பில் இன்னும் அமர்வுகள் இல்லை.';
+
+  @override
   String get resultsHistoryTitle =>
-      'உங்கள் சொந்த முந்தைய அமர்வுகளின் சரியான விடைகள் சதவீதத்துடன்';
+      'உங்கள் சரியான விடைகள் சதவீதம், நாளுக்கு நாள்';
 
   @override
   String get resultsPrivacyNote =>
@@ -520,6 +555,12 @@ class AppL10nTa extends AppL10n {
 
   @override
   String get settingsTitle => 'அமைப்புகள்';
+
+  @override
+  String get settingsEditNameTitle => 'உங்கள் பெயரைத் திருத்து';
+
+  @override
+  String get settingsCurrentName => 'தற்போதைய பெயர்';
 
   @override
   String get settingsLanguage => 'மொழி';

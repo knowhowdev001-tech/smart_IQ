@@ -172,12 +172,44 @@ enum ChatRole { user, assistant }
 enum ResultsRange {
   allTime,
   week,
-  today;
+  today,
+
+  /// A number of days the user chose, ending today.
+  custom;
 
   /// The `p_range` argument `rpc/get_results_summary` expects.
   String get key => switch (this) {
         ResultsRange.allTime => 'all',
         ResultsRange.week => 'week',
         ResultsRange.today => 'today',
+        ResultsRange.custom => 'custom',
       };
+}
+
+/// A chosen window: one of the named ranges, or a custom run of days.
+///
+/// A plain enum cannot carry the day count, and the stats provider is keyed
+/// by this, so two different custom windows have to be two different keys.
+@immutable
+class ResultsWindow {
+  const ResultsWindow(this.range, {this.days});
+
+  const ResultsWindow.custom(this.days) : range = ResultsRange.custom;
+
+  static const allTime = ResultsWindow(ResultsRange.allTime);
+  static const week = ResultsWindow(ResultsRange.week);
+  static const today = ResultsWindow(ResultsRange.today);
+
+  /// The number of days a custom window covers, today included. Null for
+  /// every named range.
+  final int? days;
+  final ResultsRange range;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ResultsWindow && other.range == range && other.days == days;
+
+  @override
+  int get hashCode => Object.hash(range, days);
 }

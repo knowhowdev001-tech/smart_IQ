@@ -81,7 +81,10 @@ class _Pill extends StatelessWidget {
         color: background,
         borderRadius: radius,
         child: InkWell(
-          onTap: selected ? null : onTap,
+          // Tappable even when it is already the selected one: a segment can
+          // stand for something that needs asking about again, such as the
+          // results screen's custom range and its number of days.
+          onTap: onTap,
           borderRadius: radius,
           child: Ink(
             height: height,

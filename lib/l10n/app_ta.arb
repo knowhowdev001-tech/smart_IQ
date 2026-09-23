@@ -12,6 +12,8 @@
   "actionSave": "சேமி",
   "actionUpgrade": "மேம்படுத்து",
   "actionChange": "மாற்று",
+  "actionEdit": "திருத்து",
+  "actionConfirm": "உறுதிப்படுத்து",
 
   "landingWelcome": "வரவேற்கிறோம்",
   "landingBlurb": "இலங்கை அரசாங்க மற்றும் போட்டித் தேர்வுகளுக்கான பொது அறிவு மற்றும் திறனறிப் பயிற்சியை உங்கள் மொழியில் செய்யுங்கள்.",
@@ -29,6 +31,7 @@
   "fieldMobileNumber": "கைபேசி எண்",
   "fieldMobileHint": "உங்கள் கைபேசி எண்ணை உள்ளிடவும்",
   "fieldUserName": "பயனர் பெயர்",
+  "fieldNewName": "புதிய பெயர்",
   "fieldUserNameHint": "உங்கள் பெயரை உள்ளிடவும்",
 
   "authOtpNoteLogin": "இந்த எண்ணுக்கு 6 இலக்கக் குறியீட்டை அனுப்புவோம்.",
@@ -157,7 +160,7 @@
   "quizAlreadySubmittedTitle": "ஏற்கனவே சமர்ப்பிக்கப்பட்டது",
   "quizAlreadySubmittedBody": "இந்த அமர்வு மதிப்பிடப்பட்டுவிட்டது. தொடர புதிய அமர்வைத் தொடங்குங்கள்.",
 
-  "resultsThisSession": "இந்த அமர்வு",
+  "resultsLastSession": "கடைசி அமர்வு",
   "resultsScoreLine": "{total} இல் {correct} சரி",
   "@resultsScoreLine": {
     "placeholders": {
@@ -166,11 +169,18 @@
     }
   },
   "resultsNoAnswersYet": "இன்னும் விடைகள் இல்லை",
-  "resultsShowing": "காட்டுவது",
+  "resultsSortBy": "வரிசைப்படுத்து",
   "resultsRangeSession": "அமர்வு",
   "resultsRangeToday": "இன்று",
   "resultsRangeWeek": "கடந்த 7 நாட்கள்",
   "resultsRangeAllTime": "எல்லா காலமும்",
+  "resultsRangeCustom": "தனிப்பயன்",
+  "resultsCustomTitle": "தனிப்பயன் காலவரம்பு",
+  "resultsCustomBlurb": "எவ்வளவு பின்னோக்கி எண்ணிக்கைகள் செல்ல வேண்டும்? இன்று முதல் நாளாகக் கணக்கிடப்படும்.",
+  "fieldDays": "நாட்கள்",
+  "fieldDaysHint": "எ.கா. 30",
+  "unitDays": "நாட்கள்",
+  "errorEnterDays": "1 முதல் 365 வரை முழு எண்ணிக்கையிலான நாட்களை உள்ளிடவும்.",
   "resultsStatCorrect": "சரி",
   "resultsStatWrong": "தவறு",
   "resultsStatSkipped": "தவிர்த்தது",
@@ -178,7 +188,8 @@
   "resultsStatAccuracyIn": "துல்லியம் · {range}",
   "resultsBreakdown": "துணைத் தலைப்பு வாரியான துல்லியம்",
   "resultsNoBreakdown": "இந்தக் காலவரம்பில் இன்னும் விடைகள் இல்லை. துணைத் தலைப்புத் துல்லியத்தைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.",
-  "resultsHistoryTitle": "உங்கள் சொந்த முந்தைய அமர்வுகளின் சரியான விடைகள் சதவீதத்துடன்",
+  "resultsNoSessions": "இந்தக் காலவரம்பில் இன்னும் அமர்வுகள் இல்லை.",
+  "resultsHistoryTitle": "உங்கள் சரியான விடைகள் சதவீதம், நாளுக்கு நாள்",
   "resultsPrivacyNote": "முன்னேற்றம் தனிப்பட்டது. இங்கு எதுவும் உங்களை மற்றொரு பயனருடன் ஒப்பிடவில்லை.",
   "resultsDrillWrong": "தவறான விடைகளைப் பயிற்சி செய்",
   "resultsHome": "முகப்பு",
@@ -220,6 +231,8 @@
   "profileRowSettingsMeta": "மொழி, தோற்றம் மற்றும் கணக்கு",
 
   "settingsTitle": "அமைப்புகள்",
+  "settingsEditNameTitle": "உங்கள் பெயரைத் திருத்து",
+  "settingsCurrentName": "தற்போதைய பெயர்",
   "settingsLanguage": "மொழி",
   "settingsTheme": "தோற்றம்",
   "settingsThemeLight": "ஒளி",

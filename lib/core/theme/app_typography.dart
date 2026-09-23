@@ -64,6 +64,9 @@ class AppTextStyles {
   static const overline =
       TextStyle(fontSize: 9.5, height: 1.3, letterSpacing: 0.66);
 
+  /// The smallest label in the system: the date under a history bar.
+  static const axisLabel = TextStyle(fontSize: 8.5, height: 1.3);
+
   static const button = TextStyle(fontSize: 14, height: 1.2);
   static const buttonSmall = TextStyle(fontSize: 12.5, height: 1.2);
 }

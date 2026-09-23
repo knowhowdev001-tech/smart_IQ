@@ -12,6 +12,8 @@
   "actionSave": "Save",
   "actionUpgrade": "Upgrade",
   "actionChange": "Change",
+  "actionEdit": "Edit",
+  "actionConfirm": "Confirm",
 
   "landingWelcome": "Welcome",
   "landingBlurb": "Practise general knowledge and aptitude for Sri Lankan government and competitive exams, in your own language.",
@@ -29,6 +31,7 @@
   "fieldMobileNumber": "Mobile Number",
   "fieldMobileHint": "enter your mobile number",
   "fieldUserName": "User Name",
+  "fieldNewName": "New name",
   "fieldUserNameHint": "enter your name",
 
   "authOtpNoteLogin": "We will send a 6-digit code to this number.",
@@ -157,7 +160,7 @@
   "quizAlreadySubmittedTitle": "Already submitted",
   "quizAlreadySubmittedBody": "This session has been scored. Start a new one to keep practising.",
 
-  "resultsThisSession": "This session",
+  "resultsLastSession": "Last session",
   "resultsScoreLine": "{correct} of {total} correct",
   "@resultsScoreLine": {
     "placeholders": {
@@ -166,11 +169,18 @@
     }
   },
   "resultsNoAnswersYet": "no answers yet",
-  "resultsShowing": "Showing",
+  "resultsSortBy": "Sort by",
   "resultsRangeSession": "Session",
   "resultsRangeToday": "Today",
   "resultsRangeWeek": "Last 7 days",
   "resultsRangeAllTime": "All time",
+  "resultsRangeCustom": "Custom",
+  "resultsCustomTitle": "Custom range",
+  "resultsCustomBlurb": "How far back should the figures reach? Today counts as day one.",
+  "fieldDays": "Days",
+  "fieldDaysHint": "e.g. 30",
+  "unitDays": "days",
+  "errorEnterDays": "Enter a whole number of days, 1 to 365.",
   "resultsStatCorrect": "Correct",
   "resultsStatWrong": "Wrong",
   "resultsStatSkipped": "Skipped",
@@ -181,7 +191,8 @@
   },
   "resultsBreakdown": "Accuracy by sub-topic",
   "resultsNoBreakdown": "No answers in this range yet. Finish a practice session to see your sub-topic accuracy.",
-  "resultsHistoryTitle": "Against your own last sessions correct answers percentage",
+  "resultsNoSessions": "No sessions in this range yet.",
+  "resultsHistoryTitle": "Your correct answers percentage, day by day",
   "resultsPrivacyNote": "Progress is private. Nothing here compares you to another user.",
   "resultsDrillWrong": "Drill wrong answers",
   "resultsHome": "Home",
@@ -223,6 +234,8 @@
   "profileRowSettingsMeta": "Language, theme and account",
 
   "settingsTitle": "Settings",
+  "settingsEditNameTitle": "Edit your name",
+  "settingsCurrentName": "Current name",
   "settingsLanguage": "Language",
   "settingsTheme": "Theme",
   "settingsThemeLight": "Light",

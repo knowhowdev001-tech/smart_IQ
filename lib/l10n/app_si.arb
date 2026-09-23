@@ -12,6 +12,8 @@
   "actionSave": "සුරකින්න",
   "actionUpgrade": "උසස් කරන්න",
   "actionChange": "වෙනස් කරන්න",
+  "actionEdit": "සංස්කරණය",
+  "actionConfirm": "තහවුරු කරන්න",
 
   "landingWelcome": "ආයුබෝවන්",
   "landingBlurb": "ශ්‍රී ලංකා රාජ්‍ය හා තරඟකාරී විභාග සඳහා සාමාන්‍ය දැනීම හා බුද්ධි පරීක්ෂණ ඔබේ භාෂාවෙන් අභ්‍යාස කරන්න.",
@@ -29,6 +31,7 @@
   "fieldMobileNumber": "ජංගම දුරකථන අංකය",
   "fieldMobileHint": "ඔබේ ජංගම අංකය ඇතුළත් කරන්න",
   "fieldUserName": "පරිශීලක නාමය",
+  "fieldNewName": "නව නම",
   "fieldUserNameHint": "ඔබේ නම ඇතුළත් කරන්න",
 
   "authOtpNoteLogin": "අපි මෙම අංකයට ඉලක්කම් 6ක කේතයක් එවන්නෙමු.",
@@ -157,7 +160,7 @@
   "quizAlreadySubmittedTitle": "දැනටමත් ඉදිරිපත් කර ඇත",
   "quizAlreadySubmittedBody": "මෙම සැසිය ලකුණු කර අවසන්. දිගටම පුහුණු වීමට නව සැසියක් අරඹන්න.",
 
-  "resultsThisSession": "මෙම සැසිය",
+  "resultsLastSession": "අවසන් සැසිය",
   "resultsScoreLine": "{total} න් {correct} ක් නිවැරදියි",
   "@resultsScoreLine": {
     "placeholders": {
@@ -166,11 +169,18 @@
     }
   },
   "resultsNoAnswersYet": "තවම පිළිතුරු නැත",
-  "resultsShowing": "පෙන්වන්නේ",
+  "resultsSortBy": "වර්ග කිරීම",
   "resultsRangeSession": "සැසිය",
   "resultsRangeToday": "අද",
   "resultsRangeWeek": "පසුගිය දින 7",
   "resultsRangeAllTime": "සියලු කාලය",
+  "resultsRangeCustom": "අභිරුචි",
+  "resultsCustomTitle": "අභිරුචි කාල පරාසය",
+  "resultsCustomBlurb": "සංඛ්‍යා කොපමණ කාලයකට පසුපසට යා යුතුද? අද පළමු දිනය ලෙස ගැනේ.",
+  "fieldDays": "දින",
+  "fieldDaysHint": "උදා. 30",
+  "unitDays": "දින",
+  "errorEnterDays": "දින 1 සිට 365 දක්වා පූර්ණ සංඛ්‍යාවක් ඇතුළත් කරන්න.",
   "resultsStatCorrect": "නිවැරදි",
   "resultsStatWrong": "වැරදි",
   "resultsStatSkipped": "මඟ හැරි",
@@ -178,7 +188,8 @@
   "resultsStatAccuracyIn": "නිරවද්‍යතාව · {range}",
   "resultsBreakdown": "උප මාතෘකා අනුව නිරවද්‍යතාව",
   "resultsNoBreakdown": "මෙම කාල පරාසයේ තවම පිළිතුරු නැත. උප මාතෘකා නිරවද්‍යතාව බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.",
-  "resultsHistoryTitle": "ඔබේම පෙර සැසිවල නිවැරදි පිළිතුරු ප්‍රතිශතයට එරෙහිව",
+  "resultsNoSessions": "මෙම කාල පරාසයේ තවම සැසි නැත.",
+  "resultsHistoryTitle": "ඔබේ නිවැරදි පිළිතුරු ප්‍රතිශතය, දිනෙන් දින",
   "resultsPrivacyNote": "ප්‍රගතිය පෞද්ගලිකයි. මෙහි කිසිවක් ඔබ වෙනත් පරිශීලකයෙකු සමඟ සසඳන්නේ නැත.",
   "resultsDrillWrong": "වැරදි පිළිතුරු අභ්‍යාස කරන්න",
   "resultsHome": "මුල් පිටුව",
@@ -220,6 +231,8 @@
   "profileRowSettingsMeta": "භාෂාව, තේමාව හා ගිණුම",
 
   "settingsTitle": "සැකසුම්",
+  "settingsEditNameTitle": "ඔබේ නම සංස්කරණය කරන්න",
+  "settingsCurrentName": "වත්මන් නම",
   "settingsLanguage": "භාෂාව",
   "settingsTheme": "තේමාව",
   "settingsThemeLight": "දීප්ත",

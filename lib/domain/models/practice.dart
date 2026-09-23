@@ -283,13 +283,14 @@ class SessionResult {
   int get hashCode => Object.hash(sessionId, correct, incorrect, skipped);
 }
 
-/// One completed session on the history chart, with the day it happened on
-/// so the bars can be labelled.
+/// One day on the history chart: everything answered that day, folded into a
+/// single accuracy. Three sessions of 3, 5 and 2 out of 10 are one bar at
+/// 33%, not three bars.
 @immutable
-class SessionPoint {
-  const SessionPoint({required this.at, required this.accuracyPct});
+class DayPoint {
+  const DayPoint({required this.at, required this.accuracyPct});
 
-  factory SessionPoint.fromJson(Map<String, dynamic> json) => SessionPoint(
+  factory DayPoint.fromJson(Map<String, dynamic> json) => DayPoint(
         at: DateTime.parse(json['at'] as String).toLocal(),
         accuracyPct: (json['accuracy'] as num?)?.toInt() ?? 0,
       );
@@ -300,12 +301,51 @@ class SessionPoint {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SessionPoint &&
+      other is DayPoint &&
           other.at == at &&
           other.accuracyPct == accuracyPct;
 
   @override
   int get hashCode => Object.hash(at, accuracyPct);
+}
+
+/// The counts of one finished session: enough for the results header, and
+/// none of the per-question detail a live [SessionResult] carries.
+///
+/// The live result exists only in memory, so it is gone after a restart or
+/// when the screen is opened from home. This is the same figures, fetched.
+@immutable
+class SessionTotals {
+  const SessionTotals({
+    required this.correct,
+    required this.incorrect,
+    required this.skipped,
+  });
+
+  factory SessionTotals.fromJson(Map<String, dynamic> json) => SessionTotals(
+        correct: (json['correct'] as num?)?.toInt() ?? 0,
+        incorrect: (json['incorrect'] as num?)?.toInt() ?? 0,
+        skipped: (json['skipped'] as num?)?.toInt() ?? 0,
+      );
+
+  final int correct;
+  final int incorrect;
+  final int skipped;
+
+  int get total => correct + incorrect + skipped;
+
+  int get scorePct => total == 0 ? 0 : ((correct / total) * 100).round();
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SessionTotals &&
+          other.correct == correct &&
+          other.incorrect == incorrect &&
+          other.skipped == skipped;
+
+  @override
+  int get hashCode => Object.hash(correct, incorrect, skipped);
 }
 
 /// What the results dashboard shows for a chosen [ResultsRange]: the user's
@@ -318,7 +358,8 @@ class RangeStats {
     this.skipped = 0,
     this.totalTime = Duration.zero,
     this.breakdown = const <SubTopicScore>[],
-    this.history = const <SessionPoint>[],
+    this.history = const <DayPoint>[],
+    this.lastSession,
   });
 
   /// Reads what `rpc/get_results_summary` returns. `breakdown[].name` is the
@@ -343,8 +384,13 @@ class RangeStats {
         ],
         history: [
           for (final h in (json['history'] as List? ?? const []))
-            SessionPoint.fromJson(Map<String, dynamic>.from(h as Map)),
+            DayPoint.fromJson(Map<String, dynamic>.from(h as Map)),
         ],
+        lastSession: json['last_session'] == null
+            ? null
+            : SessionTotals.fromJson(
+                Map<String, dynamic>.from(json['last_session'] as Map),
+              ),
       );
 
   /// Questions the user actually answered — skips are excluded, so accuracy
@@ -357,8 +403,14 @@ class RangeStats {
   /// Accuracy per sub-topic over the range, worst first.
   final List<SubTopicScore> breakdown;
 
-  /// The sessions behind the trend bars, oldest first.
-  final List<SessionPoint> history;
+  /// The days behind the trend bars, oldest first. The range decides which
+  /// days are in it, and a day with no practice is still a bar.
+  final List<DayPoint> history;
+
+  /// The most recently finished session, whatever the window: the header
+  /// says "last session", so narrowing it to the range would blank it out
+  /// for exactly the reader who needs it.
+  final SessionTotals? lastSession;
 
   bool get isEmpty => answered == 0 && skipped == 0;
 

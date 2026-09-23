@@ -159,6 +159,18 @@ abstract class AppL10n {
   /// **'Change'**
   String get actionChange;
 
+  /// No description provided for @actionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get actionEdit;
+
+  /// No description provided for @actionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get actionConfirm;
+
   /// No description provided for @landingWelcome.
   ///
   /// In en, this message translates to:
@@ -242,6 +254,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'User Name'**
   String get fieldUserName;
+
+  /// No description provided for @fieldNewName.
+  ///
+  /// In en, this message translates to:
+  /// **'New name'**
+  String get fieldNewName;
 
   /// No description provided for @fieldUserNameHint.
   ///
@@ -741,11 +759,11 @@ abstract class AppL10n {
   /// **'This session has been scored. Start a new one to keep practising.'**
   String get quizAlreadySubmittedBody;
 
-  /// No description provided for @resultsThisSession.
+  /// No description provided for @resultsLastSession.
   ///
   /// In en, this message translates to:
-  /// **'This session'**
-  String get resultsThisSession;
+  /// **'Last session'**
+  String get resultsLastSession;
 
   /// No description provided for @resultsScoreLine.
   ///
@@ -759,11 +777,11 @@ abstract class AppL10n {
   /// **'no answers yet'**
   String get resultsNoAnswersYet;
 
-  /// No description provided for @resultsShowing.
+  /// No description provided for @resultsSortBy.
   ///
   /// In en, this message translates to:
-  /// **'Showing'**
-  String get resultsShowing;
+  /// **'Sort by'**
+  String get resultsSortBy;
 
   /// No description provided for @resultsRangeSession.
   ///
@@ -788,6 +806,48 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'All time'**
   String get resultsRangeAllTime;
+
+  /// No description provided for @resultsRangeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get resultsRangeCustom;
+
+  /// No description provided for @resultsCustomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range'**
+  String get resultsCustomTitle;
+
+  /// No description provided for @resultsCustomBlurb.
+  ///
+  /// In en, this message translates to:
+  /// **'How far back should the figures reach? Today counts as day one.'**
+  String get resultsCustomBlurb;
+
+  /// No description provided for @fieldDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get fieldDays;
+
+  /// No description provided for @fieldDaysHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 30'**
+  String get fieldDaysHint;
+
+  /// No description provided for @unitDays.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get unitDays;
+
+  /// No description provided for @errorEnterDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number of days, 1 to 365.'**
+  String get errorEnterDays;
 
   /// No description provided for @resultsStatCorrect.
   ///
@@ -831,10 +891,16 @@ abstract class AppL10n {
   /// **'No answers in this range yet. Finish a practice session to see your sub-topic accuracy.'**
   String get resultsNoBreakdown;
 
+  /// No description provided for @resultsNoSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions in this range yet.'**
+  String get resultsNoSessions;
+
   /// No description provided for @resultsHistoryTitle.
   ///
   /// In en, this message translates to:
-  /// **'Against your own last sessions correct answers percentage'**
+  /// **'Your correct answers percentage, day by day'**
   String get resultsHistoryTitle;
 
   /// No description provided for @resultsPrivacyNote.
@@ -1010,6 +1076,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settingsTitle;
+
+  /// No description provided for @settingsEditNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit your name'**
+  String get settingsEditNameTitle;
+
+  /// No description provided for @settingsCurrentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Current name'**
+  String get settingsCurrentName;
 
   /// No description provided for @settingsLanguage.
   ///

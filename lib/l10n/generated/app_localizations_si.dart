@@ -40,6 +40,12 @@ class AppL10nSi extends AppL10n {
   String get actionChange => 'වෙනස් කරන්න';
 
   @override
+  String get actionEdit => 'සංස්කරණය';
+
+  @override
+  String get actionConfirm => 'තහවුරු කරන්න';
+
+  @override
   String get landingWelcome => 'ආයුබෝවන්';
 
   @override
@@ -81,6 +87,9 @@ class AppL10nSi extends AppL10n {
 
   @override
   String get fieldUserName => 'පරිශීලක නාමය';
+
+  @override
+  String get fieldNewName => 'නව නම';
 
   @override
   String get fieldUserNameHint => 'ඔබේ නම ඇතුළත් කරන්න';
@@ -368,7 +377,7 @@ class AppL10nSi extends AppL10n {
       'මෙම සැසිය ලකුණු කර අවසන්. දිගටම පුහුණු වීමට නව සැසියක් අරඹන්න.';
 
   @override
-  String get resultsThisSession => 'මෙම සැසිය';
+  String get resultsLastSession => 'අවසන් සැසිය';
 
   @override
   String resultsScoreLine(int correct, int total) {
@@ -379,7 +388,7 @@ class AppL10nSi extends AppL10n {
   String get resultsNoAnswersYet => 'තවම පිළිතුරු නැත';
 
   @override
-  String get resultsShowing => 'පෙන්වන්නේ';
+  String get resultsSortBy => 'වර්ග කිරීම';
 
   @override
   String get resultsRangeSession => 'සැසිය';
@@ -392,6 +401,29 @@ class AppL10nSi extends AppL10n {
 
   @override
   String get resultsRangeAllTime => 'සියලු කාලය';
+
+  @override
+  String get resultsRangeCustom => 'අභිරුචි';
+
+  @override
+  String get resultsCustomTitle => 'අභිරුචි කාල පරාසය';
+
+  @override
+  String get resultsCustomBlurb =>
+      'සංඛ්‍යා කොපමණ කාලයකට පසුපසට යා යුතුද? අද පළමු දිනය ලෙස ගැනේ.';
+
+  @override
+  String get fieldDays => 'දින';
+
+  @override
+  String get fieldDaysHint => 'උදා. 30';
+
+  @override
+  String get unitDays => 'දින';
+
+  @override
+  String get errorEnterDays =>
+      'දින 1 සිට 365 දක්වා පූර්ණ සංඛ්‍යාවක් ඇතුළත් කරන්න.';
 
   @override
   String get resultsStatCorrect => 'නිවැරදි';
@@ -418,8 +450,11 @@ class AppL10nSi extends AppL10n {
       'මෙම කාල පරාසයේ තවම පිළිතුරු නැත. උප මාතෘකා නිරවද්‍යතාව බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.';
 
   @override
+  String get resultsNoSessions => 'මෙම කාල පරාසයේ තවම සැසි නැත.';
+
+  @override
   String get resultsHistoryTitle =>
-      'ඔබේම පෙර සැසිවල නිවැරදි පිළිතුරු ප්‍රතිශතයට එරෙහිව';
+      'ඔබේ නිවැරදි පිළිතුරු ප්‍රතිශතය, දිනෙන් දින';
 
   @override
   String get resultsPrivacyNote =>
@@ -514,6 +549,12 @@ class AppL10nSi extends AppL10n {
 
   @override
   String get settingsTitle => 'සැකසුම්';
+
+  @override
+  String get settingsEditNameTitle => 'ඔබේ නම සංස්කරණය කරන්න';
+
+  @override
+  String get settingsCurrentName => 'වත්මන් නම';
 
   @override
   String get settingsLanguage => 'භාෂාව';

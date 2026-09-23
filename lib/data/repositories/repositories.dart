@@ -77,6 +77,16 @@ class AccountExistsException implements Exception {
   const AccountExistsException();
 }
 
+/// Raised when login is attempted with a number that has no account.
+///
+/// The mirror of [AccountExistsException], and only the login screen can see
+/// it: signup is where a number without an account belongs. Checked before
+/// the code is issued, so a stranger's number costs no SMS and is never sent
+/// one.
+class NoAccountException implements Exception {
+  const NoAccountException();
+}
+
 /// Phone + OTP authentication against our own schema.
 ///
 /// Supabase Auth is not used at all (PRD 4.4): OTP goes out through a local
@@ -89,7 +99,16 @@ abstract interface class AuthRepository {
   /// that has a name to give. It is held server-side against the unverified
   /// number and cleared once the code is checked. Login and a resend pass
   /// nothing and leave any pending row alone.
-  Future<int> requestOtp(String msisdn, {String? fullName});
+  ///
+  /// [login] is set only by the login screen, and makes an account a
+  /// precondition: an unknown number raises [NoAccountException] instead of
+  /// being sent a code. A resend sets neither flag, because the caller there
+  /// has already been through whichever check applied.
+  Future<int> requestOtp(
+    String msisdn, {
+    String? fullName,
+    bool login = false,
+  });
 
   /// Verifies [code] and establishes a session. Returns null for a new user
   /// who must still create a profile, or the existing profile otherwise.
@@ -170,9 +189,10 @@ abstract interface class PracticeRepository {
 
   Future<ProgressSummary> progress();
 
-  /// The user's own figures over [range] for the results dashboard: accuracy,
-  /// time, skips, accuracy per sub-topic and the sessions behind the trend.
-  Future<RangeStats> rangeStats(ResultsRange range);
+  /// The user's own figures over [window] for the results dashboard:
+  /// accuracy, time, skips, accuracy per sub-topic and the days behind the
+  /// trend bars.
+  Future<RangeStats> rangeStats(ResultsWindow window);
 
   Future<List<SavedQuestion>> bookmarks();
 
