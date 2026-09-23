@@ -165,6 +165,26 @@ export async function verifyOtp(args: {
   });
 }
 
+/// The carrier refuses a second OTP for a number it has already registered.
+///
+/// Its OTP is a subscription registration, not a repeatable login: a number
+/// goes through it once and is "already registered" from then on. Signup
+/// falls back to a code of our own when it sees this; nothing else should
+/// treat it as a failure either, since it is a statement of fact.
+export const ALREADY_REGISTERED = "E1351";
+
+/// Sends one plain SMS. No subscription semantics -- this is the action a
+/// code of our own goes out through.
+export async function sendSms(
+  msisdn: string,
+  message: string,
+): Promise<void> {
+  await call("send-sms", {
+    message,
+    destinationAddresses: [toTel(msisdn)],
+  });
+}
+
 /// Mobitel answers "not subscribed" with an error code rather than a
 /// status, and pairs it with "invalid address" in the same code. We build
 /// the address ourselves in [toTel], so between the two readings the

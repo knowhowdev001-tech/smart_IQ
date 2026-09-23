@@ -50,6 +50,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return SupabaseAuthRepository(
     client: Supabase.instance.client,
     sessions: ref.watch(sessionStoreProvider),
+    language: () => ref.read(languageProvider),
   );
 });
 

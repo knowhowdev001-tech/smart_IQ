@@ -16,6 +16,7 @@ import {
   mintAccessToken,
   newRefreshToken,
   otpPepper,
+  timingSafeEqual,
 } from "../_shared/tokens.ts";
 import {
   ChargingError,
@@ -67,7 +68,9 @@ serve(async (req) => {
   // expects.
   const { data: otp, error: otpError } = await supabase
     .from("otp_requests")
-    .select("id, reference_no, expires_at, attempt_count, subscriber_status")
+    .select(
+      "id, reference_no, otp_hash, expires_at, attempt_count, subscriber_status",
+    )
     .eq("msisdn", msisdn)
     .is("consumed_at", null)
     .order("created_at", { ascending: false })
@@ -93,56 +96,64 @@ serve(async (req) => {
     return fail(429, "too_many_attempts");
   }
 
-  // A row from before the carrier took delivery over has no reference to
-  // check against, and its code was never sent anyway.
-  if (!otp.reference_no) return fail(410, "otp_expired");
-
-  // The row the test bypass wrote is checked against the secret instead of
-  // the carrier. One number, one code, and only while both secrets are set.
+  // Each row says how it is checked. A carrier row quotes its reference
+  // back; one of ours is checked against the hash we kept; the test row is
+  // checked against the secret. A row from before any of this has neither
+  // and cannot be verified at all.
   const bypass = testBypass();
   const isTestRow = otp.reference_no === "test-bypass";
+  const isCarrierRow = !isTestRow && otp.reference_no !== null;
 
-  if (isTestRow) {
-    if (!bypass || msisdn !== bypass.msisdn || code !== bypass.otp) {
-      await supabase
-        .from("otp_requests")
-        .update({ attempt_count: otp.attempt_count + 1 })
-        .eq("id", otp.id);
-      return fail(401, "otp_invalid");
-    }
-    console.warn(`otp-verify: TEST BYPASS used for ${msisdn}`);
+  if (!isTestRow && !isCarrierRow && !otp.otp_hash) {
+    return fail(410, "otp_expired");
   }
 
-  // The carrier owns the code and the comparison. The attempt cap above is
-  // still ours: the service documents no cap of its own, and six digits is a
-  // million guesses from someone else's account.
-  let verified: Record<string, unknown> = {};
-  try {
-    if (!isTestRow) {
-      verified = await verifyOtp({
-        msisdn,
-        referenceNo: otp.reference_no,
-        otp: code,
-      });
-    }
-  } catch (error) {
+  /// Counts the wrong guess and reports it as one. Six digits is a million
+  /// combinations, and the cap above is what keeps that out of reach.
+  const wrongCode = async () => {
     await supabase
       .from("otp_requests")
       .update({ attempt_count: otp.attempt_count + 1 })
       .eq("id", otp.id);
+    return fail(401, "otp_invalid");
+  };
 
-    if (error instanceof ChargingError) {
-      // The provider's codes are an open set, so a refusal is reported as a
-      // wrong code and the actual reason is logged rather than guessed at.
-      console.error(
-        `otp-verify: carrier refused (${error.statusCode})`,
-        error.message,
-      );
-      return fail(401, "otp_invalid");
+  let verified: Record<string, unknown> = {};
+
+  if (isTestRow) {
+    if (!bypass || msisdn !== bypass.msisdn || code !== bypass.otp) {
+      return await wrongCode();
     }
+    console.warn(`otp-verify: TEST BYPASS used for ${msisdn}`);
+  } else if (isCarrierRow) {
+    try {
+      verified = await verifyOtp({
+        msisdn,
+        referenceNo: otp.reference_no!,
+        otp: code,
+      });
+    } catch (error) {
+      if (error instanceof ChargingError) {
+        // The provider's codes are an open set, so a refusal is reported as
+        // a wrong code and the actual reason is logged rather than guessed.
+        console.error(
+          `otp-verify: carrier refused (${error.statusCode})`,
+          error.message,
+        );
+        return await wrongCode();
+      }
 
-    console.error("otp-verify: carrier unreachable", error);
-    return fail(502, "sms_failed");
+      await supabase
+        .from("otp_requests")
+        .update({ attempt_count: otp.attempt_count + 1 })
+        .eq("id", otp.id);
+      console.error("otp-verify: carrier unreachable", error);
+      return fail(502, "sms_failed");
+    }
+  } else {
+    // Ours: the code was sent as a plain SMS and only its hash was kept.
+    const candidate = await hashSecret(code, msisdn, otpPepper());
+    if (!timingSafeEqual(candidate, otp.otp_hash!)) return await wrongCode();
   }
 
   // Single use. Burned before the session is minted so a replay of the same

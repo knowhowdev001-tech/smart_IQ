@@ -12,11 +12,14 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { fail, json, requireEnv, serve } from "../_shared/http.ts";
 import {
+  ALREADY_REGISTERED,
   ChargingError,
   requestOtp,
+  sendSms,
   subscriberStatus,
   testBypass,
 } from "../_shared/charging.ts";
+import { hashSecret, otpPepper } from "../_shared/tokens.ts";
 import { toE164 } from "../_shared/msisdn.ts";
 
 // Must match `kOtpValidity` and `kOtpResendCooldown` in
@@ -24,6 +27,28 @@ import { toE164 } from "../_shared/msisdn.ts";
 // the real validity shows the user time they do not have.
 const OTP_VALIDITY_SECONDS = 5 * 60;
 const RESEND_COOLDOWN_SECONDS = 60;
+
+/// The SMS a code of our own goes out in.
+///
+/// Written per language rather than translated at the client, because the
+/// client never sees this text: an English code to a Sinhala user would be
+/// the one part of this product that ignores them.
+function codeMessage(code: string, language: string): string {
+  switch (language) {
+    case "si":
+      return `ඔබේ Smart IQ කේතය ${code} වේ. මිනිත්තු 5කින් කල් ඉකුත් වේ.`;
+    case "ta":
+      return `உங்கள் Smart IQ குறியீடு ${code}. 5 நிமிடங்களில் காலாவதியாகும்.`;
+    default:
+      return `${code} is your Smart IQ code. It expires in 5 minutes.`;
+  }
+}
+
+/// Six digits, from the platform's cryptographic source.
+function newCode(): string {
+  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
+  return n.toString().padStart(6, "0");
+}
 
 serve(async (req) => {
   if (req.method !== "POST") return fail(405, "method_not_allowed");
@@ -33,6 +58,7 @@ serve(async (req) => {
     device_id?: string;
     full_name?: string;
     login?: boolean;
+    language?: string;
     application_hash?: string;
   };
   try {
@@ -139,41 +165,81 @@ serve(async (req) => {
     }
   }
 
-  // `test-bypass` is what tells the verify side to check the code against
-  // the secret rather than against the carrier.
-  let referenceNo = "test-bypass";
+  // Which of the three ways this code is issued, and therefore how the
+  // verify side will check it: the carrier holds it, we hold its hash, or
+  // it is the test number and there is nothing to send at all.
+  let referenceNo: string | null = "test-bypass";
+  let otpHash: string | null = null;
   let baseline: string | null = null;
 
   if (isTestNumber) {
     console.warn(`otp-request: TEST BYPASS used for ${msisdn}`);
   } else {
-    // The carrier sends the SMS and owns the code. A failure here is the end
-    // of the attempt: no row is written, so the user can try again at once
-    // rather than waiting out a cooldown for a code that never arrived.
-    try {
-      referenceNo = await requestOtp(msisdn, body.application_hash);
-    } catch (error) {
-      console.error("otp-request: carrier refused", error);
-      if (error instanceof ChargingError) {
-        return fail(502, "sms_failed", error.message);
+    // Signup goes through the carrier, because that is where its
+    // registration belongs. Login never does: the carrier's OTP is a
+    // registration, so it refuses a number that has already been through
+    // it, and every returning user is one of those.
+    let carrierIssued = false;
+
+    if (!isLogin) {
+      try {
+        referenceNo = await requestOtp(msisdn, body.application_hash);
+        carrierIssued = true;
+      } catch (error) {
+        // "Already registered" is a fact about the number, not a failure:
+        // fall through and send a code of our own. Anything else is a
+        // carrier that cannot deliver, and must not look like success.
+        const alreadyRegistered = error instanceof ChargingError &&
+          error.statusCode === ALREADY_REGISTERED;
+
+        if (!alreadyRegistered) {
+          console.error("otp-request: carrier refused", error);
+          if (error instanceof ChargingError) {
+            return fail(502, "sms_failed", error.message);
+          }
+          return fail(502, "sms_failed");
+        }
+
+        console.warn(
+          `otp-request: ${msisdn} is already registered with the carrier; ` +
+            "sending a code of our own",
+        );
       }
-      return fail(502, "sms_failed");
     }
 
-    // Taken before the code is verified, because the verify step may itself
-    // subscribe the number and we need to know which of the two happened. A
-    // failure here must not cost the user their login, so it records null
-    // and the verify side treats that as "unknown, leave it alone".
-    try {
-      baseline = await subscriberStatus(msisdn);
-    } catch (error) {
-      console.error("otp-request: subscriber status unavailable", error);
+    if (carrierIssued) {
+      // Taken before the code is verified, because the carrier's verify may
+      // subscribe the number and we need to know which of the two happened.
+      // A failure here must not cost the user their signup, so it records
+      // null and the verify side treats that as "unknown, leave it alone".
+      try {
+        baseline = await subscriberStatus(msisdn);
+      } catch (error) {
+        console.error("otp-request: subscriber status unavailable", error);
+      }
+    } else {
+      // Ours to mint, ours to check. Only the hash is stored, so a leaked
+      // row is not a code.
+      const code = newCode();
+      referenceNo = null;
+      otpHash = await hashSecret(code, msisdn, otpPepper());
+
+      try {
+        await sendSms(msisdn, codeMessage(code, body.language ?? "en"));
+      } catch (error) {
+        console.error("otp-request: sms failed", error);
+        if (error instanceof ChargingError) {
+          return fail(502, "sms_failed", error.message);
+        }
+        return fail(502, "sms_failed");
+      }
     }
   }
 
   const { error: insertError } = await supabase.from("otp_requests").insert({
     msisdn,
     reference_no: referenceNo,
+    otp_hash: otpHash,
     subscriber_status: baseline,
     expires_at: new Date(Date.now() + OTP_VALIDITY_SECONDS * 1000).toISOString(),
     device_id: body.device_id ?? null,

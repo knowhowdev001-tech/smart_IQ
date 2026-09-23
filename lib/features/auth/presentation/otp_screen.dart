@@ -81,7 +81,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Future<void> _resend() async {
     setState(() => _error = null);
     try {
-      await ref.read(authRepositoryProvider).requestOtp(widget.msisdn);
+      // Saying which flow this is keeps a login resend off the carrier's
+      // OTP, which would only be refused: it registers a number once and
+      // refuses it ever after.
+      await ref.read(authRepositoryProvider).requestOtp(
+            widget.msisdn,
+            login: !widget.isSignup,
+          );
       _controller.clear();
       _startClocks();
     } on SmsDeliveryException {

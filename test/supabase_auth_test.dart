@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_iq/data/auth/session_store.dart';
+import 'package:smart_iq/domain/enums.dart';
 import 'package:smart_iq/data/repositories/repositories.dart';
 import 'package:smart_iq/data/repositories/supabase_auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide Headers;
@@ -30,6 +31,7 @@ void main() {
       // request, which is the Dio half of the repository.
       client: SupabaseClient('http://localhost:54321', 'test-key'),
       sessions: SessionStore(),
+      language: () => AppLanguage.english,
       http: Dio(BaseOptions(
         baseUrl: 'http://localhost/functions/v1',
         validateStatus: (_) => true,
@@ -81,6 +83,7 @@ void main() {
     final repository = SupabaseAuthRepository(
       client: SupabaseClient('http://localhost:54321', 'test-key'),
       sessions: sessions,
+      language: () => AppLanguage.english,
       http: Dio(BaseOptions(
         baseUrl: 'http://localhost/functions/v1',
         validateStatus: (_) => true,

@@ -27,9 +27,11 @@ class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository({
     required SupabaseClient client,
     required SessionStore sessions,
+    required AppLanguage Function() language,
     Dio? http,
   })  : _client = client,
         _sessions = sessions,
+        _language = language,
         _http = http ??
             Dio(BaseOptions(
               baseUrl: '${SupabaseConfig.url}/functions/v1',
@@ -46,6 +48,12 @@ class SupabaseAuthRepository implements AuthRepository {
 
   final SupabaseClient _client;
   final SessionStore _sessions;
+
+  /// The OTP's SMS is written server-side, so the language has to be sent
+  /// with the request. Read at call time, not at construction: the user can
+  /// change it between one code and the next.
+  final AppLanguage Function() _language;
+
   final Dio _http;
 
   @override
@@ -65,6 +73,10 @@ class SupabaseAuthRepository implements AuthRepository {
       // A resend sends neither flag, so it is checked as neither a signup
       // nor a login and simply reissues the code.
       if (login) 'login': true,
+      // The SMS is written server-side, so the language has to travel: an
+      // English code to a Sinhala user would be the one part of this
+      // product that ignores them.
+      'language': _language().code,
     });
 
     final body = _asMap(response.data);
