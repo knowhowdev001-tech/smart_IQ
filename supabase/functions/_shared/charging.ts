@@ -22,13 +22,21 @@ const PROVIDER_OK = "S1000";
 /// number, and an open set beyond that, which is why nothing here switches
 /// on it exhaustively.
 export class ChargingError extends Error {
+  readonly statusCode: string | null;
+
   constructor(
     readonly endpoint: string,
-    readonly statusCode: string | null,
+    statusCode: string | null,
     message: string,
   ) {
     super(message);
     this.name = "ChargingError";
+    // The provider does not always put its code in `data.statusCode`. E1343
+    // arrived with that field null and the code only inside the message
+    // ("... (code: E1343)"), so a caller matching on a code -- the signup
+    // fallback matches on E1351 -- would miss it and dead-end the user.
+    this.statusCode = statusCode ?? message.match(/\b([ES]\d{4})\b/)?.[1] ??
+      null;
   }
 }
 
@@ -68,6 +76,51 @@ export function toTel(msisdn: string): string {
   return `tel:${digits.startsWith("94") ? digits : `94${digits}`}`;
 }
 
+/// The reply shape common to every action. `errors` is `send-sms`'s alone:
+/// the routes a batch was *not* delivered to.
+interface ChargingBody {
+  success?: boolean;
+  error?: string;
+  message?: string;
+  data?: Record<string, unknown>;
+  errors?: Record<string, unknown>;
+}
+
+/// One POST to the service, with the HTTP status kept.
+///
+/// [call] reduces this to `data`, which is all a flat reply has. `send-sms`
+/// answers with per-route groups and a `207`, and needs both.
+async function post(
+  endpoint: string,
+  payload: Record<string, unknown>,
+): Promise<{ status: number; body: ChargingBody }> {
+  const { baseUrl, apiKey, secret } = config();
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": apiKey,
+      },
+      body: JSON.stringify({ endpoint, secret, ...payload }),
+      signal: controller.signal,
+    });
+    return { status: response.status, body: await response.json() };
+  } catch (error) {
+    throw new Error(`charging ${endpoint} unreachable: ${error}`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function accepted(status: number, body: ChargingBody): boolean {
+  return status >= 200 && status < 300 && body.success === true;
+}
+
 /// Calls one action and returns its `data`, having checked both gates.
 ///
 /// Throws [ChargingError] when the provider refused, and a plain Error when
@@ -77,41 +130,13 @@ export async function call(
   endpoint: string,
   payload: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
-  const { baseUrl, apiKey, secret } = config();
+  const { status, body } = await post(endpoint, payload);
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-  let response: Response;
-  let body: {
-    success?: boolean;
-    error?: string;
-    message?: string;
-    data?: Record<string, unknown>;
-  };
-
-  try {
-    response = await fetch(baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-API-Key": apiKey,
-      },
-      body: JSON.stringify({ endpoint, secret, ...payload }),
-      signal: controller.signal,
-    });
-    body = await response.json();
-  } catch (error) {
-    throw new Error(`charging ${endpoint} unreachable: ${error}`);
-  } finally {
-    clearTimeout(timer);
-  }
-
-  if (!response.ok || body.success !== true) {
+  if (!accepted(status, body)) {
     throw new ChargingError(
       endpoint,
       (body.data?.statusCode as string) ?? null,
-      body.message ?? body.error ?? `HTTP ${response.status}`,
+      body.message ?? body.error ?? `HTTP ${status}`,
     );
   }
 
@@ -175,14 +200,71 @@ export const ALREADY_REGISTERED = "E1351";
 
 /// Sends one plain SMS. No subscription semantics -- this is the action a
 /// code of our own goes out through.
+///
+/// Not routed through [call], because `send-sms` does not answer like the
+/// others: it splits a batch by route and reports each group separately, so
+/// the flat `data.statusCode` gate has nothing to read and a message
+/// delivered to nobody comes back looking like a success. A login whose code
+/// was refused must say so, not leave the user watching an inbox.
 export async function sendSms(
   msisdn: string,
   message: string,
 ): Promise<void> {
-  await call("send-sms", {
+  const { status, body } = await post("send-sms", {
     message,
     destinationAddresses: [toTel(msisdn)],
   });
+
+  if (!accepted(status, body)) {
+    throw new ChargingError(
+      "send-sms",
+      (body.data?.statusCode as string) ?? null,
+      body.message ?? body.error ?? `HTTP ${status}`,
+    );
+  }
+
+  // 207 means some routes took it and some did not, with the refusals under
+  // a top-level `errors`. We send to one number, so partly delivered is not
+  // delivered.
+  const failures = body.errors ?? {};
+  if (status === 207 || Object.keys(failures).length > 0) {
+    throw new ChargingError(
+      "send-sms",
+      null,
+      `not delivered: ${JSON.stringify(failures)}`,
+    );
+  }
+
+  const data = body.data ?? {};
+  const groups = (data.byCarrier ?? {}) as Record<
+    string,
+    { statusCode?: string; statusDetail?: string } | null
+  >;
+
+  for (const [carrier, group] of Object.entries(groups)) {
+    const code = group?.statusCode;
+    if (code && code !== PROVIDER_OK) {
+      throw new ChargingError(
+        "send-sms",
+        code,
+        `${carrier}: ${group?.statusDetail ?? code}`,
+      );
+    }
+  }
+
+  // A reply that confirms nothing is not proof of anything, but the shape of
+  // this one is the provider's to change, so it is logged rather than thrown:
+  // refusing every SMS over an unrecognised success would be the worse
+  // failure. The body is here so the next one tells us which it was.
+  if (Object.keys(groups).length === 0 && !data.statusCode) {
+    console.error(
+      "charging send-sms: accepted with no per-route result",
+      JSON.stringify(body),
+    );
+    return;
+  }
+
+  console.log(`charging send-sms: ${JSON.stringify(groups)}`);
 }
 
 /// Mobitel answers "not subscribed" with an error code rather than a
