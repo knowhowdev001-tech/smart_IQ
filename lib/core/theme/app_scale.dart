@@ -152,6 +152,19 @@ extension ScaledNum on num {
   double dp(BuildContext context) => AppScale.of(context).dp(toDouble());
 }
 
+extension SafeBottomInset on BuildContext {
+  /// A scroll view's bottom padding: the design's own spacing plus whatever
+  /// the system's navigation bar takes.
+  ///
+  /// The app draws edge to edge (see main.dart), and a Scaffold only strips
+  /// the bottom inset from a body that has a bottom bar beneath it. So the
+  /// four tabs inside the shell are covered by the nav bar's own SafeArea,
+  /// and every screen outside it has to pay the inset here or its last row
+  /// hides behind the navigation bar.
+  double safeBottom([double design = 0]) =>
+      design.dp(this) + MediaQuery.paddingOf(this).bottom;
+}
+
 /// Centres a page's content column on wide screens.
 ///
 /// Phones get the full width and pay nothing; tablets and landscape get a

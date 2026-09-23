@@ -62,7 +62,7 @@ class NotificationsScreen extends ConsumerWidget {
                       AppSpacing.lg.dp(context),
                       14.dp(context),
                       AppSpacing.lg.dp(context),
-                      AppSpacing.gutter.dp(context),
+                      context.safeBottom(AppSpacing.gutter),
                     ),
                     itemCount: items.length,
                     separatorBuilder: (_, __) =>

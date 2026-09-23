@@ -74,7 +74,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                     AppSpacing.xl.dp(context),
                     AppSpacing.lg.dp(context),
                     AppSpacing.xl.dp(context),
-                    AppSpacing.xl.dp(context),
+                    context.safeBottom(AppSpacing.xl),
                   ),
                   children: [
                     if (!_isMockCategory) ...[
