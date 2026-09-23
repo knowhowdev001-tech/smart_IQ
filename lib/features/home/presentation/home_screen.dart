@@ -153,7 +153,10 @@ class _Header extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        profile?.displayName ?? '',
+                        // The whole name: a rename has to be visible here,
+                        // and showing only the first word hides every edit
+                        // that does not touch it.
+                        profile?.fullName ?? '',
                         style: context.text(
                           AppTextStyles.title,
                           weight: 700,

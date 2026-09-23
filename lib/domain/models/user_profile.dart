@@ -57,15 +57,6 @@ class UserProfile {
         'education_level': educationLevel,
       };
 
-  /// First name only, for the home greeting. Falls back to the whole string
-  /// when there is no space, which is common for mononyms.
-  String get displayName {
-    final trimmed = fullName.trim();
-    if (trimmed.isEmpty) return '';
-    final space = trimmed.indexOf(' ');
-    return space == -1 ? trimmed : trimmed.substring(0, space);
-  }
-
   /// Masks the middle of the number for display.
   String get maskedMsisdn {
     final digits = msisdn.replaceAll(RegExp(r'\D'), '');

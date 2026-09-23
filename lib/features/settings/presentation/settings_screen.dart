@@ -9,9 +9,13 @@ import '../../../core/settings/app_settings.dart';
 import '../../../core/theme/app_scale.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/siq_button.dart';
+import '../../../core/widgets/siq_field.dart';
 import '../../../core/widgets/siq_surfaces.dart';
 import '../../../domain/enums.dart';
 import '../../../domain/models/app_notification.dart';
+import '../../../domain/models/user_profile.dart';
+import '../../../data/repositories/repositories.dart';
 import '../../legal/presentation/terms_sheet.dart';
 
 /// Language, theme, notification preferences, legal and account actions.
@@ -28,7 +32,11 @@ class SettingsScreen extends ConsumerWidget {
       backgroundColor: colors.page,
       body: Column(
         children: [
-          BrandAppBar(title: l10n.settingsTitle, onBack: context.pop),
+          BrandAppBar(
+            title: l10n.settingsTitle,
+            onBack: context.pop,
+            trailing: const _NameAction(),
+          ),
           Expanded(
             child: ContentColumn(
               child: ListView(
@@ -36,7 +44,9 @@ class SettingsScreen extends ConsumerWidget {
                   AppSpacing.gutter.dp(context),
                   AppSpacing.lg.dp(context),
                   AppSpacing.gutter.dp(context),
-                  AppSpacing.gutter.dp(context),
+                  // Delete account is the last row, and this screen has no
+                  // bottom bar to absorb the navigation bar for it.
+                  context.safeBottom(AppSpacing.gutter),
                 ),
                 children: [
                   OverlineLabel(l10n.settingsLanguage),
@@ -427,6 +437,169 @@ class _DangerRow extends StatelessWidget {
           color: colors.dangerInk,
         ),
       ),
+    );
+  }
+}
+
+/// The user's name and the button that edits it, in the header's right
+/// corner. Renders nothing until the profile has loaded, so the header never
+/// flashes an empty name.
+class _NameAction extends ConsumerWidget {
+  const _NameAction();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final profile = ref.watch(profileProvider).valueOrNull;
+    if (profile == null) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // A long name would push the Edit button off the header, so it gets
+        // a ceiling and an ellipsis rather than the title's leftovers.
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 96.dp(context)),
+          child: Text(
+            profile.fullName,
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.text(
+              AppTextStyles.captionSmall,
+              weight: 700,
+              color: colors.brandInk,
+            ),
+          ),
+        ),
+        SizedBox(width: AppSpacing.sm.dp(context)),
+        SiqButton(
+          label: context.l10n.actionEdit,
+          variant: SiqButtonVariant.chip,
+          expand: false,
+          onPressed: () => showDialog<void>(
+            context: context,
+            builder: (_) => _EditNameDialog(profile: profile),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Shows the name the account currently has, takes a new one, and writes it
+/// through on confirm.
+class _EditNameDialog extends ConsumerStatefulWidget {
+  const _EditNameDialog({required this.profile});
+
+  final UserProfile profile;
+
+  @override
+  ConsumerState<_EditNameDialog> createState() => _EditNameDialogState();
+}
+
+class _EditNameDialogState extends ConsumerState<_EditNameDialog> {
+  late final _controller =
+      TextEditingController(text: widget.profile.fullName);
+
+  String? _error;
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _confirm() async {
+    final l10n = context.l10n;
+    final name = _controller.text.trim();
+
+    if (name.isEmpty) {
+      setState(() => _error = l10n.errorEnterName);
+      return;
+    }
+
+    // Nothing to write, so close rather than spending a round trip.
+    if (name == widget.profile.fullName) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    setState(() {
+      _error = null;
+      _saving = true;
+    });
+
+    try {
+      await ref
+          .read(profileProvider.notifier)
+          .save(widget.profile.copyWith(fullName: name));
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } on OfflineException {
+      if (mounted) setState(() => _error = l10n.errorOffline);
+    } catch (_) {
+      if (mounted) setState(() => _error = l10n.errorGeneric);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final l10n = context.l10n;
+
+    return AlertDialog(
+      backgroundColor: colors.surface,
+      title: Text(
+        l10n.settingsEditNameTitle,
+        style: context.text(
+          AppTextStyles.titleSmall,
+          weight: 700,
+          color: colors.ink,
+        ),
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          OverlineLabel(l10n.settingsCurrentName),
+          SizedBox(height: AppSpacing.xs.dp(context)),
+          Text(
+            widget.profile.fullName,
+            style: context.text(
+              AppTextStyles.bodySmall,
+              weight: 700,
+              color: colors.ink,
+            ),
+          ),
+          SizedBox(height: AppSpacing.lg.dp(context)),
+          SiqField(
+            label: l10n.fieldNewName,
+            hint: l10n.fieldUserNameHint,
+            controller: _controller,
+            textInputAction: TextInputAction.done,
+            enabled: !_saving,
+            errorText: _error,
+            onSubmitted: (_) => _confirm(),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: Text(l10n.actionCancel),
+        ),
+        SiqButton(
+          label: l10n.actionConfirm,
+          expand: false,
+          compact: true,
+          loading: _saving,
+          onPressed: _saving ? null : _confirm,
+        ),
+      ],
     );
   }
 }
