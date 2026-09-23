@@ -87,6 +87,15 @@ class NoAccountException implements Exception {
   const NoAccountException();
 }
 
+/// Raised when the carrier could not send the code.
+///
+/// Distinct from [OfflineException]: the user's connection is fine and
+/// retrying may well work, but nothing arrived and telling them to check
+/// their network would send them looking in the wrong place.
+class SmsDeliveryException implements Exception {
+  const SmsDeliveryException();
+}
+
 /// Phone + OTP authentication against our own schema.
 ///
 /// Supabase Auth is not used at all (PRD 4.4): OTP goes out through a local

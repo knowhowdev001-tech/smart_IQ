@@ -16,7 +16,11 @@ import 'mock_content.dart';
 // implementation landed: they are part of the interface, not of the mock.
 // Re-exported so screens that catch them keep one import.
 export '../repositories/repositories.dart'
-    show OfflineException, OtpExpiredException, OtpInvalidException;
+    show
+        OfflineException,
+        OtpExpiredException,
+        OtpInvalidException,
+        SmsDeliveryException;
 
 /// The only OTP the mock accepts, until the SMS gateway and the server-side
 /// verification of PRD 6.1 exist. Development convenience, never shipped.

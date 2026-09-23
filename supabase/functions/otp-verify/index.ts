@@ -16,8 +16,8 @@ import {
   mintAccessToken,
   newRefreshToken,
   otpPepper,
-  timingSafeEqual,
 } from "../_shared/tokens.ts";
+import { ChargingError, verifyOtp } from "../_shared/charging.ts";
 import { toE164 } from "../_shared/msisdn.ts";
 
 const ACCESS_TOKEN_TTL_SECONDS = 60 * 60;
@@ -62,7 +62,7 @@ serve(async (req) => {
   // expects.
   const { data: otp, error: otpError } = await supabase
     .from("otp_requests")
-    .select("id, otp_hash, expires_at, attempt_count")
+    .select("id, reference_no, expires_at, attempt_count")
     .eq("msisdn", msisdn)
     .is("consumed_at", null)
     .order("created_at", { ascending: false })
@@ -88,14 +88,38 @@ serve(async (req) => {
     return fail(429, "too_many_attempts");
   }
 
-  const candidate = await hashSecret(code, msisdn, otpPepper());
+  // A row from before the carrier took delivery over has no reference to
+  // check against, and its code was never sent anyway.
+  if (!otp.reference_no) return fail(410, "otp_expired");
 
-  if (!timingSafeEqual(candidate, otp.otp_hash)) {
+  // The carrier owns the code and the comparison. The attempt cap above is
+  // still ours: the service documents no cap of its own, and six digits is a
+  // million guesses from someone else's account.
+  let verified: Record<string, unknown>;
+  try {
+    verified = await verifyOtp({
+      msisdn,
+      referenceNo: otp.reference_no,
+      otp: code,
+    });
+  } catch (error) {
     await supabase
       .from("otp_requests")
       .update({ attempt_count: otp.attempt_count + 1 })
       .eq("id", otp.id);
-    return fail(401, "otp_invalid");
+
+    if (error instanceof ChargingError) {
+      // The provider's codes are an open set, so a refusal is reported as a
+      // wrong code and the actual reason is logged rather than guessed at.
+      console.error(
+        `otp-verify: carrier refused (${error.statusCode})`,
+        error.message,
+      );
+      return fail(401, "otp_invalid");
+    }
+
+    console.error("otp-verify: carrier unreachable", error);
+    return fail(502, "sms_failed");
   }
 
   // Single use. Burned before the session is minted so a replay of the same
@@ -134,6 +158,32 @@ serve(async (req) => {
   }
 
   if (user.status !== "active") return fail(403, "account_suspended");
+
+  // The carrier told us, in the verify reply, whether this number is already
+  // subscribed. Acting on it here saves the user a day of free limits while
+  // they wait for the nightly reconcile to notice.
+  //
+  // Only upwards: a REGISTERED answer activates, an UNREGISTERED one is left
+  // to the reconcile. Cancelling a paying subscriber because one status call
+  // hiccuped during their login is the worse mistake of the two.
+  if (verified.subscriptionStatus === "REGISTERED") {
+    const { error: statusError } = await supabase
+      .from("payment_status")
+      .upsert({
+        user_id: user.id,
+        tier: "basic",
+        source: "telco",
+        status: "active",
+        valid_until: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        last_checked_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+
+    if (statusError) {
+      // Not fatal: the session is what this call is for, and the reconcile
+      // will put the entitlement right.
+      console.error("otp-verify: entitlement write failed", statusError);
+    }
+  }
 
   // The pending signup has served its purpose now that the number is proved
   // and the account exists. Deleted rather than left to expire because the

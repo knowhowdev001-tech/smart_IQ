@@ -84,6 +84,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       await ref.read(authRepositoryProvider).requestOtp(widget.msisdn);
       _controller.clear();
       _startClocks();
+    } on SmsDeliveryException {
+      if (mounted) setState(() => _error = context.l10n.errorSmsFailed);
     } on OfflineException {
       if (mounted) setState(() => _error = context.l10n.errorOffline);
     } catch (_) {

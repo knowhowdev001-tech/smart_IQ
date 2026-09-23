@@ -66,6 +66,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on NoAccountException {
       if (!mounted) return;
       setState(() => _error = l10n.errorNoAccount);
+    } on SmsDeliveryException {
+      if (!mounted) return;
+      setState(() => _error = l10n.errorSmsFailed);
     } on OfflineException {
       if (!mounted) return;
       setState(() => _error = l10n.errorOffline);

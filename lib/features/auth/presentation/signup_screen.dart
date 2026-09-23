@@ -66,6 +66,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       // Carried through OTP so profile creation does not ask for it again.
       ref.read(signupNameProvider.notifier).state = name;
       context.push('${Routes.otp}?msisdn=$normalised&signup=1');
+    } on SmsDeliveryException {
+      if (!mounted) return;
+      setState(() => _phoneError = l10n.errorSmsFailed);
     } on AccountExistsException {
       // Against the number field rather than the name, because the number is
       // what is already taken and what they would change to proceed.

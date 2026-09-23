@@ -177,6 +177,10 @@ class AppL10nSi extends AppL10n {
       'මෙම අංකය සඳහා ගිණුමක් නැත. කරුණාකර පළමුව ලියාපදිංචි වන්න.';
 
   @override
+  String get errorSmsFailed =>
+      'දැන් කේතය යැවිය නොහැකි විය. මොහොතකින් නැවත උත්සාහ කරන්න.';
+
+  @override
   String get errorOffline => 'අන්තර්ජාල සම්බන්ධතාවයක් නැත.';
 
   @override

@@ -1,18 +1,17 @@
-// POST /functions/v1/otp-request  { msisdn, device_id? }
+// POST /functions/v1/otp-request  { msisdn, device_id?, full_name?, login? }
 //
-// Writes a hashed, single-use OTP to `otp_requests` and returns the resend
-// cooldown so the client can render the countdown of PRD 6.1. The code
-// itself is never returned and never stored in the clear.
+// Asks the carrier to send an OTP and records that it did. The code itself
+// is the carrier's: it delivers the SMS and checks the answer, and hands
+// back a reference we quote at verify time.
 //
-// Delivery is the one piece still missing: `msisdn_prefix_routing` has the
-// prefixes and carriers but every row is inactive with an empty endpoint,
-// because PRD 7.2 defers the specifics to provider documentation. Until an
-// operator fills one in, `OTP_FIXED_CODE` stands in for the SMS — see
-// `resolveCode` below.
+// This function stays in front of that because the carrier knows nothing
+// about the things an account needs -- whether the number may sign up or may
+// log in, the pending name a signup carries, the resend cooldown that keeps
+// an SMS from being a free repeat, and the attempt cap on the row.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { fail, json, requireEnv, serve } from "../_shared/http.ts";
-import { hashSecret, otpPepper } from "../_shared/tokens.ts";
+import { ChargingError, requestOtp } from "../_shared/charging.ts";
 import { toE164 } from "../_shared/msisdn.ts";
 
 // Must match `kOtpValidity` and `kOtpResendCooldown` in
@@ -20,33 +19,6 @@ import { toE164 } from "../_shared/msisdn.ts";
 // the real validity shows the user time they do not have.
 const OTP_VALIDITY_SECONDS = 5 * 60;
 const RESEND_COOLDOWN_SECONDS = 60;
-
-/// The code to issue.
-///
-/// No SMS gateway is wired yet — every `msisdn_prefix_routing` row is
-/// inactive with an empty endpoint — so there is nothing to deliver a random
-/// code to. `DEV_FIXED_CODE` stands in for the SMS and verifies for every
-/// number, which is the only way the flow can be exercised end to end today.
-///
-/// This is a universal password: anyone who can reach this URL can sign up
-/// as any phone number. `OTP_FIXED_CODE` overrides it and an unset
-/// `ALLOW_DEV_OTP` disables the fallback entirely, so the deployment that
-/// faces real users is the one that leaves `ALLOW_DEV_OTP` unset — there the
-/// code is random, undeliverable, and fails closed rather than open.
-const DEV_FIXED_CODE = "123456";
-
-function resolveCode(): string {
-  const fixed = Deno.env.get("OTP_FIXED_CODE");
-  if (fixed && /^\d{6}$/.test(fixed)) return fixed;
-
-  if (Deno.env.get("ALLOW_DEV_OTP") === "true") {
-    console.warn(`no SMS gateway — issuing the fixed development code`);
-    return DEV_FIXED_CODE;
-  }
-
-  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
-  return n.toString().padStart(6, "0");
-}
 
 serve(async (req) => {
   if (req.method !== "POST") return fail(405, "method_not_allowed");
@@ -56,6 +28,7 @@ serve(async (req) => {
     device_id?: string;
     full_name?: string;
     login?: boolean;
+    application_hash?: string;
   };
   try {
     body = await req.json();
@@ -148,12 +121,23 @@ serve(async (req) => {
     }
   }
 
-  const code = resolveCode();
-  const otpHash = await hashSecret(code, msisdn, otpPepper());
+  // The carrier sends the SMS and owns the code. A failure here is the end
+  // of the attempt: no row is written, so the user can try again at once
+  // rather than waiting out a cooldown for a code that never arrived.
+  let referenceNo: string;
+  try {
+    referenceNo = await requestOtp(msisdn, body.application_hash);
+  } catch (error) {
+    console.error("otp-request: carrier refused", error);
+    if (error instanceof ChargingError) {
+      return fail(502, "sms_failed", error.message);
+    }
+    return fail(502, "sms_failed");
+  }
 
   const { error: insertError } = await supabase.from("otp_requests").insert({
     msisdn,
-    otp_hash: otpHash,
+    reference_no: referenceNo,
     expires_at: new Date(Date.now() + OTP_VALIDITY_SECONDS * 1000).toISOString(),
     device_id: body.device_id ?? null,
     request_ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
@@ -163,9 +147,6 @@ serve(async (req) => {
     console.error("otp-request: insert failed", insertError);
     return fail(500, "server_error");
   }
-
-  // TODO: hand `code` to the gateway named by `msisdn_prefix_routing` for
-  // this prefix once an operator endpoint is active (PRD 7.2).
 
   return json({
     cooldown_seconds: RESEND_COOLDOWN_SECONDS,

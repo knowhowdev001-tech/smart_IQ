@@ -176,6 +176,10 @@ class AppL10nEn extends AppL10n {
       'No account for this number. Please sign up first.';
 
   @override
+  String get errorSmsFailed =>
+      'We could not send the code just now. Try again in a moment.';
+
+  @override
   String get errorOffline => 'No internet connection.';
 
   @override

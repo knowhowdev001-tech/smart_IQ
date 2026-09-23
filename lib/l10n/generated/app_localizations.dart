@@ -411,6 +411,12 @@ abstract class AppL10n {
   /// **'No account for this number. Please sign up first.'**
   String get errorNoAccount;
 
+  /// No description provided for @errorSmsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not send the code just now. Try again in a moment.'**
+  String get errorSmsFailed;
+
   /// No description provided for @errorOffline.
   ///
   /// In en, this message translates to:

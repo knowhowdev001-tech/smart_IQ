@@ -281,6 +281,8 @@ class SupabaseAuthRepository implements AuthRepository {
         throw const AccountExistsException();
       case 'no_account':
         throw const NoAccountException();
+      case 'sms_failed':
+        throw const SmsDeliveryException();
       case 'account_suspended':
         throw const UnauthenticatedException();
     }

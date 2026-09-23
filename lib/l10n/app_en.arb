@@ -69,6 +69,7 @@
   "errorEnterName": "Enter your name.",
   "errorAccountExists": "An account already exists for this number. Please log in.",
   "errorNoAccount": "No account for this number. Please sign up first.",
+  "errorSmsFailed": "We could not send the code just now. Try again in a moment.",
   "errorOffline": "No internet connection.",
   "errorOfflineBody": "Smart IQ needs a connection to load questions. Check your network and try again.",
   "errorGeneric": "Something went wrong.",

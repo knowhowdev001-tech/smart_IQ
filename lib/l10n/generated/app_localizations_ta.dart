@@ -181,6 +181,10 @@ class AppL10nTa extends AppL10n {
       'இந்த எண்ணுக்குக் கணக்கு இல்லை. முதலில் பதிவு செய்யவும்.';
 
   @override
+  String get errorSmsFailed =>
+      'இப்போது குறியீட்டை அனுப்ப முடியவில்லை. சிறிது நேரத்தில் மீண்டும் முயற்சிக்கவும்.';
+
+  @override
   String get errorOffline => 'இணைய இணைப்பு இல்லை.';
 
   @override
