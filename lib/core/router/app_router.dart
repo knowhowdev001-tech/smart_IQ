@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/landing_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/otp_screen.dart';
-import '../../features/auth/presentation/profile_setup_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
@@ -24,7 +23,6 @@ abstract final class Routes {
   static const login = '/login';
   static const signup = '/signup';
   static const otp = '/otp';
-  static const profileSetup = '/profile-setup';
 
   static const home = '/home';
   static const practiceHub = '/practice';
@@ -51,9 +49,9 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: _rootKey,
     initialLocation: hasSession ? Routes.home : Routes.landing,
-    // The signed-in check gates the whole authenticated tree. A user who has
-    // verified but not yet created a profile cannot reach the app at all
-    // (PRD 6.1), so that case redirects to profile setup rather than home.
+    // The signed-in check gates the whole authenticated tree. A profile is
+    // created the moment a code is verified (PRD 6.1), so "verified" and
+    // "has a profile" are the same state by the time any route is matched.
     redirect: (context, state) {
       final profile = ref.read(profileProvider);
       final signedIn = profile.valueOrNull != null;
@@ -64,7 +62,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         Routes.login,
         Routes.signup,
         Routes.otp,
-        Routes.profileSetup,
       };
       final inAuthFlow = authRoutes.contains(path);
 
@@ -76,9 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       if (!signedIn && !inAuthFlow) return Routes.landing;
-      if (signedIn && inAuthFlow && path != Routes.profileSetup) {
-        return Routes.home;
-      }
+      if (signedIn && inAuthFlow) return Routes.home;
       return null;
     },
     routes: [
@@ -100,10 +95,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           msisdn: state.uri.queryParameters['msisdn'] ?? '',
           isSignup: state.uri.queryParameters['signup'] == '1',
         ),
-      ),
-      GoRoute(
-        path: Routes.profileSetup,
-        builder: (context, state) => const ProfileSetupScreen(),
       ),
 
       // The four bottom-nav destinations share one shell so the bar stays

@@ -17,7 +17,6 @@ import '../../../domain/models/entitlement.dart';
 import '../../../domain/models/user_profile.dart';
 import '../../billing/presentation/plan_sheet.dart';
 import '../../quiz/application/quiz_controller.dart';
-import '../../results/presentation/results_screen.dart';
 
 /// The home dashboard: greeting, own-progress stats, today's quota, the
 /// daily challenge, the category grid and accuracy by sub-topic.
@@ -32,9 +31,6 @@ class HomeScreen extends ConsumerWidget {
     final categories = ref.watch(categoriesProvider);
     final progress = ref.watch(progressProvider);
     final unread = ref.watch(unreadCountProvider);
-    // Results are per-session, so the link out only makes sense once the
-    // user has finished one.
-    final hasResult = ref.watch(lastResultProvider) != null;
 
     return Scaffold(
       backgroundColor: colors.page,
@@ -52,6 +48,7 @@ class HomeScreen extends ConsumerWidget {
               profile: profile,
               streak: progress.valueOrNull?.streakDays ?? 0,
               readiness: progress.valueOrNull?.readinessScore ?? 0,
+              accuracy: progress.valueOrNull?.overallAccuracy ?? 0,
               unread: unread,
             ),
             ContentColumn(
@@ -84,7 +81,7 @@ class HomeScreen extends ConsumerWidget {
                     SizedBox(height: AppSpacing.lg.dp(context)),
                     SectionHeading(
                       context.l10n.homePerformance,
-                      trailing: hasResult ? const _PerformanceShowMore() : null,
+                      trailing: const _PerformanceShowMore(),
                     ),
                     progress.when(
                       loading: () => const SiqLoader(),
@@ -109,12 +106,18 @@ class _Header extends StatelessWidget {
     required this.profile,
     required this.streak,
     required this.readiness,
+    required this.accuracy,
     required this.unread,
   });
 
   final UserProfile? profile;
   final int streak;
   final int readiness;
+
+  /// Lifetime accuracy as a fraction, the same figure the profile screen
+  /// shows. Zero until the user has answered anything.
+  final double accuracy;
+
   final int unread;
 
   @override
@@ -128,8 +131,6 @@ class _Header extends StatelessWidget {
       < 17 => l10n.greetingAfternoon,
       _ => l10n.greetingEvening,
     };
-
-    final days = profile?.daysToExam;
 
     return BrandHeader(
       child: ContentColumn(
@@ -198,10 +199,8 @@ class _Header extends StatelessWidget {
                 SizedBox(width: 9.dp(context)),
                 Expanded(
                   child: StatTile(
-                    label: l10n.statExamIn,
-                    value: days == null
-                        ? l10n.statNoExamDate
-                        : l10n.statDaysShort(days),
+                    label: l10n.profileStatAccuracy,
+                    value: '${(accuracy * 100).round()}%',
                     onBrand: true,
                   ),
                 ),

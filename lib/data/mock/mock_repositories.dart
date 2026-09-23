@@ -82,8 +82,6 @@ class MockAuthRepository implements AuthRepository {
   Future<UserProfile> createProfile({
     required String fullName,
     required AppLanguage language,
-    String? district,
-    DateTime? targetExamDate,
   }) async {
     await Future<void>.delayed(_latency);
     final profile = UserProfile(
@@ -91,11 +89,6 @@ class MockAuthRepository implements AuthRepository {
       fullName: fullName,
       language: language,
       msisdn: _state.pendingMsisdn ?? '0771234821',
-      district: district,
-      // Left null when the user skipped it. Inventing a date here would put
-      // a countdown on the home screen for an exam they never named, which
-      // is the same class of mistake as seeding progress.
-      targetExamDate: targetExamDate,
       createdAt: DateTime.now(),
     );
     _state.profile = profile;
@@ -181,6 +174,7 @@ class MockContentRepository implements ContentRepository {
           if (tally == null || tally.total == 0) return topic;
           return SubTopic(
             id: topic.id,
+            key: topic.key,
             categoryKey: topic.categoryKey,
             name: topic.name,
             sortOrder: topic.sortOrder,
@@ -373,6 +367,23 @@ class MockPracticeRepository implements PracticeRepository {
       );
     }
 
+    _state.sessionLog.add(
+      MockSessionRecord(
+        at: DateTime.now(),
+        correct: correct,
+        incorrect: incorrect,
+        skipped: skipped,
+        totalMs: totalMs,
+        bySubTopic: {
+          for (final entry in bySubTopic.entries)
+            entry.key: (
+              correct: entry.value.where((a) => a.isCorrect).length,
+              total: entry.value.length,
+            ),
+        },
+      ),
+    );
+
     for (final answer in answers) {
       if (answer.outcome == AnswerOutcome.incorrect) {
         _state.wrongQuestionIds.add(answer.questionId);
@@ -468,6 +479,61 @@ class MockPracticeRepository implements PracticeRepository {
       weakAreas: weakAreas.take(3).toList(),
       subTopicAccuracy: subTopicAccuracy,
       recentAccuracy: _state.recentAccuracy,
+    );
+  }
+
+  @override
+  Future<RangeStats> rangeStats(ResultsRange range) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+
+    final since = switch (range) {
+      ResultsRange.allTime => null,
+      ResultsRange.today => _lastSltMidnight(),
+      ResultsRange.week => _lastSltMidnight().subtract(const Duration(days: 6)),
+    };
+    final sessions = [
+      for (final record in _state.sessionLog)
+        if (since == null || !record.at.isBefore(since)) record,
+    ];
+
+    if (sessions.isEmpty) return const RangeStats();
+
+    final language = _state.profile?.language ?? AppLanguage.english;
+
+    final tally = <String, ({int correct, int total})>{};
+    for (final record in sessions) {
+      for (final entry in record.bySubTopic.entries) {
+        final previous = tally[entry.key] ?? (correct: 0, total: 0);
+        tally[entry.key] = (
+          correct: previous.correct + entry.value.correct,
+          total: previous.total + entry.value.total,
+        );
+      }
+    }
+
+    final breakdown = <SubTopicScore>[
+      for (final entry in tally.entries)
+        SubTopicScore(
+          subTopicId: entry.key,
+          name: _subTopicName(entry.key, language),
+          correct: entry.value.correct,
+          total: entry.value.total,
+        ),
+    ]..sort((a, b) => a.accuracyPct.compareTo(b.accuracyPct));
+
+    return RangeStats(
+      answered: sessions.fold(0, (sum, r) => sum + r.answered),
+      correct: sessions.fold(0, (sum, r) => sum + r.correct),
+      skipped: sessions.fold(0, (sum, r) => sum + r.skipped),
+      totalTime: Duration(
+        milliseconds: sessions.fold(0, (sum, r) => sum + r.totalMs),
+      ),
+      breakdown: breakdown,
+      // The chart holds eight bars; older sessions fall off the left.
+      history: [
+        for (final record in sessions.skip(max(0, sessions.length - 8)))
+          SessionPoint(at: record.at, accuracyPct: record.accuracyPct),
+      ],
     );
   }
 
@@ -758,12 +824,46 @@ class MockBackendState {
   /// something.
   final Map<String, ({int correct, int total})> subTopicTally = {};
 
+  /// One entry per completed session, oldest first. The tallies above are
+  /// lifetime figures with no notion of when anything happened; the results
+  /// dashboard needs to scope to a day or a week, so it reads this instead.
+  final List<MockSessionRecord> sessionLog = [];
+
   final Set<String> wrongQuestionIds = {};
   final Set<String> bookmarkedIds = {};
   final List<ChatThread> threads = [];
   List<AppNotification> notifications = MockContent.notifications();
   NotificationPreferences notifyPrefs = const NotificationPreferences();
 }
+
+/// A completed session as the mock remembers it, which is everything the
+/// ranged dashboard has to be able to recompute from.
+class MockSessionRecord {
+  MockSessionRecord({
+    required this.at,
+    required this.correct,
+    required this.incorrect,
+    required this.skipped,
+    required this.totalMs,
+    required this.bySubTopic,
+  });
+
+  final DateTime at;
+  final int correct;
+  final int incorrect;
+  final int skipped;
+  final int totalMs;
+  final Map<String, ({int correct, int total})> bySubTopic;
+
+  int get answered => correct + incorrect;
+  int get total => answered + skipped;
+  int get accuracyPct => total == 0 ? 0 : ((correct / total) * 100).round();
+}
+
+/// The most recent Sri Lanka midnight, UTC+5:30 — the boundary "today" and
+/// the seven-day window are measured from.
+DateTime _lastSltMidnight() =>
+    _nextSltMidnight().subtract(const Duration(days: 1));
 
 /// Quota counters reset on the Sri Lanka day boundary, UTC+5:30 (PRD 7.6).
 DateTime _nextSltMidnight() {

@@ -103,8 +103,6 @@ abstract interface class AuthRepository {
   Future<UserProfile> createProfile({
     required String fullName,
     required AppLanguage language,
-    String? district,
-    DateTime? targetExamDate,
   });
 
   /// The profile for the stored session, or null when signed out.
@@ -171,6 +169,10 @@ abstract interface class PracticeRepository {
   Future<void> discardResumableSession();
 
   Future<ProgressSummary> progress();
+
+  /// The user's own figures over [range] for the results dashboard: accuracy,
+  /// time, skips, accuracy per sub-topic and the sessions behind the trend.
+  Future<RangeStats> rangeStats(ResultsRange range);
 
   Future<List<SavedQuestion>> bookmarks();
 

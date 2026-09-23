@@ -139,6 +139,12 @@ class SupabasePracticeRepository implements PracticeRepository {
   }
 
   @override
+  Future<RangeStats> rangeStats(ResultsRange range) async {
+    final json = await _rpc('get_results_summary', {'p_range': range.key});
+    return RangeStats.fromJson(json, _language());
+  }
+
+  @override
   Future<List<SavedQuestion>> bookmarks() async {
     final rows = await supabaseGuard(
       () => _client

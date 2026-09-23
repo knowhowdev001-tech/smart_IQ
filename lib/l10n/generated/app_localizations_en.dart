@@ -163,6 +163,10 @@ class AppL10nEn extends AppL10n {
       'An account already exists for this number. Please log in.';
 
   @override
+  String get errorNoAccount =>
+      'No account for this number. Please sign up first.';
+
+  @override
   String get errorOffline => 'No internet connection.';
 
   @override
@@ -188,9 +192,6 @@ class AppL10nEn extends AppL10n {
   String get statReadiness => 'Readiness';
 
   @override
-  String get statExamIn => 'Exam in';
-
-  @override
   String statDays(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -200,14 +201,6 @@ class AppL10nEn extends AppL10n {
     );
     return '$_temp0';
   }
-
-  @override
-  String statDaysShort(int count) {
-    return '$count d';
-  }
-
-  @override
-  String get statNoExamDate => 'Not set';
 
   @override
   String quotaQuestionsToday(String tier) {
@@ -382,6 +375,9 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get resultsNoAnswersYet => 'no answers yet';
+
+  @override
   String get resultsShowing => 'Showing';
 
   @override
@@ -391,7 +387,10 @@ class AppL10nEn extends AppL10n {
   String get resultsRangeToday => 'Today';
 
   @override
-  String get resultsRangeWeek => '7 days';
+  String get resultsRangeWeek => 'Last 7 days';
+
+  @override
+  String get resultsRangeAllTime => 'All time';
 
   @override
   String get resultsStatCorrect => 'Correct';
@@ -406,14 +405,20 @@ class AppL10nEn extends AppL10n {
   String get resultsStatTime => 'Avg time';
 
   @override
+  String resultsStatAccuracyIn(String range) {
+    return 'Accuracy · $range';
+  }
+
+  @override
   String get resultsBreakdown => 'Accuracy by sub-topic';
 
   @override
   String get resultsNoBreakdown =>
-      'No answers today yet. Finish a practice session to see your sub-topic accuracy.';
+      'No answers in this range yet. Finish a practice session to see your sub-topic accuracy.';
 
   @override
-  String get resultsHistoryTitle => 'Against your own last sessions';
+  String get resultsHistoryTitle =>
+      'Against your own last sessions correct answers percentage';
 
   @override
   String get resultsPrivacyNote =>
@@ -661,29 +666,6 @@ class AppL10nEn extends AppL10n {
   String termsUpdated(String date) {
     return 'Last updated $date';
   }
-
-  @override
-  String get actionSkip => 'Skip for now';
-
-  @override
-  String get profileSetupTitle => 'Almost done';
-
-  @override
-  String get profileSetupSubtitle =>
-      'A little detail helps us pace your study plan';
-
-  @override
-  String get profileSetupOptionalNote =>
-      'All of this is optional and you can change it later in Settings.';
-
-  @override
-  String get fieldDistrict => 'District';
-
-  @override
-  String get fieldTargetExamDate => 'Target exam date';
-
-  @override
-  String get labelOptional => 'Optional';
 
   @override
   String get languageEnglish => 'English';

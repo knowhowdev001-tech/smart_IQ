@@ -387,6 +387,12 @@ abstract class AppL10n {
   /// **'An account already exists for this number. Please log in.'**
   String get errorAccountExists;
 
+  /// No description provided for @errorNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'No account for this number. Please sign up first.'**
+  String get errorNoAccount;
+
   /// No description provided for @errorOffline.
   ///
   /// In en, this message translates to:
@@ -435,29 +441,11 @@ abstract class AppL10n {
   /// **'Readiness'**
   String get statReadiness;
 
-  /// No description provided for @statExamIn.
-  ///
-  /// In en, this message translates to:
-  /// **'Exam in'**
-  String get statExamIn;
-
   /// No description provided for @statDays.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 day} other{{count} days}}'**
   String statDays(int count);
-
-  /// No description provided for @statDaysShort.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} d'**
-  String statDaysShort(int count);
-
-  /// No description provided for @statNoExamDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Not set'**
-  String get statNoExamDate;
 
   /// No description provided for @quotaQuestionsToday.
   ///
@@ -765,6 +753,12 @@ abstract class AppL10n {
   /// **'{correct} of {total} correct'**
   String resultsScoreLine(int correct, int total);
 
+  /// No description provided for @resultsNoAnswersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'no answers yet'**
+  String get resultsNoAnswersYet;
+
   /// No description provided for @resultsShowing.
   ///
   /// In en, this message translates to:
@@ -786,8 +780,14 @@ abstract class AppL10n {
   /// No description provided for @resultsRangeWeek.
   ///
   /// In en, this message translates to:
-  /// **'7 days'**
+  /// **'Last 7 days'**
   String get resultsRangeWeek;
+
+  /// No description provided for @resultsRangeAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get resultsRangeAllTime;
 
   /// No description provided for @resultsStatCorrect.
   ///
@@ -813,6 +813,12 @@ abstract class AppL10n {
   /// **'Avg time'**
   String get resultsStatTime;
 
+  /// No description provided for @resultsStatAccuracyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy · {range}'**
+  String resultsStatAccuracyIn(String range);
+
   /// No description provided for @resultsBreakdown.
   ///
   /// In en, this message translates to:
@@ -822,13 +828,13 @@ abstract class AppL10n {
   /// No description provided for @resultsNoBreakdown.
   ///
   /// In en, this message translates to:
-  /// **'No answers today yet. Finish a practice session to see your sub-topic accuracy.'**
+  /// **'No answers in this range yet. Finish a practice session to see your sub-topic accuracy.'**
   String get resultsNoBreakdown;
 
   /// No description provided for @resultsHistoryTitle.
   ///
   /// In en, this message translates to:
-  /// **'Against your own last sessions'**
+  /// **'Against your own last sessions correct answers percentage'**
   String get resultsHistoryTitle;
 
   /// No description provided for @resultsPrivacyNote.
@@ -1286,48 +1292,6 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Last updated {date}'**
   String termsUpdated(String date);
-
-  /// No description provided for @actionSkip.
-  ///
-  /// In en, this message translates to:
-  /// **'Skip for now'**
-  String get actionSkip;
-
-  /// No description provided for @profileSetupTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Almost done'**
-  String get profileSetupTitle;
-
-  /// No description provided for @profileSetupSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'A little detail helps us pace your study plan'**
-  String get profileSetupSubtitle;
-
-  /// No description provided for @profileSetupOptionalNote.
-  ///
-  /// In en, this message translates to:
-  /// **'All of this is optional and you can change it later in Settings.'**
-  String get profileSetupOptionalNote;
-
-  /// No description provided for @fieldDistrict.
-  ///
-  /// In en, this message translates to:
-  /// **'District'**
-  String get fieldDistrict;
-
-  /// No description provided for @fieldTargetExamDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Target exam date'**
-  String get fieldTargetExamDate;
-
-  /// No description provided for @labelOptional.
-  ///
-  /// In en, this message translates to:
-  /// **'Optional'**
-  String get labelOptional;
 
   /// No description provided for @languageEnglish.
   ///

@@ -150,6 +150,8 @@ abstract final class MockContent {
   }) =>
       SubTopic(
         id: id,
+        // The mock has no uuids, so its ids are the keys.
+        key: id,
         categoryKey: category,
         name: LocalizedText(en: en, si: si, ta: ta),
         requiresImage: requiresImage,

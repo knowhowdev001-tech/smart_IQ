@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app.dart';
+import '../../../core/providers/app_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_scale.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/siq_button.dart';
+import '../../../core/widgets/siq_segmented.dart';
 import '../../../core/widgets/siq_states.dart';
 import '../../../core/widgets/siq_surfaces.dart';
 import '../../../domain/enums.dart';
@@ -15,15 +17,27 @@ import '../../../domain/models/practice.dart';
 import '../../quiz/application/quiz_controller.dart';
 
 /// The result of the session just finished, set by the quiz screen on
-/// submit and read here.
+/// submit and read here. Null when the screen is opened from home rather
+/// than off the back of a quiz.
 final lastResultProvider = StateProvider<SessionResult?>((ref) => null);
 
-/// Per-session analysis: score, counts, sub-topic breakdown and a comparison
-/// against the user's own previous sessions.
+/// Which window the dashboard below the header is showing.
+final resultsRangeProvider =
+    StateProvider<ResultsRange>((ref) => ResultsRange.allTime);
+
+/// The user's own figures over a range, for the stats, the sub-topic list and
+/// the trend bars.
+final rangeStatsProvider = FutureProvider.family<RangeStats, ResultsRange>(
+  (ref, range) => ref.watch(practiceRepositoryProvider).rangeStats(range),
+);
+
+/// Score and analysis: the session just finished in the header, and the
+/// user's own figures over the chosen range below it.
 ///
 /// PRD 6.6 is categorical that progress is self-referential. There is no
 /// percentile, no peer average and no leaderboard anywhere on this screen,
-/// and the closing note says so to the user directly.
+/// and the closing note says so to the user directly. A range narrows the
+/// user's own history; it never widens it to anyone else's.
 class ResultsScreen extends ConsumerWidget {
   const ResultsScreen({super.key});
 
@@ -32,19 +46,8 @@ class ResultsScreen extends ConsumerWidget {
     final colors = context.colors;
     final l10n = context.l10n;
     final result = ref.watch(lastResultProvider);
-
-    if (result == null) {
-      return Scaffold(
-        backgroundColor: colors.page,
-        body: SafeArea(
-          child: SiqMessageState(
-            title: l10n.errorGeneric,
-            onRetry: () => context.go(Routes.home),
-            retryLabel: l10n.resultsHome,
-          ),
-        ),
-      );
-    }
+    final range = ref.watch(resultsRangeProvider);
+    final stats = ref.watch(rangeStatsProvider(range));
 
     return PopScope(
       canPop: false,
@@ -69,31 +72,20 @@ class ResultsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _StatRow(result: result),
+                    const _ShowingRow(),
                     SizedBox(height: AppSpacing.lg.dp(context)),
-                    SectionHeading(l10n.resultsBreakdown),
-                    if (result.breakdown.isEmpty)
-                      SiqCard(
-                        background: colors.surfaceSunken,
-                        borderColor: colors.divider,
-                        radius: 14,
-                        child: Text(
-                          l10n.resultsNoBreakdown,
-                          style: context.text(
-                            AppTextStyles.caption,
-                            color: colors.inkMuted,
-                          ),
-                        ),
-                      )
-                    else
-                      for (final score in result.breakdown)
-                        Padding(
-                          padding:
-                              EdgeInsets.only(bottom: AppSpacing.sm.dp(context)),
-                          child: _BreakdownRow(score: score),
-                        ),
-                    SizedBox(height: AppSpacing.lg.dp(context)),
-                    _HistoryCard(result: result),
+                    stats.when(
+                      loading: () => Padding(
+                        padding: EdgeInsets.all(AppSpacing.xl.dp(context)),
+                        child: const SiqLoader(),
+                      ),
+                      error: (_, __) => SiqMessageState.offline(
+                        context,
+                        onRetry: () =>
+                            ref.invalidate(rangeStatsProvider(range)),
+                      ),
+                      data: (data) => _RangeBody(range: range, stats: data),
+                    ),
                     SizedBox(height: AppSpacing.lg.dp(context)),
                     Row(
                       children: [
@@ -108,7 +100,8 @@ class ResultsScreen extends ConsumerWidget {
                         Expanded(
                           child: SiqButton(
                             label: l10n.resultsDrillWrong,
-                            onPressed: result.wrongQuestionIds.isEmpty
+                            onPressed: result == null ||
+                                    result.wrongQuestionIds.isEmpty
                                 ? null
                                 : () {
                                     ref
@@ -136,12 +129,18 @@ class ResultsScreen extends ConsumerWidget {
 class _ScoreHeader extends StatelessWidget {
   const _ScoreHeader({required this.result});
 
-  final SessionResult result;
+  /// Null when the screen was opened from home with no session behind it.
+  final SessionResult? result;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final l10n = context.l10n;
+    final result = this.result;
+
+    final line = result == null
+        ? '${l10n.resultsScoreLine(0, 0)} · ${l10n.resultsNoAnswersYet}'
+        : l10n.resultsScoreLine(result.correct, result.total);
 
     return BrandHeader(
       padding: EdgeInsets.fromLTRB(
@@ -160,7 +159,7 @@ class _ScoreHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '${result.scorePct}%',
+                  '${result?.scorePct ?? 0}%',
                   style: context.text(
                     AppTextStyles.score,
                     weight: 800,
@@ -172,7 +171,7 @@ class _ScoreHeader extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(bottom: AppSpacing.xs.dp(context)),
                     child: Text(
-                      l10n.resultsScoreLine(result.correct, result.total),
+                      line,
                       style: context.text(
                         AppTextStyles.bodySmall,
                         weight: 600,
@@ -190,29 +189,119 @@ class _ScoreHeader extends StatelessWidget {
   }
 }
 
-class _StatRow extends StatelessWidget {
-  const _StatRow({required this.result});
+/// The range selector: "Showing · All time / Last 7 days / Today".
+class _ShowingRow extends ConsumerWidget {
+  const _ShowingRow();
 
-  final SessionResult result;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final range = ref.watch(resultsRangeProvider);
+
+    return Row(
+      children: [
+        OverlineLabel(l10n.resultsShowing),
+        SizedBox(width: AppSpacing.md.dp(context)),
+        // Sinhala and Tamil range labels are longer than the English ones;
+        // the row scrolls rather than overflowing on a narrow phone.
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            reverse: true,
+            child: SiqSegmented<ResultsRange>(
+              value: range,
+              onChanged: (value) =>
+                  ref.read(resultsRangeProvider.notifier).state = value,
+              segments: [
+                SiqSegment(
+                  value: ResultsRange.allTime,
+                  label: l10n.resultsRangeAllTime,
+                ),
+                SiqSegment(
+                  value: ResultsRange.week,
+                  label: l10n.resultsRangeWeek,
+                ),
+                SiqSegment(
+                  value: ResultsRange.today,
+                  label: l10n.resultsRangeToday,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Everything the range drives: the stat tiles, the sub-topic list and the
+/// trend bars.
+class _RangeBody extends StatelessWidget {
+  const _RangeBody({required this.range, required this.stats});
+
+  final ResultsRange range;
+  final RangeStats stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final l10n = context.l10n;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _StatRow(range: range, stats: stats),
+        SizedBox(height: AppSpacing.lg.dp(context)),
+        SectionHeading(l10n.resultsBreakdown),
+        if (stats.breakdown.isEmpty)
+          SiqCard(
+            background: colors.surfaceSunken,
+            borderColor: colors.divider,
+            radius: 14,
+            child: Text(
+              l10n.resultsNoBreakdown,
+              style: context.text(
+                AppTextStyles.caption,
+                color: colors.inkMuted,
+              ),
+            ),
+          )
+        else
+          for (final score in stats.breakdown)
+            Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.sm.dp(context)),
+              child: _BreakdownRow(score: score),
+            ),
+        SizedBox(height: AppSpacing.lg.dp(context)),
+        _HistoryCard(history: stats.history),
+      ],
+    );
+  }
+}
+
+class _StatRow extends StatelessWidget {
+  const _StatRow({required this.range, required this.stats});
+
+  final ResultsRange range;
+  final RangeStats stats;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final seconds = result.averageTime.inSeconds;
+    final seconds = stats.averageTime.inSeconds;
+
+    final rangeLabel = switch (range) {
+      ResultsRange.allTime => l10n.resultsRangeAllTime,
+      ResultsRange.week => l10n.resultsRangeWeek,
+      ResultsRange.today => l10n.resultsRangeToday,
+    };
 
     return Row(
       children: [
         Expanded(
           child: StatTile(
-            label: l10n.resultsStatCorrect,
-            value: '${result.correct}',
-          ),
-        ),
-        SizedBox(width: 9.dp(context)),
-        Expanded(
-          child: StatTile(
-            label: l10n.resultsStatWrong,
-            value: '${result.incorrect}',
+            label: l10n.resultsStatAccuracyIn(rangeLabel),
+            value: '${stats.accuracyPct}%',
           ),
         ),
         SizedBox(width: 9.dp(context)),
@@ -220,6 +309,13 @@ class _StatRow extends StatelessWidget {
           child: StatTile(
             label: l10n.resultsStatTime,
             value: '${seconds}s',
+          ),
+        ),
+        SizedBox(width: 9.dp(context)),
+        Expanded(
+          child: StatTile(
+            label: l10n.resultsStatSkipped,
+            value: '${stats.skipped}',
           ),
         ),
       ],
@@ -279,15 +375,14 @@ class _BreakdownRow extends StatelessWidget {
 
 /// The bar chart of the user's own recent sessions.
 class _HistoryCard extends StatelessWidget {
-  const _HistoryCard({required this.result});
+  const _HistoryCard({required this.history});
 
-  final SessionResult result;
+  final List<SessionPoint> history;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final l10n = context.l10n;
-    final history = result.ownHistory;
 
     return SiqCard(
       background: colors.surfaceMuted,
@@ -315,7 +410,7 @@ class _HistoryCard extends StatelessWidget {
             )
           else
             SizedBox(
-              height: 72.dp(context),
+              height: 92.dp(context),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -326,8 +421,8 @@ class _HistoryCard extends StatelessWidget {
                           horizontal: 3.5.dp(context),
                         ),
                         child: _HistoryBar(
-                          pct: history[i],
-                          // The final bar is the session just finished.
+                          point: history[i],
+                          // The final bar is the most recent session.
                           latest: i == history.length - 1,
                         ),
                       ),
@@ -350,9 +445,9 @@ class _HistoryCard extends StatelessWidget {
 }
 
 class _HistoryBar extends StatelessWidget {
-  const _HistoryBar({required this.pct, required this.latest});
+  const _HistoryBar({required this.point, required this.latest});
 
-  final int pct;
+  final SessionPoint point;
   final bool latest;
 
   @override
@@ -360,6 +455,7 @@ class _HistoryBar extends StatelessWidget {
     final colors = context.colors;
     final tint = latest ? colors.accent : colors.accentSoft;
     final inkTint = latest ? colors.accentSoftInk : colors.inkMuted;
+    final pct = point.accuracyPct;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -385,7 +481,31 @@ class _HistoryBar extends StatelessWidget {
             ),
           ),
         ),
+        SizedBox(height: 5.dp(context)),
+        Text(
+          _dayLabel(context, point.at),
+          maxLines: 1,
+          overflow: TextOverflow.clip,
+          style: context.text(
+            AppTextStyles.overline,
+            weight: 700,
+            color: colors.inkMuted,
+            letterSpacing: 0,
+          ),
+        ),
       ],
     );
+  }
+
+  /// "Today" for a session from the current Sri Lanka day, otherwise the
+  /// short month and day in the user's language. Material's localisations
+  /// already ship the month names, so this needs no date-format setup of its
+  /// own.
+  String _dayLabel(BuildContext context, DateTime at) {
+    final now = DateTime.now();
+    final sameDay =
+        at.year == now.year && at.month == now.month && at.day == now.day;
+    if (sameDay) return context.l10n.resultsRangeToday;
+    return MaterialLocalizations.of(context).formatShortMonthDay(at);
   }
 }

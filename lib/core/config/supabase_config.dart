@@ -26,17 +26,19 @@ abstract final class SupabaseConfig {
 
   /// Whether practice content comes from the server.
   ///
-  /// Off for now: the question bank holds placeholder content, and the free
-  /// tier it is served under caps a set at two questions, which makes the app
-  /// awkward to demonstrate. With this off, questions, progress and quota all
-  /// come from the in-memory sample content instead, while accounts, profiles
-  /// and notifications stay on the real backend.
+  /// On. The question bank is seeded with placeholder content under the same
+  /// taxonomy the app shows (migration 0024 and
+  /// `supabase/seed/placeholder_questions.csv`), and the free tier's demo
+  /// limits (migration 0025) make a real set servable. This is what puts
+  /// progress, the streak, mastery, quota, bookmarks and the wrong-answer
+  /// bank on the backend, where they survive a reinstall.
   ///
-  /// The server side is built and tested either way (migration 0021 and the
-  /// three Supabase repositories), so turning it on is this flag alone:
-  /// `--dart-define=PRACTICE_FROM_BACKEND=true`.
+  /// Set `--dart-define=PRACTICE_FROM_BACKEND=false` to go back to the
+  /// in-memory sample content, which is how the UI can be worked on with no
+  /// server.
   static const bool practiceFromBackend = bool.fromEnvironment(
     'PRACTICE_FROM_BACKEND',
+    defaultValue: true,
   );
 
   /// True when the app should talk to Supabase at all. Set

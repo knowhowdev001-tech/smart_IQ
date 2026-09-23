@@ -283,6 +283,92 @@ class SessionResult {
   int get hashCode => Object.hash(sessionId, correct, incorrect, skipped);
 }
 
+/// One completed session on the history chart, with the day it happened on
+/// so the bars can be labelled.
+@immutable
+class SessionPoint {
+  const SessionPoint({required this.at, required this.accuracyPct});
+
+  factory SessionPoint.fromJson(Map<String, dynamic> json) => SessionPoint(
+        at: DateTime.parse(json['at'] as String).toLocal(),
+        accuracyPct: (json['accuracy'] as num?)?.toInt() ?? 0,
+      );
+
+  final DateTime at;
+  final int accuracyPct;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SessionPoint &&
+          other.at == at &&
+          other.accuracyPct == accuracyPct;
+
+  @override
+  int get hashCode => Object.hash(at, accuracyPct);
+}
+
+/// What the results dashboard shows for a chosen [ResultsRange]: the user's
+/// own figures over that window, and nothing about anybody else (PRD 6.6).
+@immutable
+class RangeStats {
+  const RangeStats({
+    this.answered = 0,
+    this.correct = 0,
+    this.skipped = 0,
+    this.totalTime = Duration.zero,
+    this.breakdown = const <SubTopicScore>[],
+    this.history = const <SessionPoint>[],
+  });
+
+  /// Reads what `rpc/get_results_summary` returns. `breakdown[].name` is the
+  /// raw `display_names` map, as it is on a submitted session.
+  factory RangeStats.fromJson(
+    Map<String, dynamic> json,
+    AppLanguage language,
+  ) =>
+      RangeStats(
+        answered: (json['answered'] as num?)?.toInt() ?? 0,
+        correct: (json['correct'] as num?)?.toInt() ?? 0,
+        skipped: (json['skipped'] as num?)?.toInt() ?? 0,
+        totalTime: Duration(
+          milliseconds: (json['total_time_ms'] as num?)?.toInt() ?? 0,
+        ),
+        breakdown: [
+          for (final b in (json['breakdown'] as List? ?? const []))
+            SubTopicScore.fromJson(
+              Map<String, dynamic>.from(b as Map),
+              language,
+            ),
+        ],
+        history: [
+          for (final h in (json['history'] as List? ?? const []))
+            SessionPoint.fromJson(Map<String, dynamic>.from(h as Map)),
+        ],
+      );
+
+  /// Questions the user actually answered — skips are excluded, so accuracy
+  /// is not punished for a question never attempted.
+  final int answered;
+  final int correct;
+  final int skipped;
+  final Duration totalTime;
+
+  /// Accuracy per sub-topic over the range, worst first.
+  final List<SubTopicScore> breakdown;
+
+  /// The sessions behind the trend bars, oldest first.
+  final List<SessionPoint> history;
+
+  bool get isEmpty => answered == 0 && skipped == 0;
+
+  int get accuracyPct => answered == 0 ? 0 : ((correct / answered) * 100).round();
+
+  Duration get averageTime => answered == 0
+      ? Duration.zero
+      : Duration(milliseconds: totalTime.inMilliseconds ~/ answered);
+}
+
 /// A question saved by the user, or one waiting in the wrong-answer bank.
 @immutable
 class SavedQuestion {

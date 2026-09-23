@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/settings/app_settings.dart';
 import '../../../core/theme/app_scale.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
@@ -15,6 +16,7 @@ import '../../../core/widgets/siq_button.dart';
 import '../../../core/widgets/siq_field.dart';
 import '../../../data/mock/mock_repositories.dart';
 import '../../../domain/otp_policy.dart';
+import '../application/signup_draft.dart';
 import 'widgets/auth_scaffold.dart';
 
 /// OTP entry, with the expiry countdown and resend cooldown from PRD 6.1.
@@ -105,14 +107,39 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           );
       if (!mounted) return;
 
-      // A verified user without a profile cannot reach the app until they
-      // create one (PRD 6.1, step 5).
-      if (profile == null || widget.isSignup) {
-        context.go(Routes.profileSetup);
-      } else {
+      // A verified user needs a profile before they can reach the app
+      // (PRD 6.1, step 5). It is created here rather than on a screen of its
+      // own, because the only thing it needs is the name given at signup.
+      if (profile != null && !widget.isSignup) {
         ref.read(profileProvider.notifier).set(profile);
         context.go(Routes.home);
+        return;
       }
+
+      final name = ref.read(signupNameProvider)?.trim();
+      if (name == null || name.isEmpty) {
+        // Verified, but there is no account behind this number and no name to
+        // make one from — someone logging in on their first use. Signing back
+        // out is what keeps a session with no profile from existing at all.
+        await ref.read(profileProvider.notifier).signOut();
+        if (!mounted) return;
+        setState(() => _error = l10n.errorNoAccount);
+        context.go(Routes.signup);
+        return;
+      }
+
+      final created = await ref.read(authRepositoryProvider).createProfile(
+            fullName: name,
+            // Chosen on the landing screen and already persisted.
+            language: ref.read(languageProvider),
+          );
+      if (!mounted) return;
+
+      ref.read(profileProvider.notifier).set(created);
+      // The draft has done its job; leaving it set would let a later signup
+      // inherit this name.
+      ref.read(signupNameProvider.notifier).state = null;
+      context.go(Routes.home);
     } on OtpInvalidException {
       if (mounted) setState(() => _error = l10n.otpErrorInvalid);
     } on OtpExpiredException {

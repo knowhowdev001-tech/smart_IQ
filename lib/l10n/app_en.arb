@@ -65,6 +65,7 @@
   "errorInvalidMobile": "Enter a valid Sri Lankan mobile number.",
   "errorEnterName": "Enter your name.",
   "errorAccountExists": "An account already exists for this number. Please log in.",
+  "errorNoAccount": "No account for this number. Please sign up first.",
   "errorOffline": "No internet connection.",
   "errorOfflineBody": "Smart IQ needs a connection to load questions. Check your network and try again.",
   "errorGeneric": "Something went wrong.",
@@ -75,16 +76,10 @@
 
   "statStreak": "Streak",
   "statReadiness": "Readiness",
-  "statExamIn": "Exam in",
   "statDays": "{count, plural, =1{1 day} other{{count} days}}",
   "@statDays": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "statDaysShort": "{count} d",
-  "@statDaysShort": {
-    "placeholders": { "count": { "type": "int" } }
-  },
-  "statNoExamDate": "Not set",
 
   "quotaQuestionsToday": "{tier} · questions today",
   "@quotaQuestionsToday": {
@@ -170,17 +165,23 @@
       "total": { "type": "int" }
     }
   },
+  "resultsNoAnswersYet": "no answers yet",
   "resultsShowing": "Showing",
   "resultsRangeSession": "Session",
   "resultsRangeToday": "Today",
-  "resultsRangeWeek": "7 days",
+  "resultsRangeWeek": "Last 7 days",
+  "resultsRangeAllTime": "All time",
   "resultsStatCorrect": "Correct",
   "resultsStatWrong": "Wrong",
   "resultsStatSkipped": "Skipped",
   "resultsStatTime": "Avg time",
+  "resultsStatAccuracyIn": "Accuracy · {range}",
+  "@resultsStatAccuracyIn": {
+    "placeholders": { "range": { "type": "String" } }
+  },
   "resultsBreakdown": "Accuracy by sub-topic",
-  "resultsNoBreakdown": "No answers today yet. Finish a practice session to see your sub-topic accuracy.",
-  "resultsHistoryTitle": "Against your own last sessions",
+  "resultsNoBreakdown": "No answers in this range yet. Finish a practice session to see your sub-topic accuracy.",
+  "resultsHistoryTitle": "Against your own last sessions correct answers percentage",
   "resultsPrivacyNote": "Progress is private. Nothing here compares you to another user.",
   "resultsDrillWrong": "Drill wrong answers",
   "resultsHome": "Home",
@@ -283,13 +284,6 @@
     "placeholders": { "date": { "type": "String" } }
   },
 
-  "actionSkip": "Skip for now",
-  "profileSetupTitle": "Almost done",
-  "profileSetupSubtitle": "A little detail helps us pace your study plan",
-  "profileSetupOptionalNote": "All of this is optional and you can change it later in Settings.",
-  "fieldDistrict": "District",
-  "fieldTargetExamDate": "Target exam date",
-  "labelOptional": "Optional",
 
   "languageEnglish": "English",
   "languageSinhala": "සිංහල",

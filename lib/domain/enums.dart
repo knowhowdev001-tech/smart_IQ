@@ -165,3 +165,19 @@ enum NotificationKind {
 }
 
 enum ChatRole { user, assistant }
+
+/// The window the results dashboard is scoped to. PRD 6.3 keeps every one of
+/// these self-referential: a range narrows the user's own history, it never
+/// widens it to anyone else's.
+enum ResultsRange {
+  allTime,
+  week,
+  today;
+
+  /// The `p_range` argument `rpc/get_results_summary` expects.
+  String get key => switch (this) {
+        ResultsRange.allTime => 'all',
+        ResultsRange.week => 'week',
+        ResultsRange.today => 'today',
+      };
+}

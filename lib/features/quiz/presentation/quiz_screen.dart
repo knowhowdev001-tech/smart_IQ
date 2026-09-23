@@ -37,6 +37,8 @@ class QuizScreen extends ConsumerWidget {
       final result = next.valueOrNull?.result;
       if (result != null && previous?.valueOrNull?.result == null) {
         ref.read(lastResultProvider.notifier).state = result;
+        // The ranged dashboard on that screen counts this session too.
+        ref.invalidate(rangeStatsProvider);
         context.pushReplacement(Routes.results);
       }
     });

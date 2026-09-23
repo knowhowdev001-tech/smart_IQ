@@ -6,8 +6,8 @@
 //
 // The profile is deliberately *not* created here. PRD 6.1 step 5 has a
 // verified user without a profile, and `create_profile` is the RPC that
-// makes one — so this returns null for a new number and the client routes to
-// profile setup.
+// makes one — so this returns null for a new number and the client calls
+// that RPC straight after a signup verification.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { fail, json, requireEnv, serve } from "../_shared/http.ts";
@@ -202,13 +202,14 @@ serve(async (req) => {
     }
   }
 
-  // Null for a number that has verified but never completed profile setup —
-  // the client routes those to the profile screen.
+  // Null for a number that has verified but has no account behind it. The
+  // client creates the profile straight after a signup verification, and
+  // sends anyone else to signup rather than into the app.
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select(
-      "user_id, full_name, language_preference, theme_preference, district, " +
-        "target_exam_date, current_status, education_level, created_at",
+      "user_id, full_name, language_preference, theme_preference, " +
+        "current_status, education_level, created_at",
     )
     .eq("user_id", user.id)
     .maybeSingle();

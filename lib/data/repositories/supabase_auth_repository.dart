@@ -113,8 +113,6 @@ class SupabaseAuthRepository implements AuthRepository {
   Future<UserProfile> createProfile({
     required String fullName,
     required AppLanguage language,
-    String? district,
-    DateTime? targetExamDate,
   }) async {
     if (!_sessions.isSignedIn) throw const UnauthenticatedException();
 
@@ -125,11 +123,6 @@ class SupabaseAuthRepository implements AuthRepository {
       () => _client.rpc<dynamic>('create_profile', params: {
         'p_full_name': fullName,
         'p_language': language.code,
-        'p_district': district,
-        // A date column, so the time half would be discarded anyway; sending
-        // it invites a timezone shift across the day boundary.
-        'p_target_exam_date':
-            targetExamDate?.toIso8601String().split('T').first,
       }),
     );
 
@@ -144,7 +137,7 @@ class SupabaseAuthRepository implements AuthRepository {
       () => _client
           .from('profiles')
           .select('user_id, full_name, language_preference, theme_preference, '
-              'district, target_exam_date, current_status, education_level, '
+              'current_status, education_level, '
               'created_at, users!inner(msisdn)')
           .eq('user_id', _sessions.userId!)
           .limit(1),
@@ -170,9 +163,6 @@ class SupabaseAuthRepository implements AuthRepository {
         'full_name': profile.fullName,
         'language_preference': profile.language.code,
         'theme_preference': profile.theme.name,
-        'district': profile.district,
-        'target_exam_date':
-            profile.targetExamDate?.toIso8601String().split('T').first,
         'current_status': profile.currentStatus,
         'education_level': profile.educationLevel,
       }).eq('user_id', _sessions.userId!),

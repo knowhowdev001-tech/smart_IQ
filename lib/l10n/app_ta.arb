@@ -65,6 +65,7 @@
   "errorInvalidMobile": "செல்லுபடியாகும் இலங்கை கைபேசி எண்ணை உள்ளிடவும்.",
   "errorEnterName": "உங்கள் பெயரை உள்ளிடவும்.",
   "errorAccountExists": "இந்த எண்ணுக்கு ஏற்கனவே கணக்கு உள்ளது. தயவுசெய்து உள்நுழையவும்.",
+  "errorNoAccount": "இந்த எண்ணுக்குக் கணக்கு இல்லை. முதலில் பதிவு செய்யவும்.",
   "errorOffline": "இணைய இணைப்பு இல்லை.",
   "errorOfflineBody": "வினாக்களை ஏற்ற Smart IQ க்கு இணைப்பு தேவை. உங்கள் இணையத்தைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
   "errorGeneric": "ஏதோ தவறு நடந்தது.",
@@ -75,16 +76,10 @@
 
   "statStreak": "தொடர்ச்சி",
   "statReadiness": "தயார்நிலை",
-  "statExamIn": "தேர்வுக்கு",
   "statDays": "{count, plural, =1{1 நாள்} other{{count} நாட்கள்}}",
   "@statDays": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "statDaysShort": "{count} நா",
-  "@statDaysShort": {
-    "placeholders": { "count": { "type": "int" } }
-  },
-  "statNoExamDate": "அமைக்கவில்லை",
 
   "quotaQuestionsToday": "{tier} · இன்றைய வினாக்கள்",
   "@quotaQuestionsToday": {
@@ -170,17 +165,20 @@
       "total": { "type": "int" }
     }
   },
+  "resultsNoAnswersYet": "இன்னும் விடைகள் இல்லை",
   "resultsShowing": "காட்டுவது",
   "resultsRangeSession": "அமர்வு",
   "resultsRangeToday": "இன்று",
-  "resultsRangeWeek": "7 நாட்கள்",
+  "resultsRangeWeek": "கடந்த 7 நாட்கள்",
+  "resultsRangeAllTime": "எல்லா காலமும்",
   "resultsStatCorrect": "சரி",
   "resultsStatWrong": "தவறு",
   "resultsStatSkipped": "தவிர்த்தது",
   "resultsStatTime": "சராசரி நேரம்",
+  "resultsStatAccuracyIn": "துல்லியம் · {range}",
   "resultsBreakdown": "துணைத் தலைப்பு வாரியான துல்லியம்",
-  "resultsNoBreakdown": "இன்று இன்னும் விடைகள் இல்லை. துணைத் தலைப்புத் துல்லியத்தைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.",
-  "resultsHistoryTitle": "உங்கள் சொந்த முந்தைய அமர்வுகளுடன்",
+  "resultsNoBreakdown": "இந்தக் காலவரம்பில் இன்னும் விடைகள் இல்லை. துணைத் தலைப்புத் துல்லியத்தைக் காண ஒரு பயிற்சி அமர்வை முடிக்கவும்.",
+  "resultsHistoryTitle": "உங்கள் சொந்த முந்தைய அமர்வுகளின் சரியான விடைகள் சதவீதத்துடன்",
   "resultsPrivacyNote": "முன்னேற்றம் தனிப்பட்டது. இங்கு எதுவும் உங்களை மற்றொரு பயனருடன் ஒப்பிடவில்லை.",
   "resultsDrillWrong": "தவறான விடைகளைப் பயிற்சி செய்",
   "resultsHome": "முகப்பு",
@@ -283,13 +281,6 @@
     "placeholders": { "date": { "type": "String" } }
   },
 
-  "actionSkip": "இப்போதைக்குத் தவிர்",
-  "profileSetupTitle": "கிட்டத்தட்ட முடிந்தது",
-  "profileSetupSubtitle": "சில விவரங்கள் உங்கள் படிப்புத் திட்டத்தை வகுக்க உதவும்",
-  "profileSetupOptionalNote": "இவை அனைத்தும் விருப்பத்தேர்வு, பின்னர் அமைப்புகளில் மாற்றலாம்.",
-  "fieldDistrict": "மாவட்டம்",
-  "fieldTargetExamDate": "இலக்குத் தேர்வு தேதி",
-  "labelOptional": "விருப்பத்தேர்வு",
 
   "languageEnglish": "English",
   "languageSinhala": "සිංහල",

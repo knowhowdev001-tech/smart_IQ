@@ -141,7 +141,7 @@ hand. One spreadsheet row is one question.
 1. Fill in a CSV with the columns of `public.question_import`:
    `batch, sub_topic_key, difficulty, stem_en|si|ta, explanation_en|si|ta,
    option_a|b|c|d_en|si|ta, correct_option, shuffle_options`.
-   `sub_topic_key` is a key from `sub_topics` (`gk_geography`, `iq_numerical`,
+   `sub_topic_key` is a key from `sub_topics` (`gk-geography`, `iq-age`,
    ...), `correct_option` is `A`-`D`, and blank option columns simply mean
    fewer than four choices. Sinhala and Tamil fall back to the English cell
    when left empty, because a blank one cannot be published.
@@ -153,17 +153,34 @@ block, so a bad row records its reason in `question_import.error` and the rest
 of the batch still lands; fix those rows and re-run, since imported rows are
 skipped.
 
-`supabase/seed/fake_questions.csv` is 65 placeholder questions (batch
-`fake-v1`) covering all 13 sub-topics, for exercising the app before real
-content exists. Its Sinhala and Tamil are English text tagged `[SI]`/`[TA]`,
-so it can never be mistaken for reviewed content. Remove it once real
+`supabase/seed/placeholder_questions.csv` is the bank the app runs on today:
+120 placeholder questions (batch `placeholder-v1`), five in each of the 24
+answerable sub-topics of the 0024 taxonomy. The two `mock-*` sub-topics get
+none, because a mock exam draws from the whole bank rather than one
+sub-topic. Its Sinhala and Tamil cells are empty, so the importer falls back
+to English and nothing masquerades as a translation. Remove it once real
 questions are in:
 
 ```sql
 delete from public.questions where id in (
-  select question_id from public.question_import where batch = 'fake-v1');
-delete from public.question_import where batch = 'fake-v1';
+  select question_id from public.question_import
+  where batch = 'placeholder-v1');
+delete from public.question_import where batch = 'placeholder-v1';
 ```
+
+`supabase/seed/fake_questions.csv` is the earlier 65-question set, written
+against the 0013 sub-topic keys that 0024 replaced. It is kept only as a
+record of the format and will not import as it stands.
+
+Two things to do by hand after a first import, because neither waits for the
+next cron run:
+
+```sql
+select app.job_build_daily_challenge();  -- otherwise today's card errors
+```
+
+and check that every sub-topic has questions -- `get_practice_set` raises
+`empty_set` the moment one with none is tapped.
 
 The daily challenge composes itself: `app.job_build_daily_challenge()` runs at
 06:00 SL (an hour before the notification) and picks ten live questions,

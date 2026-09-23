@@ -164,6 +164,10 @@ class AppL10nSi extends AppL10n {
       'මෙම අංකය සඳහා දැනටමත් ගිණුමක් ඇත. කරුණාකර පිවිසෙන්න.';
 
   @override
+  String get errorNoAccount =>
+      'මෙම අංකය සඳහා ගිණුමක් නැත. කරුණාකර පළමුව ලියාපදිංචි වන්න.';
+
+  @override
   String get errorOffline => 'අන්තර්ජාල සම්බන්ධතාවයක් නැත.';
 
   @override
@@ -189,9 +193,6 @@ class AppL10nSi extends AppL10n {
   String get statReadiness => 'සූදානම';
 
   @override
-  String get statExamIn => 'විභාගයට';
-
-  @override
   String statDays(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -201,14 +202,6 @@ class AppL10nSi extends AppL10n {
     );
     return '$_temp0';
   }
-
-  @override
-  String statDaysShort(int count) {
-    return 'දින $count';
-  }
-
-  @override
-  String get statNoExamDate => 'සකසා නැත';
 
   @override
   String quotaQuestionsToday(String tier) {
@@ -383,6 +376,9 @@ class AppL10nSi extends AppL10n {
   }
 
   @override
+  String get resultsNoAnswersYet => 'තවම පිළිතුරු නැත';
+
+  @override
   String get resultsShowing => 'පෙන්වන්නේ';
 
   @override
@@ -392,7 +388,10 @@ class AppL10nSi extends AppL10n {
   String get resultsRangeToday => 'අද';
 
   @override
-  String get resultsRangeWeek => 'දින 7';
+  String get resultsRangeWeek => 'පසුගිය දින 7';
+
+  @override
+  String get resultsRangeAllTime => 'සියලු කාලය';
 
   @override
   String get resultsStatCorrect => 'නිවැරදි';
@@ -407,14 +406,20 @@ class AppL10nSi extends AppL10n {
   String get resultsStatTime => 'සාමාන්‍ය කාලය';
 
   @override
+  String resultsStatAccuracyIn(String range) {
+    return 'නිරවද්‍යතාව · $range';
+  }
+
+  @override
   String get resultsBreakdown => 'උප මාතෘකා අනුව නිරවද්‍යතාව';
 
   @override
   String get resultsNoBreakdown =>
-      'අද තවම පිළිතුරු නැත. උප මාතෘකා නිරවද්‍යතාව බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.';
+      'මෙම කාල පරාසයේ තවම පිළිතුරු නැත. උප මාතෘකා නිරවද්‍යතාව බැලීමට අභ්‍යාස සැසියක් සම්පූර්ණ කරන්න.';
 
   @override
-  String get resultsHistoryTitle => 'ඔබේම පෙර සැසිවලට එරෙහිව';
+  String get resultsHistoryTitle =>
+      'ඔබේම පෙර සැසිවල නිවැරදි පිළිතුරු ප්‍රතිශතයට එරෙහිව';
 
   @override
   String get resultsPrivacyNote =>
@@ -663,29 +668,6 @@ class AppL10nSi extends AppL10n {
   String termsUpdated(String date) {
     return 'අවසන් වරට යාවත්කාලීන $date';
   }
-
-  @override
-  String get actionSkip => 'දැනට මඟ හරින්න';
-
-  @override
-  String get profileSetupTitle => 'තව ටිකයි';
-
-  @override
-  String get profileSetupSubtitle =>
-      'සුළු තොරතුරු කිහිපයක් ඔබේ අධ්‍යයන සැලසුම සැකසීමට උපකාරී වේ';
-
-  @override
-  String get profileSetupOptionalNote =>
-      'මේ සියල්ල විකල්ප වන අතර පසුව සැකසුම් තුළ වෙනස් කළ හැක.';
-
-  @override
-  String get fieldDistrict => 'දිස්ත්‍රික්කය';
-
-  @override
-  String get fieldTargetExamDate => 'විභාග දිනය';
-
-  @override
-  String get labelOptional => 'විකල්ප';
 
   @override
   String get languageEnglish => 'English';

@@ -127,7 +127,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       subTopicId: _isMockCategory ? null : topic.id,
       categoryKey: widget.categoryKey,
       size: _isMockCategory
-          ? (topic.id == 'mock-full' ? 100 : 50)
+          ? (topic.key == 'mock-full' ? 100 : 50)
           : null,
     );
     context.push(Routes.quiz);

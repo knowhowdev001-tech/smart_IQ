@@ -267,6 +267,7 @@ class Category {
 class SubTopic {
   const SubTopic({
     required this.id,
+    required this.key,
     required this.categoryKey,
     required this.name,
     this.sortOrder = 0,
@@ -278,6 +279,9 @@ class SubTopic {
 
   factory SubTopic.fromJson(Map<String, dynamic> json) => SubTopic(
         id: json['id'] as String,
+        // The catalogue RPC gained `key` alongside the uuid; falling back to
+        // the id keeps an older server readable.
+        key: json['key'] as String? ?? json['id'] as String,
         categoryKey: json['category_key'] as String,
         name: LocalizedText.fromJson(json['name'] as Map<String, dynamic>),
         sortOrder: json['sort_order'] as int? ?? 0,
@@ -288,6 +292,11 @@ class SubTopic {
       );
 
   final String id;
+
+  /// The stable slug, unlike [id] which is a server uuid. What a screen
+  /// keys behaviour off — which mock paper was tapped, say.
+  final String key;
+
   final String categoryKey;
   final LocalizedText name;
   final int sortOrder;
