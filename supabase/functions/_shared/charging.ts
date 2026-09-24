@@ -224,31 +224,40 @@ export async function sendSms(
     ...(mask ? { sourceAddress: mask } : {}),
   });
 
+  const data = body.data ?? {};
+  const failures = body.errors ?? {};
+  const groups = (data.byCarrier ?? {}) as Record<
+    string,
+    { statusCode?: string; statusDetail?: string } | null
+  >;
+
+  /// Everything the reply says about why, in one line.
+  ///
+  /// `errors` and `byCarrier` are the two places this action puts the truth,
+  /// and neither is where a flat reply would put it. Quoting both on every
+  /// refusal is what stops a real reason being reduced to "HTTP 207" --
+  /// which is exactly what reached the log before, leaving the cause unknown.
+  const detail = () =>
+    [
+      body.message ?? body.error,
+      Object.keys(failures).length ? `errors: ${JSON.stringify(failures)}` : null,
+      Object.keys(groups).length ? `byCarrier: ${JSON.stringify(groups)}` : null,
+    ].filter(Boolean).join(" -- ") || `HTTP ${status}`;
+
   if (!accepted(status, body)) {
     throw new ChargingError(
       "send-sms",
-      (body.data?.statusCode as string) ?? null,
-      body.message ?? body.error ?? `HTTP ${status}`,
+      (data.statusCode as string) ?? null,
+      detail(),
     );
   }
 
   // 207 means some routes took it and some did not, with the refusals under
   // a top-level `errors`. We send to one number, so partly delivered is not
   // delivered.
-  const failures = body.errors ?? {};
   if (status === 207 || Object.keys(failures).length > 0) {
-    throw new ChargingError(
-      "send-sms",
-      null,
-      `not delivered: ${JSON.stringify(failures)}`,
-    );
+    throw new ChargingError("send-sms", null, detail());
   }
-
-  const data = body.data ?? {};
-  const groups = (data.byCarrier ?? {}) as Record<
-    string,
-    { statusCode?: string; statusDetail?: string } | null
-  >;
 
   for (const [carrier, group] of Object.entries(groups)) {
     const code = group?.statusCode;

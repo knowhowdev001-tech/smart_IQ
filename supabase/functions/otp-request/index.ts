@@ -227,7 +227,7 @@ serve(async (req) => {
       try {
         await sendSms(msisdn, codeMessage(code, body.language ?? "en"));
       } catch (error) {
-        console.error("otp-request: sms failed", error);
+        console.error(`otp-request: sms failed for ${msisdn}`, error);
         if (error instanceof ChargingError) {
           return fail(502, "sms_failed", error.message);
         }
