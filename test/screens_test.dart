@@ -7,6 +7,7 @@ import 'package:smart_iq/core/providers/app_providers.dart';
 import 'package:smart_iq/core/settings/app_settings.dart';
 import 'package:smart_iq/core/theme/app_scale.dart';
 import 'package:smart_iq/core/theme/app_theme.dart';
+import 'package:smart_iq/core/widgets/siq_button.dart';
 import 'package:smart_iq/domain/enums.dart';
 import 'package:smart_iq/domain/models/practice.dart';
 import 'package:smart_iq/domain/models/user_profile.dart';
@@ -21,9 +22,12 @@ import 'package:smart_iq/features/practice/presentation/practice_screen.dart';
 import 'package:smart_iq/features/profile/presentation/profile_screen.dart';
 import 'package:smart_iq/features/progress/presentation/mastery_screen.dart';
 import 'package:smart_iq/features/results/presentation/results_screen.dart';
+import 'package:smart_iq/data/mock/mock_content.dart';
 import 'package:smart_iq/data/mock/mock_repositories.dart';
 import 'package:smart_iq/features/settings/presentation/devices_screen.dart';
 import 'package:smart_iq/features/settings/presentation/settings_screen.dart';
+import 'package:smart_iq/features/study/presentation/question_review_screen.dart';
+import 'package:smart_iq/features/study/presentation/saved_questions_screen.dart';
 import 'package:smart_iq/features/tutor/presentation/tutor_screen.dart';
 import 'package:smart_iq/l10n/generated/app_localizations.dart';
 
@@ -184,6 +188,10 @@ void main() {
     'settings': SettingsScreen.new,
     'devices': DevicesScreen.new,
     'mastery': MasteryScreen.new,
+    'bookmarks': () => const SavedQuestionsScreen(list: SavedList.bookmarks),
+    'wrong bank': () => const SavedQuestionsScreen(list: SavedList.wrongBank),
+    'review': () =>
+        QuestionReviewScreen(questionId: MockContent.questions.first.id),
     'notifications': NotificationsScreen.new,
     'results': ResultsScreen.new,
   };
@@ -711,6 +719,121 @@ void main() {
     expect(find.text('WEAK'), findsOneWidget);
   });
 
+  group('saved questions', () {
+    // Seeded straight into the mock backend, as a finished session would
+    // leave it: two bookmarks, and two questions in the wrong-answer bank.
+    MockBackendState seeded({Tier tier = Tier.basic}) {
+      final state = MockBackendState(tier: tier)..signedIn = true;
+      final ids = [for (final q in MockContent.questions.take(2)) q.id];
+      state.bookmarkedIds.addAll(ids);
+      state.wrongQuestionIds.addAll(ids);
+      return state;
+    }
+
+    testWidgets('bookmarks lists saved questions and removes one',
+        (tester) async {
+      final state = seeded();
+      await _pumpAt(
+        tester,
+        const Size(412, 915),
+        _host(
+          const SavedQuestionsScreen(list: SavedList.bookmarks),
+          overrides: [mockBackendProvider.overrideWithValue(state)],
+        ),
+      );
+
+      expect(find.text('Saved just now'), findsNWidgets(2));
+
+      await tester.tap(find.byTooltip('Remove bookmark').first);
+      await tester.pump(const Duration(milliseconds: 900));
+      await tester.pumpAndSettle();
+
+      expect(state.bookmarkedIds, hasLength(1));
+      expect(find.text('Saved just now'), findsOneWidget);
+      expect(find.text('Bookmark removed'), findsOneWidget);
+    });
+
+    testWidgets('bookmarks says so when there are none', (tester) async {
+      await _pumpAt(
+        tester,
+        const Size(360, 800),
+        _host(const SavedQuestionsScreen(list: SavedList.bookmarks)),
+      );
+      expect(find.textContaining('No bookmarks yet'), findsOneWidget);
+    });
+
+    testWidgets('the bank shows the schedule and can always drill',
+        (tester) async {
+      await _pumpAt(
+        tester,
+        const Size(412, 915),
+        _host(
+          const SavedQuestionsScreen(list: SavedList.wrongBank),
+          overrides: [mockBackendProvider.overrideWithValue(seeded())],
+        ),
+      );
+
+      // The mock schedules every banked question for tomorrow.
+      expect(find.text('Next review tomorrow'), findsNWidgets(2));
+      final due = tester.widget<SiqButton>(
+        find.widgetWithText(SiqButton, 'Drill due (0)'),
+      );
+      final all = tester.widget<SiqButton>(
+        find.widgetWithText(SiqButton, 'Drill all (2)'),
+      );
+      expect(due.onPressed, isNull);
+      expect(all.onPressed, isNotNull);
+    });
+
+    testWidgets('the bank offers an upgrade on a tier without it',
+        (tester) async {
+      await _pumpAt(
+        tester,
+        const Size(412, 915),
+        _host(
+          const SavedQuestionsScreen(list: SavedList.wrongBank),
+          overrides: [
+            mockBackendProvider.overrideWithValue(seeded(tier: Tier.free)),
+          ],
+        ),
+      );
+
+      expect(find.text('The wrong-answer bank is not in your plan'),
+          findsOneWidget);
+      expect(find.textContaining('Drill all'), findsNothing);
+      // The questions themselves stay readable.
+      expect(find.text('Next review tomorrow'), findsNWidgets(2));
+    });
+
+    testWidgets('review shows the answer and toggles the bookmark',
+        (tester) async {
+      final state = seeded();
+      final question = MockContent.questions.first;
+      await _pumpAt(
+        tester,
+        const Size(412, 915),
+        _host(
+          QuestionReviewScreen(questionId: question.id),
+          overrides: [mockBackendProvider.overrideWithValue(state)],
+        ),
+      );
+
+      expect(find.text(question.stem.resolve(AppLanguage.english)),
+          findsOneWidget);
+      // Exactly one option is marked, and it is the correct one.
+      expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+      expect(find.text('EXPLANATION'), findsOneWidget);
+
+      await tester.scrollUntilVisible(find.text('Bookmarked'), 200);
+      await tester.tap(find.text('Bookmarked'));
+      await tester.pump(const Duration(milliseconds: 900));
+      await tester.pumpAndSettle();
+
+      expect(state.bookmarkedIds.contains(question.id), isFalse);
+      expect(find.text('Bookmark'), findsOneWidget);
+    });
+  });
+
   group('screens render in Sinhala and Tamil', () {
     // Both scripts run considerably longer than English for the same string,
     // which is exactly where a fixed-height row or an unwrapped Row starts
@@ -723,6 +846,8 @@ void main() {
         'settings',
         'devices',
         'mastery',
+        'wrong bank',
+        'review',
       ]) {
         testWidgets('$name in ${language.code}', (tester) async {
           await _pumpAt(
@@ -767,6 +892,8 @@ void main() {
       'tutor',
       'devices',
       'mastery',
+      'wrong bank',
+      'review',
     ]) {
       testWidgets('$name renders in dark mode', (tester) async {
         await _pumpAt(

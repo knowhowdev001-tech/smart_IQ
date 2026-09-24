@@ -567,6 +567,79 @@ class AppL10nSi extends AppL10n {
   }
 
   @override
+  String get savedBookmarksEmpty =>
+      'තවම පිටු සලකුණු නැත. ප්‍රශ්නයක පැහැදිලි කිරීම යටතේ ඇති පිටු සලකුණ තට්ටු කර එය මෙහි තබා ගන්න.';
+
+  @override
+  String savedOn(String time) {
+    return 'සුරැකුවේ $time';
+  }
+
+  @override
+  String get savedRemoveBookmark => 'පිටු සලකුණ ඉවත් කරන්න';
+
+  @override
+  String get savedBookmarkRemoved => 'පිටු සලකුණ ඉවත් කළා';
+
+  @override
+  String get bankIntro =>
+      'ඔබ වැරදි කරන ප්‍රශ්න දින 1කට පසුව, ඉන්පසු දින 3, 7 සහ 16කට පසු නැවත සමාලෝචනයට එයි. සමාලෝචන හතරක් අඛණ්ඩව නිවැරදි කළ විට එය බැංකුවෙන් ඉවත් වේ; වැරදි පිළිතුරක් එය නැවත මුල සිට අරඹයි.';
+
+  @override
+  String get bankEmpty =>
+      'සමාලෝචනය කිරීමට කිසිවක් නැත. පුහුණුවේදී ඔබ වැරදි කරන ප්‍රශ්න මෙහි සුරැකේ.';
+
+  @override
+  String get bankDueNow => 'සමාලෝචනයට නියමිතයි';
+
+  @override
+  String bankNextReview(String when) {
+    return 'ඊළඟ සමාලෝචනය $when';
+  }
+
+  @override
+  String bankReviewsDone(int done) {
+    return 'සමාලෝචන 4න් $done';
+  }
+
+  @override
+  String bankDrillDue(int count) {
+    return 'නියමිත ඒවා පුහුණු වන්න ($count)';
+  }
+
+  @override
+  String bankDrillAll(int count) {
+    return 'සියල්ල පුහුණු වන්න ($count)';
+  }
+
+  @override
+  String get bankLockedTitle => 'වැරදි පිළිතුරු බැංකුව ඔබගේ සැලසුමේ නැත';
+
+  @override
+  String get bankLockedBody =>
+      'ඔබ වැරදි කළ ප්‍රශ්න හොඳින් මතකයේ රැඳෙන තුරු පුහුණු වීමට යාවත්කාලීන කරන්න.';
+
+  @override
+  String get reviewTitle => 'සමාලෝචනය';
+
+  @override
+  String get reviewExplanation => 'පැහැදිලි කිරීම';
+
+  @override
+  String get reviewUnavailable => 'මෙම ප්‍රශ්නය තවදුරටත් ලබා ගත නොහැක.';
+
+  @override
+  String get timeLaterToday => 'අද පසුව';
+
+  @override
+  String get timeTomorrow => 'හෙට';
+
+  @override
+  String timeInDays(int count) {
+    return 'දින $countකින්';
+  }
+
+  @override
   String get profileRowSettings => 'සැකසුම්';
 
   @override

@@ -564,6 +564,79 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get savedBookmarksEmpty =>
+      'No bookmarks yet. Tap Bookmark under a question\'s explanation to keep it here.';
+
+  @override
+  String savedOn(String time) {
+    return 'Saved $time';
+  }
+
+  @override
+  String get savedRemoveBookmark => 'Remove bookmark';
+
+  @override
+  String get savedBookmarkRemoved => 'Bookmark removed';
+
+  @override
+  String get bankIntro =>
+      'Questions you get wrong come back for review after 1 day, then 3, 7 and 16 days. Get one right four reviews running and it leaves the bank; a wrong answer starts it over.';
+
+  @override
+  String get bankEmpty =>
+      'Nothing to review. Questions you get wrong in practice are saved here.';
+
+  @override
+  String get bankDueNow => 'Due for review';
+
+  @override
+  String bankNextReview(String when) {
+    return 'Next review $when';
+  }
+
+  @override
+  String bankReviewsDone(int done) {
+    return '$done of 4 reviews';
+  }
+
+  @override
+  String bankDrillDue(int count) {
+    return 'Drill due ($count)';
+  }
+
+  @override
+  String bankDrillAll(int count) {
+    return 'Drill all ($count)';
+  }
+
+  @override
+  String get bankLockedTitle => 'The wrong-answer bank is not in your plan';
+
+  @override
+  String get bankLockedBody =>
+      'Upgrade to drill the questions you got wrong until they stick.';
+
+  @override
+  String get reviewTitle => 'Review';
+
+  @override
+  String get reviewExplanation => 'Explanation';
+
+  @override
+  String get reviewUnavailable => 'This question is no longer available.';
+
+  @override
+  String get timeLaterToday => 'later today';
+
+  @override
+  String get timeTomorrow => 'tomorrow';
+
+  @override
+  String timeInDays(int count) {
+    return 'in $count days';
+  }
+
+  @override
   String get profileRowSettings => 'Settings';
 
   @override

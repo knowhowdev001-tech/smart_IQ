@@ -231,15 +231,8 @@ class SupabasePracticeRepository implements PracticeRepository {
     if (rows.isEmpty) return const [];
 
     final ids = [for (final row in rows) row['question_id'] as String];
-    final questions = await supabaseGuard(
-      () => _client.rpc<dynamic>('get_questions_by_ids', params: {
-        'p_ids': ids,
-      }),
-    );
     final byId = {
-      for (final q in (questions as List? ?? const []))
-        (q as Map)['id'] as String:
-            Question.fromJson(Map<String, dynamic>.from(q)),
+      for (final q in await questionsByIds(ids)) q.id: q,
     };
     final language = _language();
 
@@ -254,6 +247,24 @@ class SupabasePracticeRepository implements PracticeRepository {
             nextReviewAt: nextReviewAt?.call(row),
             reviewCount: reviewCount?.call(row) ?? 0,
           ),
+    ];
+  }
+
+  @override
+  Future<List<Question>> questionsByIds(List<String> ids) async {
+    if (ids.isEmpty) return const [];
+
+    // `get_questions_by_ids` is the only way back to a stem, and it serves
+    // exactly the questions the user has already earned the right to see:
+    // bookmarked, answered, or sitting in the wrong-answer bank.
+    final questions = await supabaseGuard(
+      () => _client.rpc<dynamic>('get_questions_by_ids', params: {
+        'p_ids': ids,
+      }),
+    );
+    return [
+      for (final q in (questions as List? ?? const []))
+        Question.fromJson(Map<String, dynamic>.from(q as Map)),
     ];
   }
 

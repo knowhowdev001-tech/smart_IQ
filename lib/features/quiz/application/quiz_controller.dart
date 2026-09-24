@@ -232,7 +232,12 @@ class QuizController extends StateNotifier<AsyncValue<QuizState>> {
       state = AsyncValue.data(
         current.copyWith(submitting: false, result: result),
       );
-      _ref.invalidate(progressProvider);
+      _ref
+        ..invalidate(progressProvider)
+        // Submitting is what fills and advances the bank, and flushes the
+        // session's bookmarks, so both lists are stale from here.
+        ..invalidate(wrongBankProvider)
+        ..invalidate(bookmarksProvider);
     } catch (error, stack) {
       state = AsyncValue.error(error, stack);
     }
@@ -257,6 +262,7 @@ class QuizController extends StateNotifier<AsyncValue<QuizState>> {
 
     state = AsyncValue.data(current.copyWith(answers: answers));
     await _repository.setBookmark(questionId: id, saved: saved);
+    _ref.invalidate(bookmarksProvider);
   }
 
   void retry() => _start();

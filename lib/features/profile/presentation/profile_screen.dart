@@ -168,13 +168,13 @@ class ProfileScreen extends ConsumerWidget {
                     name: l10n.profileRowBookmarks,
                     meta: l10n.profileRowBookmarksMeta,
                     icon: Icons.bookmark_outline_rounded,
-                    onTap: () {},
+                    onTap: () => context.push(Routes.bookmarks),
                   ),
                   _Row(
                     name: l10n.profileRowWrongBank,
                     meta: l10n.profileRowWrongBankMeta,
                     icon: Icons.refresh_rounded,
-                    onTap: () {},
+                    onTap: () => context.push(Routes.wrongBank),
                   ),
                   _Row(
                     name: l10n.profileRowMastery,

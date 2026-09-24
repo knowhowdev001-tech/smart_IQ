@@ -17,6 +17,8 @@ import '../../features/results/presentation/results_screen.dart';
 import '../../features/settings/presentation/devices_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/shell/presentation/app_shell.dart';
+import '../../features/study/presentation/question_review_screen.dart';
+import '../../features/study/presentation/saved_questions_screen.dart';
 import '../../features/tutor/presentation/tutor_screen.dart';
 import '../providers/app_providers.dart';
 
@@ -38,6 +40,12 @@ abstract final class Routes {
   static const settings = '/settings';
   static const devices = '/settings/devices';
   static const mastery = '/profile/mastery';
+  static const bookmarks = '/profile/bookmarks';
+  static const wrongBank = '/profile/wrong-bank';
+  static const review = '/question';
+
+  static String reviewQuestion(String id) =>
+      Uri(path: review, queryParameters: {'id': id}).toString();
 }
 
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -182,6 +190,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.mastery,
         parentNavigatorKey: _rootKey,
         builder: (context, state) => const MasteryScreen(),
+      ),
+      GoRoute(
+        path: Routes.bookmarks,
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) =>
+            const SavedQuestionsScreen(list: SavedList.bookmarks),
+      ),
+      GoRoute(
+        path: Routes.wrongBank,
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) =>
+            const SavedQuestionsScreen(list: SavedList.wrongBank),
+      ),
+      GoRoute(
+        path: Routes.review,
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => QuestionReviewScreen(
+          questionId: state.uri.queryParameters['id'] ?? '',
+        ),
       ),
     ],
   );

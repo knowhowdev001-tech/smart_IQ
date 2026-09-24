@@ -13,6 +13,7 @@ import '../../domain/enums.dart';
 import '../../domain/models/app_notification.dart';
 import '../../domain/models/content.dart';
 import '../../domain/models/entitlement.dart';
+import '../../domain/models/practice.dart';
 import '../../domain/models/user_profile.dart';
 import '../config/supabase_config.dart';
 import '../settings/app_settings.dart';
@@ -214,6 +215,27 @@ final subTopicsProvider =
 final progressProvider = FutureProvider(
   (ref) => ref.watch(practiceRepositoryProvider).progress(),
 );
+
+/// Questions the user saved during practice, newest first.
+final bookmarksProvider = FutureProvider.autoDispose<List<SavedQuestion>>(
+  (ref) => ref.watch(practiceRepositoryProvider).bookmarks(),
+);
+
+/// Questions answered wrong and not yet retired, soonest review first
+/// (PRD 6.3).
+final wrongBankProvider = FutureProvider.autoDispose<List<SavedQuestion>>(
+  (ref) => ref.watch(practiceRepositoryProvider).wrongAnswerBank(),
+);
+
+/// One saved question in full, answer and explanation included. Null when
+/// the server will not serve it, which it only does for questions the user
+/// has seen.
+final savedQuestionProvider =
+    FutureProvider.autoDispose.family<Question?, String>((ref, id) async {
+  final found =
+      await ref.watch(practiceRepositoryProvider).questionsByIds([id]);
+  return found.isEmpty ? null : found.first;
+});
 
 /// The devices signed in to this account, this one included (PRD 6.1).
 final activeSessionsProvider = FutureProvider.autoDispose<List<DeviceSession>>(

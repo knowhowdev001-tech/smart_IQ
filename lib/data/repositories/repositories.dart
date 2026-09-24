@@ -209,6 +209,11 @@ abstract interface class PracticeRepository {
   Future<void> setBookmark({required String questionId, required bool saved});
 
   Future<List<SavedQuestion>> wrongAnswerBank();
+
+  /// Full questions, answer and explanation included, for review outside a
+  /// session. The server returns only questions the user has already seen,
+  /// bookmarked or banked; anything else is silently left out.
+  Future<List<Question>> questionsByIds(List<String> ids);
 }
 
 /// Thin client over the external AI endpoint.

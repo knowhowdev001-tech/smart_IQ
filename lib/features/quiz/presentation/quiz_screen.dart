@@ -15,11 +15,11 @@ import '../../../core/widgets/siq_states.dart';
 import '../../../core/widgets/siq_surfaces.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../domain/enums.dart';
-import '../../../domain/models/content.dart';
 import '../../billing/presentation/plan_sheet.dart';
 import '../../results/presentation/results_screen.dart';
 import '../application/quiz_controller.dart';
 import 'widgets/question_diagram.dart';
+import 'widgets/question_parts.dart';
 
 /// The question screen: progress, stem, options, explanation and the
 /// single primary action that drives the session forward.
@@ -238,9 +238,11 @@ class _QuizBody extends ConsumerWidget {
                 for (final option in question.options)
                   Padding(
                     padding: EdgeInsets.only(bottom: 9.dp(context)),
-                    child: _OptionTile(
+                    child: OptionTile(
                       option: option,
-                      quiz: quiz,
+                      isCorrect: question.isCorrect(option.id),
+                      selected: quiz.selectedOptionId == option.id,
+                      revealed: quiz.revealed,
                       onTap: () => ref
                           .read(quizControllerProvider.notifier)
                           .select(option.id),
@@ -357,56 +359,11 @@ class _QuizTopBar extends ConsumerWidget {
                 // verbal items, which are authored per language and have no
                 // equivalent in another script.
                 if (!quiz.question.languageSpecific)
-                  const _LanguageToggle(),
+                  const QuestionLanguageToggle(),
               ],
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _LanguageToggle extends ConsumerWidget {
-  const _LanguageToggle();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-    final current = ref.watch(languageProvider);
-
-    return PopupMenuButton<AppLanguage>(
-      tooltip: context.l10n.settingsLanguage,
-      // Switching language here must not disturb the answer state, which is
-      // why it writes to settings rather than restarting the session.
-      onSelected: (value) =>
-          ref.read(appSettingsProvider.notifier).setLanguage(value),
-      itemBuilder: (context) => [
-        for (final language in AppLanguage.values)
-          PopupMenuItem(
-            value: language,
-            child: Text(switch (language) {
-              AppLanguage.sinhala => context.l10n.languageSinhala,
-              AppLanguage.tamil => context.l10n.languageTamil,
-              AppLanguage.english => context.l10n.languageEnglish,
-            }),
-          ),
-      ],
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.translate_rounded, size: 14.dp(context),
-              color: colors.inkMuted),
-          SizedBox(width: 4.dp(context)),
-          Text(
-            current.code.toUpperCase(),
-            style: context.text(
-              AppTextStyles.overline,
-              weight: 700,
-              color: colors.inkMuted,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -480,137 +437,6 @@ class _TimerChip extends StatelessWidget {
   }
 }
 
-/// One answer option.
-///
-/// Before the answer is checked the tile only shows selection. Afterwards it
-/// marks the correct option and, if the user was wrong, their choice — so
-/// the explanation below has something to refer to.
-class _OptionTile extends StatelessWidget {
-  const _OptionTile({
-    required this.option,
-    required this.quiz,
-    required this.onTap,
-  });
-
-  final QuestionOption option;
-  final QuizState quiz;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final language = context.language;
-
-    final selected = quiz.selectedOptionId == option.id;
-    final isCorrect = quiz.question.isCorrect(option.id);
-    final revealed = quiz.revealed;
-
-    final (background, borderColor, keyBackground, keyInk) = switch ((
-      revealed,
-      isCorrect,
-      selected,
-    )) {
-      (true, true, _) => (
-          colors.accentSoft,
-          colors.accent,
-          colors.accent,
-          colors.accentInk,
-        ),
-      (true, false, true) => (
-          colors.dangerSurface,
-          colors.dangerBorder,
-          colors.danger,
-          Colors.white,
-        ),
-      (false, _, true) => (
-          colors.accentSoft,
-          colors.accent,
-          colors.accent,
-          colors.accentInk,
-        ),
-      _ => (colors.surface, colors.border, colors.surfaceMuted, colors.inkMuted),
-    };
-
-    final mark = switch ((revealed, isCorrect, selected)) {
-      (true, true, _) => Icons.check_rounded,
-      (true, false, true) => Icons.close_rounded,
-      _ => null,
-    };
-
-    return Semantics(
-      button: true,
-      selected: selected,
-      inMutuallyExclusiveGroup: true,
-      child: SiqCard(
-        onTap: revealed ? null : onTap,
-        background: background,
-        borderColor: borderColor,
-        radius: AppRadii.md,
-        padding: EdgeInsets.symmetric(
-          horizontal: 14.dp(context),
-          vertical: 13.dp(context),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 24.dp(context),
-              height: 24.dp(context),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: keyBackground,
-                shape: BoxShape.circle,
-              ),
-              child: Text(
-                option.optionKey,
-                style: context.text(
-                  AppTextStyles.caption,
-                  weight: 700,
-                  color: keyInk,
-                ),
-              ),
-            ),
-            SizedBox(width: 11.dp(context)),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (option.hasText(language))
-                    Text(
-                      option.text.resolve(language),
-                      style: context.text(
-                        AppTextStyles.body,
-                        weight: 600,
-                        color: colors.ink,
-                      ),
-                    ),
-                  // Image-only options must stay individually selectable and
-                  // show an unambiguous selected state (PRD 5.4.1), which is
-                  // why the border and key colour carry the state rather
-                  // than a subtle tint on the artwork.
-                  if (option.hasMedia) ...[
-                    if (option.hasText(language))
-                      SizedBox(height: AppSpacing.sm.dp(context)),
-                    QuestionDiagram(media: option.media!, maxHeight: 110),
-                  ],
-                ],
-              ),
-            ),
-            if (mark != null) ...[
-              SizedBox(width: AppSpacing.sm.dp(context)),
-              Icon(
-                mark,
-                size: 18.dp(context),
-                color: isCorrect ? colors.accentSoftInk : colors.dangerInk,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ExplanationCard extends ConsumerWidget {
   const _ExplanationCard({required this.quiz});
 
@@ -620,7 +446,6 @@ class _ExplanationCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final l10n = context.l10n;
-    final language = context.language;
 
     final answer = quiz.answers[quiz.question.id];
     final correct = answer?.isCorrect ?? false;
@@ -644,30 +469,7 @@ class _ExplanationCard extends ConsumerWidget {
             ),
           ),
           SizedBox(height: 7.dp(context)),
-          Text(
-            quiz.question.explanation.resolve(language),
-            style: context.text(
-              AppTextStyles.bodySmall,
-              color: colors.ink,
-              height: 1.6,
-            ),
-          ),
-          // Explanations may carry an ordered sequence of images for
-          // step-by-step working (PRD 5.4.2).
-          for (final media in quiz.question.explanationMedia) ...[
-            SizedBox(height: AppSpacing.md.dp(context)),
-            QuestionDiagram(media: media, maxHeight: 160),
-            if (media.caption.resolveOrNull(language) != null) ...[
-              SizedBox(height: AppSpacing.xs.dp(context)),
-              Text(
-                media.caption.resolve(language),
-                style: context.text(
-                  AppTextStyles.captionSmall,
-                  color: colors.inkMuted,
-                ),
-              ),
-            ],
-          ],
+          ExplanationBody(question: quiz.question),
           SizedBox(height: AppSpacing.md.dp(context)),
           Wrap(
             spacing: AppSpacing.sm.dp(context),

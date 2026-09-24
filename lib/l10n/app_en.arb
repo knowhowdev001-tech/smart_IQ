@@ -238,6 +238,43 @@
   "@masteryAnswered": {
     "placeholders": {"count": {"type": "int"}}
   },
+  "savedBookmarksEmpty": "No bookmarks yet. Tap Bookmark under a question's explanation to keep it here.",
+  "savedOn": "Saved {time}",
+  "@savedOn": {
+    "placeholders": {"time": {"type": "String"}}
+  },
+  "savedRemoveBookmark": "Remove bookmark",
+  "savedBookmarkRemoved": "Bookmark removed",
+  "bankIntro": "Questions you get wrong come back for review after 1 day, then 3, 7 and 16 days. Get one right four reviews running and it leaves the bank; a wrong answer starts it over.",
+  "bankEmpty": "Nothing to review. Questions you get wrong in practice are saved here.",
+  "bankDueNow": "Due for review",
+  "bankNextReview": "Next review {when}",
+  "@bankNextReview": {
+    "placeholders": {"when": {"type": "String"}}
+  },
+  "bankReviewsDone": "{done} of 4 reviews",
+  "@bankReviewsDone": {
+    "placeholders": {"done": {"type": "int"}}
+  },
+  "bankDrillDue": "Drill due ({count})",
+  "@bankDrillDue": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "bankDrillAll": "Drill all ({count})",
+  "@bankDrillAll": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "bankLockedTitle": "The wrong-answer bank is not in your plan",
+  "bankLockedBody": "Upgrade to drill the questions you got wrong until they stick.",
+  "reviewTitle": "Review",
+  "reviewExplanation": "Explanation",
+  "reviewUnavailable": "This question is no longer available.",
+  "timeLaterToday": "later today",
+  "timeTomorrow": "tomorrow",
+  "timeInDays": "in {count} days",
+  "@timeInDays": {
+    "placeholders": {"count": {"type": "int"}}
+  },
   "profileRowSettings": "Settings",
   "profileRowSettingsMeta": "Language, theme and account",
 

@@ -1089,6 +1089,120 @@ abstract class AppL10n {
   /// **'{count, plural, =1{1 answered} other{{count} answered}}'**
   String masteryAnswered(int count);
 
+  /// No description provided for @savedBookmarksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks yet. Tap Bookmark under a question\'s explanation to keep it here.'**
+  String get savedBookmarksEmpty;
+
+  /// No description provided for @savedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {time}'**
+  String savedOn(String time);
+
+  /// No description provided for @savedRemoveBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get savedRemoveBookmark;
+
+  /// No description provided for @savedBookmarkRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark removed'**
+  String get savedBookmarkRemoved;
+
+  /// No description provided for @bankIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions you get wrong come back for review after 1 day, then 3, 7 and 16 days. Get one right four reviews running and it leaves the bank; a wrong answer starts it over.'**
+  String get bankIntro;
+
+  /// No description provided for @bankEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to review. Questions you get wrong in practice are saved here.'**
+  String get bankEmpty;
+
+  /// No description provided for @bankDueNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due for review'**
+  String get bankDueNow;
+
+  /// No description provided for @bankNextReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Next review {when}'**
+  String bankNextReview(String when);
+
+  /// No description provided for @bankReviewsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of 4 reviews'**
+  String bankReviewsDone(int done);
+
+  /// No description provided for @bankDrillDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Drill due ({count})'**
+  String bankDrillDue(int count);
+
+  /// No description provided for @bankDrillAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Drill all ({count})'**
+  String bankDrillAll(int count);
+
+  /// No description provided for @bankLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The wrong-answer bank is not in your plan'**
+  String get bankLockedTitle;
+
+  /// No description provided for @bankLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to drill the questions you got wrong until they stick.'**
+  String get bankLockedBody;
+
+  /// No description provided for @reviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get reviewTitle;
+
+  /// No description provided for @reviewExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get reviewExplanation;
+
+  /// No description provided for @reviewUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This question is no longer available.'**
+  String get reviewUnavailable;
+
+  /// No description provided for @timeLaterToday.
+  ///
+  /// In en, this message translates to:
+  /// **'later today'**
+  String get timeLaterToday;
+
+  /// No description provided for @timeTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'tomorrow'**
+  String get timeTomorrow;
+
+  /// No description provided for @timeInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'in {count} days'**
+  String timeInDays(int count);
+
   /// No description provided for @profileRowSettings.
   ///
   /// In en, this message translates to:

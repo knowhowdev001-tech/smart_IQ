@@ -573,6 +573,79 @@ class AppL10nTa extends AppL10n {
   }
 
   @override
+  String get savedBookmarksEmpty =>
+      'இன்னும் புக்மார்க்குகள் இல்லை. ஒரு கேள்வியின் விளக்கத்தின் கீழுள்ள புக்மார்க்கைத் தட்டி அதை இங்கே சேமியுங்கள்.';
+
+  @override
+  String savedOn(String time) {
+    return 'சேமித்தது $time';
+  }
+
+  @override
+  String get savedRemoveBookmark => 'புக்மார்க்கை அகற்று';
+
+  @override
+  String get savedBookmarkRemoved => 'புக்மார்க் அகற்றப்பட்டது';
+
+  @override
+  String get bankIntro =>
+      'நீங்கள் தவறாகப் பதிலளித்த கேள்விகள் 1 நாளுக்குப் பிறகு, பின்னர் 3, 7, 16 நாட்களுக்குப் பிறகு மீண்டும் மதிப்பாய்வுக்கு வரும். தொடர்ந்து நான்கு மதிப்பாய்வுகளில் சரியாகப் பதிலளித்தால் அது வங்கியிலிருந்து நீங்கும்; தவறான பதில் அதை மீண்டும் தொடங்கும்.';
+
+  @override
+  String get bankEmpty =>
+      'மதிப்பாய்வு செய்ய எதுவும் இல்லை. பயிற்சியில் நீங்கள் தவறாகப் பதிலளிக்கும் கேள்விகள் இங்கே சேமிக்கப்படும்.';
+
+  @override
+  String get bankDueNow => 'மதிப்பாய்வுக்கு உரியது';
+
+  @override
+  String bankNextReview(String when) {
+    return 'அடுத்த மதிப்பாய்வு $when';
+  }
+
+  @override
+  String bankReviewsDone(int done) {
+    return '4 மதிப்பாய்வுகளில் $done';
+  }
+
+  @override
+  String bankDrillDue(int count) {
+    return 'உரியவற்றைப் பயிற்சி செய் ($count)';
+  }
+
+  @override
+  String bankDrillAll(int count) {
+    return 'அனைத்தையும் பயிற்சி செய் ($count)';
+  }
+
+  @override
+  String get bankLockedTitle => 'தவறான விடை வங்கி உங்கள் திட்டத்தில் இல்லை';
+
+  @override
+  String get bankLockedBody =>
+      'நீங்கள் தவறாகப் பதிலளித்த கேள்விகளை நினைவில் நிற்கும் வரை பயிற்சி செய்ய மேம்படுத்துங்கள்.';
+
+  @override
+  String get reviewTitle => 'மதிப்பாய்வு';
+
+  @override
+  String get reviewExplanation => 'விளக்கம்';
+
+  @override
+  String get reviewUnavailable => 'இந்தக் கேள்வி இனி கிடைக்காது.';
+
+  @override
+  String get timeLaterToday => 'இன்று பிற்பகுதியில்';
+
+  @override
+  String get timeTomorrow => 'நாளை';
+
+  @override
+  String timeInDays(int count) {
+    return '$count நாட்களில்';
+  }
+
+  @override
   String get profileRowSettings => 'அமைப்புகள்';
 
   @override

@@ -669,6 +669,15 @@ class MockPracticeRepository implements PracticeRepository {
     ];
   }
 
+  @override
+  Future<List<Question>> questionsByIds(List<String> ids) async {
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    return [
+      for (final q in MockContent.questions)
+        if (ids.contains(q.id)) q,
+    ];
+  }
+
   SavedQuestion _saved(String questionId, AppLanguage language) {
     final question = MockContent.questions.firstWhere(
       (q) => q.id == questionId,
