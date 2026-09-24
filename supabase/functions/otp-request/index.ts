@@ -90,6 +90,13 @@ serve(async (req) => {
   const isSignup = (body.full_name ?? "").trim() !== "";
   const isLogin = body.login === true;
 
+  // How the carrier addresses this subscriber, recorded when their signup's
+  // verify subscribed them. The login code is sent there.
+  let recipient: {
+    Masked_subscriberId: string | null;
+    carrier: string | null;
+  } | null = null;
+
   if (isSignup || isLogin) {
     // An account is a *profile*, not merely a users row. A number that
     // verified but never finished signup is half a signup, not an account:
@@ -97,7 +104,7 @@ serve(async (req) => {
     // of signup (number taken) at the same time.
     const { data: account, error: accountError } = await supabase
       .from("users")
-      .select("id, profiles!inner(user_id)")
+      .select("id, Masked_subscriberId, carrier, profiles!inner(user_id)")
       .eq("msisdn", msisdn)
       .maybeSingle();
 
@@ -108,6 +115,7 @@ serve(async (req) => {
 
     if (isSignup && account) return fail(409, "account_exists");
     if (isLogin && !account) return fail(404, "no_account");
+    recipient = account;
   }
 
   // One number may skip the carrier entirely, so development does not cost
@@ -224,7 +232,16 @@ serve(async (req) => {
       otpHash = await hashSecret(code, msisdn, otpPepper());
 
       try {
-        await sendSms(msisdn, codeMessage(code, body.language ?? "en"));
+        // The carrier's masked id where signup recorded one; the number
+        // otherwise, as for a signup the carrier sent back to us.
+        await sendSms(
+          {
+            msisdn,
+            subscriberId: recipient?.Masked_subscriberId,
+            carrier: recipient?.carrier,
+          },
+          codeMessage(code, body.language ?? "en"),
+        );
       } catch (error) {
         console.error(`otp-request: sms failed for ${msisdn}`, error);
         if (error instanceof ChargingError) {

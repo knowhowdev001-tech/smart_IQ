@@ -18,7 +18,12 @@ import {
   otpPepper,
   timingSafeEqual,
 } from "../_shared/tokens.ts";
-import { ChargingError, testBypass, verifyOtp } from "../_shared/charging.ts";
+import {
+  ChargingError,
+  testBypass,
+  type VerifiedSubscriber,
+  verifyOtp,
+} from "../_shared/charging.ts";
 import { toE164 } from "../_shared/msisdn.ts";
 
 const ACCESS_TOKEN_TTL_SECONDS = 60 * 60;
@@ -113,7 +118,9 @@ serve(async (req) => {
     return fail(401, "otp_invalid");
   };
 
-  let verified: Record<string, unknown> = {};
+  // Only a carrier row is verified by the carrier, and only its reply says
+  // who the subscriber is.
+  let verified: VerifiedSubscriber | null = null;
 
   if (isTestRow) {
     if (!bypass || msisdn !== bypass.msisdn || code !== bypass.otp) {
@@ -173,8 +180,10 @@ serve(async (req) => {
   // gets one here. `msisdn` is unique, so the conflict path is what makes a
   // returning user a login rather than a duplicate account.
   //
-  // A carrier code is a signup's, so its reference is recorded on the
-  // account. Our own codes (login) have none and leave it as it was.
+  // A carrier code is a signup's, and its verify subscribed the number: the
+  // reply's subscriberId is the (masked) id the carrier addresses this
+  // subscriber by from now on, and the login code is sent to it. Our own
+  // codes (login) say nothing about it and leave it as it was.
   const { data: user, error: userError } = await supabase
     .from("users")
     .upsert(
@@ -182,7 +191,12 @@ serve(async (req) => {
         msisdn,
         msisdn_verified_at: now,
         last_login_at: now,
-        ...(isCarrierRow ? { referenceNo: otp.reference_no } : {}),
+        ...(verified?.subscriberId
+          ? {
+            Masked_subscriberId: verified.subscriberId,
+            carrier: verified.carrier,
+          }
+          : {}),
       },
       { onConflict: "msisdn" },
     )
@@ -212,7 +226,7 @@ serve(async (req) => {
   // downgrading a paying subscriber over one hiccuping reply is the worse
   // mistake.
   const subscribed = isCarrierRow
-    ? verified.subscriptionStatus === "REGISTERED"
+    ? verified?.subscriptionStatus === "REGISTERED"
     : !isTestRow && otp.subscriber_status === "REGISTERED";
 
   if (subscribed) {

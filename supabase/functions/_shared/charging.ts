@@ -80,6 +80,8 @@ export function toTel(msisdn: string): string {
 /// the routes a batch was *not* delivered to.
 interface ChargingBody {
   success?: boolean;
+  /// The route the service took: `dialog` or `mobitel`.
+  carrier?: string;
   error?: string;
   message?: string;
   data?: Record<string, unknown>;
@@ -130,6 +132,16 @@ export async function call(
   endpoint: string,
   payload: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
+  return (await callRouted(endpoint, payload)).data;
+}
+
+/// [call], plus the route the service took. A masked subscriber id no
+/// longer shows which network it belongs to, so whoever keeps one has to
+/// keep this with it.
+async function callRouted(
+  endpoint: string,
+  payload: Record<string, unknown>,
+): Promise<{ data: Record<string, unknown>; carrier: string | null }> {
   const { status, body } = await post(endpoint, payload);
 
   if (!accepted(status, body)) {
@@ -153,7 +165,7 @@ export async function call(
     );
   }
 
-  return data;
+  return { data, carrier: body.carrier ?? null };
 }
 
 /// Sends an OTP and returns the reference the verify step needs.
@@ -175,19 +187,47 @@ export async function requestOtp(
   return reference;
 }
 
-/// Verifies a code against its reference. Returns the provider's view of the
-/// subscriber, including `subscriptionStatus`.
+/// What the carrier's verify says about the subscriber it just checked.
+export interface VerifiedSubscriber {
+  /// `REGISTERED` once the verify has subscribed the number.
+  subscriptionStatus: string | null;
+
+  /// The id the carrier knows this subscriber by, masked where the provider
+  /// hides numbers from apps. Anything sent to the subscriber later is
+  /// addressed to it.
+  subscriberId: string | null;
+
+  /// The route that issued [subscriberId], which calls made with it name.
+  carrier: string | null;
+}
+
+/// Verifies a code against its reference. The verify also completes the
+/// subscription, so its reply is the subscriber's identity from here on.
 export async function verifyOtp(args: {
   msisdn: string;
   referenceNo: string;
   otp: string;
-}): Promise<Record<string, unknown>> {
-  return await call("otp-verify", {
+}): Promise<VerifiedSubscriber> {
+  const { data, carrier } = await callRouted("otp-verify", {
     referenceNo: args.referenceNo,
     otp: args.otp,
     // Not sent upstream by the service; it needs the number only to route.
     subscriberId: toTel(args.msisdn),
   });
+
+  return {
+    subscriptionStatus: (data.subscriptionStatus as string) ?? null,
+    subscriberId: (data.subscriberId as string) ?? null,
+    carrier,
+  };
+}
+
+/// Who an SMS goes to. The carrier addresses a subscriber by the id its
+/// verify returned; the phone number is the fallback for one we never got.
+export interface SmsRecipient {
+  msisdn: string;
+  subscriberId?: string | null;
+  carrier?: string | null;
 }
 
 /// The carrier refuses a second OTP for a number it has already registered.
@@ -207,7 +247,7 @@ export const ALREADY_REGISTERED = "E1351";
 /// delivered to nobody comes back looking like a success. A login whose code
 /// was refused must say so, not leave the user watching an inbox.
 export async function sendSms(
-  msisdn: string,
+  to: SmsRecipient,
   message: string,
 ): Promise<void> {
   // The name the code arrives from. Read here rather than in `config()`
@@ -218,9 +258,15 @@ export async function sendSms(
   // accepted, so a guessed one would turn every login SMS into a refusal.
   const mask = Deno.env.get("CHARGING_SMS_MASK");
 
+  // The masked id goes out exactly as the carrier gave it: toTel would
+  // strip it to digits. It carries no network prefix to route on, so the
+  // carrier that issued it is named alongside.
+  const masked = to.subscriberId ?? null;
+
   const { status, body } = await post("send-sms", {
     message,
-    destinationAddresses: [toTel(msisdn)],
+    destinationAddresses: [masked ?? toTel(to.msisdn)],
+    ...(masked && to.carrier ? { carrier: to.carrier } : {}),
     ...(mask ? { sourceAddress: mask } : {}),
   });
 
