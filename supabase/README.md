@@ -118,6 +118,7 @@ Set these under Project Settings → Edge Functions → Secrets, or with
 | `CHARGING_BASE_URL` | The Mobile Charging API's root. Signup and login send the OTP through it, so an unset value stops both: the functions fail closed rather than issuing a code nobody can receive. |
 | `CHARGING_API_KEY` | Its `X-API-Key`. Server-side only — this key can subscribe numbers and send SMS, and an APK is decompilable. |
 | `CHARGING_SECRET` | Its body `secret`. Both this and the key are required on every call; either missing is a 401. |
+| `CHARGING_SMS_MASK` | Optional. The sender name a login code arrives from, as `sourceAddress` on `send-sms`. It has to be registered with the provider first, so there is no default: unset sends as the route's default, and an unregistered value gets every SMS refused. |
 | `TEST_MSISDN` | One number, E.164 (`+94787332965`). **Development only.** |
 | `TEST_OTP` | The code that number accepts. **Development only.** |
 

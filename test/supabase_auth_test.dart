@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:smart_iq/core/utils/msisdn.dart';
 import 'package:smart_iq/data/auth/session_store.dart';
 import 'package:smart_iq/domain/enums.dart';
 import 'package:smart_iq/data/repositories/repositories.dart';
@@ -162,6 +163,33 @@ void main() {
     adapter.reply(200, {'cooldown_seconds': 60});
     await auth.requestOtp('0771234821');
     expect(adapter.lastBody, contains('+94771234821'));
+  });
+
+  // The OTP screen confirms which number the code went to. Confirming it and
+  // publishing it are different jobs: that screen is read in public and
+  // survives into screenshots.
+  group('Msisdn.mask', () {
+    test('keeps the prefix and the last four, and drops the rest', () {
+      expect(Msisdn.mask('0771234567'), '077 ••• 4567');
+    });
+
+    test('hides the middle three digits everywhere in the output', () {
+      // 554 is the part that has to disappear; asserting on the whole string
+      // rather than the shape is what makes this fail if the grouping moves.
+      expect(Msisdn.mask('0715546035'), isNot(contains('554')));
+      expect(Msisdn.mask('0715546035'), '071 ••• 6035');
+    });
+
+    test('accepts every form a number arrives in', () {
+      for (final input in ['+94787332965', '94787332965', '0787332965']) {
+        expect(Msisdn.mask(input), '078 ••• 2965', reason: input);
+      }
+    });
+
+    test('returns an unparseable number unchanged, as format does', () {
+      expect(Msisdn.mask('not a number'), 'not a number');
+      expect(Msisdn.mask('0123456789'), '0123456789');
+    });
   });
 }
 

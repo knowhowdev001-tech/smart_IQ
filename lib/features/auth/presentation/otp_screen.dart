@@ -189,7 +189,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           ),
           SizedBox(height: AppSpacing.sm.dp(context)),
           Text(
-            l10n.otpSentTo(Msisdn.format(widget.msisdn)),
+            l10n.otpSentTo(Msisdn.mask(widget.msisdn)),
             style: context.text(
               AppTextStyles.caption,
               color: colors.inkMuted,

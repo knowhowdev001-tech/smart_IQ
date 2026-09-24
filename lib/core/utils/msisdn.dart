@@ -48,6 +48,19 @@ abstract final class Msisdn {
         '${normalised.substring(6)}';
   }
 
+  /// Hides the middle of a number for display: `077 ••• 4567`.
+  ///
+  /// The OTP screen has to confirm *which* number the code went to, not
+  /// publish it: that screen is read in public and survives into
+  /// screenshots. The prefix and the last four are what someone recognises
+  /// their own number by, and the three in between are what would make it
+  /// dialable by anyone reading over their shoulder.
+  static String mask(String input) {
+    final normalised = normalise(input);
+    if (normalised == null) return input;
+    return '${normalised.substring(0, 3)} ••• ${normalised.substring(6)}';
+  }
+
   /// The `+94` form the SMS gateway expects.
   static String? toE164(String input) {
     final normalised = normalise(input);

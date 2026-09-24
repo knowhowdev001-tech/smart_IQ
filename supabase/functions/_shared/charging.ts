@@ -210,9 +210,18 @@ export async function sendSms(
   msisdn: string,
   message: string,
 ): Promise<void> {
+  // The name the code arrives from. Read here rather than in `config()`
+  // because it is not in the same class as the credentials: those fail
+  // closed, since without them nothing can be sent at all, while an unset
+  // mask just sends as the route's default. There is no fallback value on
+  // purpose -- a mask has to be registered with the provider before it is
+  // accepted, so a guessed one would turn every login SMS into a refusal.
+  const mask = Deno.env.get("CHARGING_SMS_MASK");
+
   const { status, body } = await post("send-sms", {
     message,
     destinationAddresses: [toTel(msisdn)],
+    ...(mask ? { sourceAddress: mask } : {}),
   });
 
   if (!accepted(status, body)) {
