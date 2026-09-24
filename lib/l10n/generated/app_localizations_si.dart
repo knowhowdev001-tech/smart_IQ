@@ -617,6 +617,71 @@ class AppL10nSi extends AppL10n {
   String get settingsSignOut => 'ඉවත් වන්න';
 
   @override
+  String get devicesIntro =>
+      'මෙම උපාංග ඔබගේ ගිණුමට පිවිසී ඇත. ඔබ ඉවත් කරන උපාංගයකට පැයක් ඇතුළත ප්‍රවේශය අහිමි වන අතර නැවත පිවිසීමට නව OTP එකක් අවශ්‍ය වේ.';
+
+  @override
+  String get devicesThisDevice => 'මෙම උපාංගය';
+
+  @override
+  String devicesLastActive(String time) {
+    return 'අවසන් වරට සක්‍රීය: $time';
+  }
+
+  @override
+  String get devicesSignOutOthers => 'අනෙකුත් සියලු උපාංගවලින් ඉවත් වන්න';
+
+  @override
+  String devicesConfirmTitle(String device) {
+    return '$device ඉවත් කරන්නද?';
+  }
+
+  @override
+  String get devicesConfirmAllTitle => 'අනෙකුත් සියලු උපාංග ඉවත් කරන්නද?';
+
+  @override
+  String get devicesConfirmBody => 'නැවත පිවිසීමට ඒවාට නව OTP එකක් අවශ්‍ය වේ.';
+
+  @override
+  String get devicesOnlyThis => 'පිවිසී ඇත්තේ මෙම උපාංගය පමණි.';
+
+  @override
+  String get devicesSignedOut => 'ඉවත් කළා';
+
+  @override
+  String get timeJustNow => 'මේ දැන්';
+
+  @override
+  String timeMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'මිනිත්තු $countකට පෙර',
+      one: 'මිනිත්තු 1කට පෙර',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timeHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'පැය $countකට පෙර',
+      one: 'පැය 1කට පෙර',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get timeYesterday => 'ඊයේ';
+
+  @override
+  String timeDaysAgo(int count) {
+    return 'දින $countකට පෙර';
+  }
+
+  @override
   String get notificationsTitle => 'දැනුම්දීම්';
 
   @override

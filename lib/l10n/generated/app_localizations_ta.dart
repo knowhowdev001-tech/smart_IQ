@@ -623,6 +623,74 @@ class AppL10nTa extends AppL10n {
   String get settingsSignOut => 'வெளியேறு';
 
   @override
+  String get devicesIntro =>
+      'இந்தச் சாதனங்கள் உங்கள் கணக்கில் உள்நுழைந்துள்ளன. நீங்கள் வெளியேற்றும் சாதனம் ஒரு மணி நேரத்திற்குள் அணுகலை இழக்கும்; மீண்டும் உள்நுழைய புதிய OTP தேவைப்படும்.';
+
+  @override
+  String get devicesThisDevice => 'இந்தச் சாதனம்';
+
+  @override
+  String devicesLastActive(String time) {
+    return 'கடைசியாகச் செயலில்: $time';
+  }
+
+  @override
+  String get devicesSignOutOthers =>
+      'மற்ற எல்லாச் சாதனங்களிலிருந்தும் வெளியேறு';
+
+  @override
+  String devicesConfirmTitle(String device) {
+    return '$device ஐ வெளியேற்றவா?';
+  }
+
+  @override
+  String get devicesConfirmAllTitle =>
+      'மற்ற எல்லாச் சாதனங்களையும் வெளியேற்றவா?';
+
+  @override
+  String get devicesConfirmBody =>
+      'மீண்டும் உள்நுழைய அவற்றுக்குப் புதிய OTP தேவைப்படும்.';
+
+  @override
+  String get devicesOnlyThis => 'இந்தச் சாதனம் மட்டுமே உள்நுழைந்துள்ளது.';
+
+  @override
+  String get devicesSignedOut => 'வெளியேற்றப்பட்டது';
+
+  @override
+  String get timeJustNow => 'இப்போது';
+
+  @override
+  String timeMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count நிமிடங்கள் முன்பு',
+      one: '1 நிமிடம் முன்பு',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timeHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count மணி நேரம் முன்பு',
+      one: '1 மணி நேரம் முன்பு',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get timeYesterday => 'நேற்று';
+
+  @override
+  String timeDaysAgo(int count) {
+    return '$count நாட்களுக்கு முன்பு';
+  }
+
+  @override
   String get notificationsTitle => 'அறிவிப்புகள்';
 
   @override

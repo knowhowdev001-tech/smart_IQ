@@ -1203,6 +1203,90 @@ abstract class AppL10n {
   /// **'Sign out'**
   String get settingsSignOut;
 
+  /// No description provided for @devicesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'These devices are signed in to your account. A device you sign out loses access within an hour and needs a new OTP to sign in again.'**
+  String get devicesIntro;
+
+  /// No description provided for @devicesThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get devicesThisDevice;
+
+  /// No description provided for @devicesLastActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Last active {time}'**
+  String devicesLastActive(String time);
+
+  /// No description provided for @devicesSignOutOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out all other devices'**
+  String get devicesSignOutOthers;
+
+  /// No description provided for @devicesConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out {device}?'**
+  String devicesConfirmTitle(String device);
+
+  /// No description provided for @devicesConfirmAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out all other devices?'**
+  String get devicesConfirmAllTitle;
+
+  /// No description provided for @devicesConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They will need a new OTP to sign in again.'**
+  String get devicesConfirmBody;
+
+  /// No description provided for @devicesOnlyThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Only this device is signed in.'**
+  String get devicesOnlyThis;
+
+  /// No description provided for @devicesSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out'**
+  String get devicesSignedOut;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 min ago} other{{count} min ago}}'**
+  String timeMinutesAgo(int count);
+
+  /// No description provided for @timeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour ago} other{{count} hours ago}}'**
+  String timeHoursAgo(int count);
+
+  /// No description provided for @timeYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'yesterday'**
+  String get timeYesterday;
+
+  /// No description provided for @timeDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String timeDaysAgo(int count);
+
   /// No description provided for @notificationsTitle.
   ///
   /// In en, this message translates to:

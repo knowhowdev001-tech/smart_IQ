@@ -126,23 +126,28 @@ class MockAuthRepository implements AuthRepository {
   Future<List<DeviceSession>> activeSessions() async {
     await Future<void>.delayed(const Duration(milliseconds: 260));
     return [
-      DeviceSession(
-        id: 's1',
-        deviceName: 'This device',
-        lastSeenAt: DateTime.now(),
-        isCurrent: true,
-      ),
-      DeviceSession(
-        id: 's2',
-        deviceName: 'Redmi Note 12',
-        lastSeenAt: DateTime.now().subtract(const Duration(days: 4)),
-      ),
+      for (final session in [
+        DeviceSession(
+          id: 's1',
+          deviceName: 'This device',
+          lastSeenAt: DateTime.now(),
+          isCurrent: true,
+        ),
+        DeviceSession(
+          id: 's2',
+          deviceName: 'Redmi Note 12',
+          lastSeenAt: DateTime.now().subtract(const Duration(days: 4)),
+        ),
+      ])
+        if (!_state.revokedSessionIds.contains(session.id)) session,
     ];
   }
 
   @override
-  Future<void> revokeSession(String sessionId) async =>
-      Future<void>.delayed(const Duration(milliseconds: 220));
+  Future<void> revokeSession(String sessionId) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+    _state.revokedSessionIds.add(sessionId);
+  }
 
   @override
   Future<void> signOut() async {
@@ -912,6 +917,7 @@ class MockBackendState {
 
   final Set<String> wrongQuestionIds = {};
   final Set<String> bookmarkedIds = {};
+  final Set<String> revokedSessionIds = {};
   final List<ChatThread> threads = [];
   List<AppNotification> notifications = MockContent.notifications();
   NotificationPreferences notifyPrefs = const NotificationPreferences();

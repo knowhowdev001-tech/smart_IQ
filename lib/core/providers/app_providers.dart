@@ -215,6 +215,11 @@ final progressProvider = FutureProvider(
   (ref) => ref.watch(practiceRepositoryProvider).progress(),
 );
 
+/// The devices signed in to this account, this one included (PRD 6.1).
+final activeSessionsProvider = FutureProvider.autoDispose<List<DeviceSession>>(
+  (ref) => ref.watch(authRepositoryProvider).activeSessions(),
+);
+
 /// The notification inbox, kept as a controller so the unread dot on the
 /// home header updates the moment the list is read.
 class NotificationsController

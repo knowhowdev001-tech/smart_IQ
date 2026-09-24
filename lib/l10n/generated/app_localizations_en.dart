@@ -614,6 +614,71 @@ class AppL10nEn extends AppL10n {
   String get settingsSignOut => 'Sign out';
 
   @override
+  String get devicesIntro =>
+      'These devices are signed in to your account. A device you sign out loses access within an hour and needs a new OTP to sign in again.';
+
+  @override
+  String get devicesThisDevice => 'This device';
+
+  @override
+  String devicesLastActive(String time) {
+    return 'Last active $time';
+  }
+
+  @override
+  String get devicesSignOutOthers => 'Sign out all other devices';
+
+  @override
+  String devicesConfirmTitle(String device) {
+    return 'Sign out $device?';
+  }
+
+  @override
+  String get devicesConfirmAllTitle => 'Sign out all other devices?';
+
+  @override
+  String get devicesConfirmBody => 'They will need a new OTP to sign in again.';
+
+  @override
+  String get devicesOnlyThis => 'Only this device is signed in.';
+
+  @override
+  String get devicesSignedOut => 'Signed out';
+
+  @override
+  String get timeJustNow => 'just now';
+
+  @override
+  String timeMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min ago',
+      one: '1 min ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String timeHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours ago',
+      one: '1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get timeYesterday => 'yesterday';
+
+  @override
+  String timeDaysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
   String get notificationsTitle => 'Notifications';
 
   @override

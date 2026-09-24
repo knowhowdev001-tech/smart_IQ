@@ -107,7 +107,7 @@ class SettingsScreen extends ConsumerWidget {
                   _LinkRow(
                     title: l10n.settingsDevices,
                     meta: l10n.settingsDevicesMeta,
-                    onTap: () {},
+                    onTap: () => context.push(Routes.devices),
                   ),
                   SizedBox(height: 7.dp(context)),
                   _LinkRow(

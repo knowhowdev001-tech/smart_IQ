@@ -218,12 +218,13 @@ class SupabaseAuthRepository implements AuthRepository {
     if (!_sessions.isSignedIn) throw const UnauthenticatedException();
 
     // Stamping revoked_at is the whole mechanism: the unique index only
-    // covers live rows, and a revoked row is refused on refresh.
+    // covers live rows, and a revoked row is refused on refresh. The RPC is
+    // the only writer, so a client can revoke but never un-revoke.
     await supabaseGuard(
-      () => _client
-          .from('auth_sessions')
-          .update({'revoked_at': DateTime.now().toUtc().toIso8601String()})
-          .eq('id', sessionId),
+      () => _client.rpc<dynamic>(
+        'revoke_session',
+        params: {'p_session_id': sessionId},
+      ),
     );
   }
 
@@ -240,11 +241,17 @@ class SupabaseAuthRepository implements AuthRepository {
         await _client.from('device_tokens').delete().eq('device_id', deviceId);
       } catch (_) {}
       try {
-        await _client
+        final live = await _client
             .from('auth_sessions')
-            .update({'revoked_at': DateTime.now().toUtc().toIso8601String()})
+            .select('id')
             .eq('device_id', deviceId)
             .isFilter('revoked_at', null);
+        for (final row in live) {
+          await _client.rpc<dynamic>(
+            'revoke_session',
+            params: {'p_session_id': row['id']},
+          );
+        }
       } catch (_) {}
     }
 

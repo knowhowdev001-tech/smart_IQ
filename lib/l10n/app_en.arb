@@ -255,6 +255,35 @@
   "settingsDeleteConfirmTitle": "Delete your account?",
   "settingsDeleteConfirmBody": "This removes your profile, progress and chat history permanently. It cannot be undone.",
   "settingsSignOut": "Sign out",
+  "devicesIntro": "These devices are signed in to your account. A device you sign out loses access within an hour and needs a new OTP to sign in again.",
+  "devicesThisDevice": "This device",
+  "devicesLastActive": "Last active {time}",
+  "@devicesLastActive": {
+    "placeholders": {"time": {"type": "String"}}
+  },
+  "devicesSignOutOthers": "Sign out all other devices",
+  "devicesConfirmTitle": "Sign out {device}?",
+  "@devicesConfirmTitle": {
+    "placeholders": {"device": {"type": "String"}}
+  },
+  "devicesConfirmAllTitle": "Sign out all other devices?",
+  "devicesConfirmBody": "They will need a new OTP to sign in again.",
+  "devicesOnlyThis": "Only this device is signed in.",
+  "devicesSignedOut": "Signed out",
+  "timeJustNow": "just now",
+  "timeMinutesAgo": "{count, plural, =1{1 min ago} other{{count} min ago}}",
+  "@timeMinutesAgo": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "timeHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@timeHoursAgo": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "timeYesterday": "yesterday",
+  "timeDaysAgo": "{count} days ago",
+  "@timeDaysAgo": {
+    "placeholders": {"count": {"type": "int"}}
+  },
 
   "notificationsTitle": "Notifications",
   "notificationsMarkAllRead": "Mark all read",

@@ -21,6 +21,7 @@ import 'package:smart_iq/features/practice/presentation/practice_screen.dart';
 import 'package:smart_iq/features/profile/presentation/profile_screen.dart';
 import 'package:smart_iq/features/results/presentation/results_screen.dart';
 import 'package:smart_iq/data/mock/mock_repositories.dart';
+import 'package:smart_iq/features/settings/presentation/devices_screen.dart';
 import 'package:smart_iq/features/settings/presentation/settings_screen.dart';
 import 'package:smart_iq/features/tutor/presentation/tutor_screen.dart';
 import 'package:smart_iq/l10n/generated/app_localizations.dart';
@@ -180,6 +181,7 @@ void main() {
     'tutor': TutorScreen.new,
     'profile': ProfileScreen.new,
     'settings': SettingsScreen.new,
+    'devices': DevicesScreen.new,
     'notifications': NotificationsScreen.new,
     'results': ResultsScreen.new,
   };
@@ -645,12 +647,38 @@ void main() {
     expect(find.text('Enter a whole number of days, 1 to 365.'), findsOneWidget);
   });
 
+  testWidgets('devices signs another device out after confirming',
+      (tester) async {
+    await _pumpAt(tester, const Size(360, 800), _host(const DevicesScreen()));
+
+    expect(find.text('Redmi Note 12'), findsOneWidget);
+    // This device carries no sign-out button of its own.
+    expect(find.text('Sign out'), findsOneWidget);
+
+    await tester.tap(find.text('Sign out'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sign out Redmi Note 12?'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(TextButton, 'Sign out'));
+    await tester.pump(const Duration(milliseconds: 900));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Redmi Note 12'), findsNothing);
+    expect(find.text('Only this device is signed in.'), findsOneWidget);
+  });
+
   group('screens render in Sinhala and Tamil', () {
     // Both scripts run considerably longer than English for the same string,
     // which is exactly where a fixed-height row or an unwrapped Row starts
     // to overflow. The narrowest device is the honest test.
     for (final language in [AppLanguage.sinhala, AppLanguage.tamil]) {
-      for (final name in ['landing', 'home', 'practice category', 'settings']) {
+      for (final name in [
+        'landing',
+        'home',
+        'practice category',
+        'settings',
+        'devices',
+      ]) {
         testWidgets('$name in ${language.code}', (tester) async {
           await _pumpAt(
             tester,
@@ -687,7 +715,13 @@ void main() {
   group('dark theme', () {
     // PRD 6.9 requires both themes verified across every screen, including
     // the error, empty and loading states these pumps pass through.
-    for (final name in ['home', 'settings', 'notifications', 'tutor']) {
+    for (final name in [
+      'home',
+      'settings',
+      'notifications',
+      'tutor',
+      'devices',
+    ]) {
       testWidgets('$name renders in dark mode', (tester) async {
         await _pumpAt(
           tester,
