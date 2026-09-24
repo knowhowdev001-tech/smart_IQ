@@ -266,6 +266,16 @@ class SupabaseAuthRepository implements AuthRepository {
     await _sessions.clear();
   }
 
+  @override
+  Future<Map<String, dynamic>> exportData() async {
+    if (!_sessions.isSignedIn) throw const UnauthenticatedException();
+
+    final result = await supabaseGuard(
+      () => _client.rpc<dynamic>('export_my_data'),
+    );
+    return Map<String, dynamic>.from(result as Map);
+  }
+
   // ------------------------------------------------------------ plumbing --
 
   Future<Response<dynamic>> _post(

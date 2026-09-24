@@ -162,6 +162,65 @@ class MockAuthRepository implements AuthRepository {
       ..signedIn = false
       ..profile = null;
   }
+
+  /// The same top-level shape as `rpc/export_my_data`, filled from what the
+  /// mock actually holds.
+  @override
+  Future<Map<String, dynamic>> exportData() async {
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    final profile = _state.profile;
+    return {
+      'format': 'smart-iq-export/1',
+      'exported_at': DateTime.now().toUtc().toIso8601String(),
+      'account': {'msisdn': profile?.msisdn},
+      'profile': profile == null
+          ? null
+          : {
+              'full_name': profile.fullName,
+              'language_preference': profile.language.code,
+            },
+      'subscription': {
+        'status': {'tier': _state.entitlement.tier.name},
+        'telco_charges': const [],
+        'store_events': const [],
+      },
+      'practice_sessions': [
+        for (final s in _state.sessionLog)
+          {
+            'started_at': s.at.toUtc().toIso8601String(),
+            'correct_count': s.correct,
+            'incorrect_count': s.incorrect,
+            'skipped_count': s.skipped,
+          },
+      ],
+      'daily_challenges': const [],
+      'streak': {'current_streak': _state.streakDays},
+      'topic_mastery': [
+        for (final e in _state.subTopicTally.entries)
+          {
+            'sub_topic_id': e.key,
+            'correct_count': e.value.correct,
+            'sample_size': e.value.total,
+          },
+      ],
+      'bookmarks': [
+        for (final id in _state.bookmarkedIds) {'question_id': id},
+      ],
+      'wrong_answer_bank': [
+        for (final id in _state.wrongQuestionIds) {'question_id': id},
+      ],
+      'usage': const {'quota': [], 'ai_messages': []},
+      'chat_threads': [
+        for (final t in _state.threads) {'id': t.id, 'topic': t.topic},
+      ],
+      'notifications': const [],
+      'notification_preferences': const {},
+      'devices': [
+        for (final d in await activeSessions())
+          {'device_name': d.deviceName},
+      ],
+    };
+  }
 }
 
 

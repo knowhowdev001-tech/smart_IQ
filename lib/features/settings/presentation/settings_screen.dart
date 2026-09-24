@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,12 +14,14 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/siq_button.dart';
 import '../../../core/widgets/siq_field.dart';
+import '../../../core/widgets/siq_states.dart';
 import '../../../core/widgets/siq_surfaces.dart';
 import '../../../domain/enums.dart';
 import '../../../domain/models/app_notification.dart';
 import '../../../domain/models/user_profile.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../legal/presentation/terms_sheet.dart';
+import '../application/data_export.dart';
 
 /// Language, theme, notification preferences, legal and account actions.
 class SettingsScreen extends ConsumerWidget {
@@ -112,8 +117,8 @@ class SettingsScreen extends ConsumerWidget {
                   SizedBox(height: 7.dp(context)),
                   _LinkRow(
                     title: l10n.settingsExportData,
-                    meta: '',
-                    onTap: () {},
+                    meta: l10n.settingsExportDataMeta,
+                    onTap: () => _export(context, ref),
                   ),
                   SizedBox(height: 7.dp(context)),
                   _DangerRow(
@@ -128,6 +133,55 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Builds the export file behind a progress dialog, then hands it to the
+  /// share sheet once the dialog is down, so the two never stack.
+  Future<void> _export(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context, rootNavigator: true);
+    // The share sheet is a popover on iPad and needs something to point at.
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box == null || !box.hasSize
+        ? null
+        : box.localToGlobal(Offset.zero) & box.size;
+
+    unawaited(showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          backgroundColor: context.colors.surface,
+          content: SiqLoader(message: l10n.exportPreparing),
+        ),
+      ),
+    ));
+
+    File file;
+    try {
+      file = await prepareDataExport(ref);
+    } on OfflineException {
+      navigator.pop();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorOffline)));
+      return;
+    } catch (_) {
+      navigator.pop();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+      return;
+    }
+    navigator.pop();
+
+    try {
+      await ref.read(shareFileProvider)(
+        file,
+        subject: l10n.exportShareSubject,
+        origin: origin,
+      );
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+    }
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {

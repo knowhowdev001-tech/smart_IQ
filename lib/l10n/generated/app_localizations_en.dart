@@ -695,6 +695,16 @@ class AppL10nEn extends AppL10n {
   String get settingsExportData => 'Export my data';
 
   @override
+  String get settingsExportDataMeta =>
+      'A copy of everything Smart IQ holds about you';
+
+  @override
+  String get exportPreparing => 'Preparing your data…';
+
+  @override
+  String get exportShareSubject => 'My Smart IQ data';
+
+  @override
   String get settingsDeleteAccount => 'Delete account';
 
   @override

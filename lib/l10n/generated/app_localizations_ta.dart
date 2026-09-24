@@ -704,6 +704,16 @@ class AppL10nTa extends AppL10n {
   String get settingsExportData => 'என் தரவை ஏற்றுமதி செய்';
 
   @override
+  String get settingsExportDataMeta =>
+      'Smart IQ உங்களைப் பற்றி வைத்திருக்கும் அனைத்தின் நகல்';
+
+  @override
+  String get exportPreparing => 'உங்கள் தரவைத் தயாரிக்கிறது…';
+
+  @override
+  String get exportShareSubject => 'எனது Smart IQ தரவு';
+
+  @override
   String get settingsDeleteAccount => 'கணக்கை நீக்கு';
 
   @override

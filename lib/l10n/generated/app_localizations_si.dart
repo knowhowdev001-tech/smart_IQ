@@ -698,6 +698,16 @@ class AppL10nSi extends AppL10n {
   String get settingsExportData => 'මගේ දත්ත නිර්යාත කරන්න';
 
   @override
+  String get settingsExportDataMeta =>
+      'Smart IQ ඔබ ගැන තබා ඇති සියල්ලේ පිටපතක්';
+
+  @override
+  String get exportPreparing => 'ඔබේ දත්ත සූදානම් කරමින්…';
+
+  @override
+  String get exportShareSubject => 'මගේ Smart IQ දත්ත';
+
+  @override
   String get settingsDeleteAccount => 'ගිණුම මකන්න';
 
   @override

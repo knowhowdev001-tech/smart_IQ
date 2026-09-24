@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +27,7 @@ import 'package:smart_iq/features/progress/presentation/mastery_screen.dart';
 import 'package:smart_iq/features/results/presentation/results_screen.dart';
 import 'package:smart_iq/data/mock/mock_content.dart';
 import 'package:smart_iq/data/mock/mock_repositories.dart';
+import 'package:smart_iq/features/settings/application/data_export.dart';
 import 'package:smart_iq/features/settings/presentation/devices_screen.dart';
 import 'package:smart_iq/features/settings/presentation/settings_screen.dart';
 import 'package:smart_iq/features/study/presentation/question_review_screen.dart';
@@ -488,6 +492,65 @@ void main() {
     );
 
     expect(find.text('lakshan vpt'), findsOneWidget);
+  });
+
+  testWidgets('settings exports the data to a file and shares it',
+      (tester) async {
+    final state = MockBackendState(tier: Tier.basic)
+      ..signedIn = true
+      ..profile = const UserProfile(
+        userId: 'user-mock-1',
+        fullName: 'Export Me',
+        language: AppLanguage.english,
+        msisdn: '0771234821',
+      );
+    state.bookmarkedIds.add(MockContent.questions.first.id);
+
+    final dir = Directory.systemTemp.createTempSync('siq-export-');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    File? shared;
+    String? sharedSubject;
+
+    await _pumpAt(
+      tester,
+      const Size(412, 915),
+      _host(
+        const SettingsScreen(),
+        overrides: [
+          mockBackendProvider.overrideWithValue(state),
+          exportDirectoryProvider.overrideWithValue(() async => dir),
+          shareFileProvider.overrideWithValue(
+            (file, {required subject, origin}) async {
+              shared = file;
+              sharedSubject = subject;
+            },
+          ),
+        ],
+      ),
+    );
+
+    await tester.scrollUntilVisible(find.text('Export my data'), 200);
+    await tester.tap(find.text('Export my data'));
+    await tester.pump();
+    expect(find.text('Preparing your data…'), findsOneWidget);
+
+    // Real file IO, so it runs outside the fake clock.
+    await tester.runAsync(() async {
+      for (var i = 0; i < 50 && shared == null; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    });
+    await tester.pumpAndSettle();
+
+    expect(shared, isNotNull);
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(shared!.path, contains('smart-iq-export-'));
+    final json = jsonDecode(shared!.readAsStringSync()) as Map;
+    expect(json['format'], 'smart-iq-export/1');
+    expect((json['profile'] as Map)['full_name'], 'Export Me');
+    expect(json['bookmarks'], hasLength(1));
+    expect(sharedSubject, 'My Smart IQ data');
   });
 
   testWidgets('settings refuses an empty name', (tester) async {

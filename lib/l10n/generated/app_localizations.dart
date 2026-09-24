@@ -1317,6 +1317,24 @@ abstract class AppL10n {
   /// **'Export my data'**
   String get settingsExportData;
 
+  /// No description provided for @settingsExportDataMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'A copy of everything Smart IQ holds about you'**
+  String get settingsExportDataMeta;
+
+  /// No description provided for @exportPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your data…'**
+  String get exportPreparing;
+
+  /// No description provided for @exportShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'My Smart IQ data'**
+  String get exportShareSubject;
+
   /// No description provided for @settingsDeleteAccount.
   ///
   /// In en, this message translates to:

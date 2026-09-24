@@ -147,6 +147,11 @@ abstract interface class AuthRepository {
 
   /// Cascading deletion under a single transaction (`rpc/delete_account`).
   Future<void> deleteAccount();
+
+  /// Everything held about the signed-in user, as one JSON document
+  /// (`rpc/export_my_data`, PRD 6.1). Credentials and question text are
+  /// left out server-side.
+  Future<Map<String, dynamic>> exportData();
 }
 
 /// Read-only reference content served under RLS (PRD 9.4, class A).
