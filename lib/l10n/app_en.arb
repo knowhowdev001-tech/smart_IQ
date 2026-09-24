@@ -231,6 +231,13 @@
   "profileRowWrongBankMeta": "Resurfaced by spaced repetition",
   "profileRowMastery": "Topic mastery",
   "profileRowMasteryMeta": "Accuracy per sub-topic",
+  "masteryIntro": "Your accuracy in every sub-topic you have practised, weakest first. Tap one to practise it.",
+  "masteryTopics": "Topics",
+  "masteryWeak": "Weak",
+  "masteryAnswered": "{count, plural, =1{1 answered} other{{count} answered}}",
+  "@masteryAnswered": {
+    "placeholders": {"count": {"type": "int"}}
+  },
   "profileRowSettings": "Settings",
   "profileRowSettingsMeta": "Language, theme and account",
 

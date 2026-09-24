@@ -552,6 +552,27 @@ class AppL10nTa extends AppL10n {
   String get profileRowMasteryMeta => 'துணைத் தலைப்புக்கான துல்லியம்';
 
   @override
+  String get masteryIntro =>
+      'நீங்கள் பயிற்சி செய்த ஒவ்வொரு உபதலைப்பிலும் உங்கள் துல்லியம், பலவீனமானது முதலில். ஒன்றைத் தட்டிப் பயிற்சி செய்யுங்கள்.';
+
+  @override
+  String get masteryTopics => 'தலைப்புகள்';
+
+  @override
+  String get masteryWeak => 'பலவீனம்';
+
+  @override
+  String masteryAnswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count பதிலளிக்கப்பட்டன',
+      one: '1 பதிலளிக்கப்பட்டது',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get profileRowSettings => 'அமைப்புகள்';
 
   @override

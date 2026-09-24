@@ -11,6 +11,7 @@ import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/practice/presentation/practice_hub_screen.dart';
 import '../../features/practice/presentation/practice_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/progress/presentation/mastery_screen.dart';
 import '../../features/quiz/presentation/quiz_screen.dart';
 import '../../features/results/presentation/results_screen.dart';
 import '../../features/settings/presentation/devices_screen.dart';
@@ -36,6 +37,7 @@ abstract final class Routes {
   static const notifications = '/notifications';
   static const settings = '/settings';
   static const devices = '/settings/devices';
+  static const mastery = '/profile/mastery';
 }
 
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -175,6 +177,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.devices,
         parentNavigatorKey: _rootKey,
         builder: (context, state) => const DevicesScreen(),
+      ),
+      GoRoute(
+        path: Routes.mastery,
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => const MasteryScreen(),
       ),
     ],
   );

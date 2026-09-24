@@ -546,6 +546,27 @@ class AppL10nSi extends AppL10n {
   String get profileRowMasteryMeta => 'උප මාතෘකාවකට නිරවද්‍යතාව';
 
   @override
+  String get masteryIntro =>
+      'ඔබ පුහුණු වූ සෑම උප මාතෘකාවකම ඔබේ නිරවද්‍යතාව, දුර්වලම එක මුලින්. එකක් තට්ටු කර එය පුහුණු වන්න.';
+
+  @override
+  String get masteryTopics => 'මාතෘකා';
+
+  @override
+  String get masteryWeak => 'දුර්වල';
+
+  @override
+  String masteryAnswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countක් පිළිතුරු දී ඇත',
+      one: '1ක් පිළිතුරු දී ඇත',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get profileRowSettings => 'සැකසුම්';
 
   @override

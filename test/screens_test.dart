@@ -19,6 +19,7 @@ import 'package:smart_iq/features/notifications/presentation/notifications_scree
 import 'package:smart_iq/features/practice/presentation/practice_hub_screen.dart';
 import 'package:smart_iq/features/practice/presentation/practice_screen.dart';
 import 'package:smart_iq/features/profile/presentation/profile_screen.dart';
+import 'package:smart_iq/features/progress/presentation/mastery_screen.dart';
 import 'package:smart_iq/features/results/presentation/results_screen.dart';
 import 'package:smart_iq/data/mock/mock_repositories.dart';
 import 'package:smart_iq/features/settings/presentation/devices_screen.dart';
@@ -182,6 +183,7 @@ void main() {
     'profile': ProfileScreen.new,
     'settings': SettingsScreen.new,
     'devices': DevicesScreen.new,
+    'mastery': MasteryScreen.new,
     'notifications': NotificationsScreen.new,
     'results': ResultsScreen.new,
   };
@@ -667,6 +669,48 @@ void main() {
     expect(find.text('Only this device is signed in.'), findsOneWidget);
   });
 
+  testWidgets('mastery lists every sub-topic and marks the weak ones',
+      (tester) async {
+    final areas = [
+      for (var i = 0; i < 6; i++)
+        WeakArea(
+          subTopicId: 'st-$i',
+          name: 'Sub-topic $i',
+          accuracy: 30 + i * 12,
+          sampleSize: 10 + i,
+        ),
+    ];
+    await _pumpAt(
+      tester,
+      const Size(412, 915),
+      _host(
+        const MasteryScreen(),
+        overrides: [
+          progressProvider.overrideWith(
+            (ref) async => ProgressSummary(
+              overallAccuracy: 0.55,
+              subTopicAccuracy: areas,
+              // The server's finding, not every low number: st-1 is below
+              // 70 too but is not named, so it must not be tagged.
+              weakAreas: [areas.first],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // Home stops at three; this screen shows them all.
+    for (final area in areas) {
+      await tester.scrollUntilVisible(find.text(area.name), 200);
+      expect(find.text(area.name), findsOneWidget);
+    }
+    await tester.scrollUntilVisible(find.text('Sub-topic 0'), -200);
+    expect(find.text('10 answered'), findsOneWidget);
+    // One tag in the list, plus the "Weak" stat tile label.
+    expect(find.text('Weak'), findsOneWidget);
+    expect(find.text('WEAK'), findsOneWidget);
+  });
+
   group('screens render in Sinhala and Tamil', () {
     // Both scripts run considerably longer than English for the same string,
     // which is exactly where a fixed-height row or an unwrapped Row starts
@@ -678,6 +722,7 @@ void main() {
         'practice category',
         'settings',
         'devices',
+        'mastery',
       ]) {
         testWidgets('$name in ${language.code}', (tester) async {
           await _pumpAt(
@@ -721,6 +766,7 @@ void main() {
       'notifications',
       'tutor',
       'devices',
+      'mastery',
     ]) {
       testWidgets('$name renders in dark mode', (tester) async {
         await _pumpAt(

@@ -16,6 +16,7 @@ import '../../../domain/models/content.dart';
 import '../../../domain/models/entitlement.dart';
 import '../../../domain/models/user_profile.dart';
 import '../../billing/presentation/plan_sheet.dart';
+import '../../progress/presentation/sub_topic_accuracy_list.dart';
 import '../../quiz/application/quiz_controller.dart';
 
 /// The home dashboard: greeting, own-progress stats, today's quota, the
@@ -86,7 +87,7 @@ class HomeScreen extends ConsumerWidget {
                     progress.when(
                       loading: () => const SiqLoader(),
                       error: (_, __) => const SizedBox.shrink(),
-                      data: (summary) => _SubTopicAccuracy(
+                      data: (summary) => SubTopicAccuracyList(
                         areas: summary.subTopicAccuracy.take(3).toList(),
                       ),
                     ),
@@ -502,93 +503,3 @@ class _PerformanceShowMore extends StatelessWidget {
   }
 }
 
-/// Accuracy in the sub-topics the user has practised, worst first. Tapping a
-/// row drills that sub-topic.
-class _SubTopicAccuracy extends ConsumerWidget {
-  const _SubTopicAccuracy({required this.areas});
-
-  final List<WeakArea> areas;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-
-    if (areas.isEmpty) {
-      return Text(
-        context.l10n.homeWeakAreasEmpty,
-        style: context.text(
-          AppTextStyles.caption,
-          color: colors.inkMuted,
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        for (final area in areas)
-          Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.sm.dp(context)),
-            child: SiqCard(
-              background: colors.surfaceMuted,
-              bordered: false,
-              radius: AppRadii.md,
-              padding: EdgeInsets.symmetric(
-                horizontal: 14.dp(context),
-                vertical: AppSpacing.md.dp(context),
-              ),
-              onTap: () {
-                ref.read(activeQuizRequestProvider.notifier).state =
-                    QuizRequest(
-                  mode: PracticeMode.quick,
-                  subTopicId: area.subTopicId,
-                );
-                context.push(Routes.quiz);
-              },
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          area.name,
-                          style: context.text(
-                            AppTextStyles.bodySmall,
-                            weight: 700,
-                            color: colors.ink,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: AppSpacing.xs.dp(context)),
-                        SiqProgressBar(
-                          value: area.accuracy / 100,
-                          color: _tintFor(context, area.accuracy),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: AppSpacing.md.dp(context)),
-                  Text(
-                    '${area.accuracy}%',
-                    style: context.text(
-                      AppTextStyles.bodySmall,
-                      weight: 800,
-                      color: _tintFor(context, area.accuracy),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Color _tintFor(BuildContext context, int accuracy) {
-    final colors = context.colors;
-    if (accuracy < 50) return colors.danger;
-    if (accuracy < 70) return colors.warning;
-    return colors.success;
-  }
-}

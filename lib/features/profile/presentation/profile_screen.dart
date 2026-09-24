@@ -180,7 +180,7 @@ class ProfileScreen extends ConsumerWidget {
                     name: l10n.profileRowMastery,
                     meta: l10n.profileRowMasteryMeta,
                     icon: Icons.insights_rounded,
-                    onTap: () {},
+                    onTap: () => context.push(Routes.mastery),
                   ),
                   _Row(
                     name: l10n.profileRowSettings,

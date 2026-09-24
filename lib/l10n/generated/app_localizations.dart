@@ -1065,6 +1065,30 @@ abstract class AppL10n {
   /// **'Accuracy per sub-topic'**
   String get profileRowMasteryMeta;
 
+  /// No description provided for @masteryIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your accuracy in every sub-topic you have practised, weakest first. Tap one to practise it.'**
+  String get masteryIntro;
+
+  /// No description provided for @masteryTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics'**
+  String get masteryTopics;
+
+  /// No description provided for @masteryWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak'**
+  String get masteryWeak;
+
+  /// No description provided for @masteryAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 answered} other{{count} answered}}'**
+  String masteryAnswered(int count);
+
   /// No description provided for @profileRowSettings.
   ///
   /// In en, this message translates to:

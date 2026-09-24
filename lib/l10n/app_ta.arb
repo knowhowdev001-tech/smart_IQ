@@ -228,6 +228,10 @@
   "profileRowWrongBankMeta": "இடைவெளி மீள்பயிற்சியால் மீண்டும் வரும்",
   "profileRowMastery": "தலைப்புத் தேர்ச்சி",
   "profileRowMasteryMeta": "துணைத் தலைப்புக்கான துல்லியம்",
+  "masteryIntro": "நீங்கள் பயிற்சி செய்த ஒவ்வொரு உபதலைப்பிலும் உங்கள் துல்லியம், பலவீனமானது முதலில். ஒன்றைத் தட்டிப் பயிற்சி செய்யுங்கள்.",
+  "masteryTopics": "தலைப்புகள்",
+  "masteryWeak": "பலவீனம்",
+  "masteryAnswered": "{count, plural, =1{1 பதிலளிக்கப்பட்டது} other{{count} பதிலளிக்கப்பட்டன}}",
   "profileRowSettings": "அமைப்புகள்",
   "profileRowSettingsMeta": "மொழி, தோற்றம் மற்றும் கணக்கு",
 

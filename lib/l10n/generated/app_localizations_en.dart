@@ -543,6 +543,27 @@ class AppL10nEn extends AppL10n {
   String get profileRowMasteryMeta => 'Accuracy per sub-topic';
 
   @override
+  String get masteryIntro =>
+      'Your accuracy in every sub-topic you have practised, weakest first. Tap one to practise it.';
+
+  @override
+  String get masteryTopics => 'Topics';
+
+  @override
+  String get masteryWeak => 'Weak';
+
+  @override
+  String masteryAnswered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count answered',
+      one: '1 answered',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get profileRowSettings => 'Settings';
 
   @override

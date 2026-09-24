@@ -228,6 +228,10 @@
   "profileRowWrongBankMeta": "පරතර පුනරාවර්තනයෙන් යළි ඉදිරිපත් වේ",
   "profileRowMastery": "මාතෘකා ප්‍රවීණතාව",
   "profileRowMasteryMeta": "උප මාතෘකාවකට නිරවද්‍යතාව",
+  "masteryIntro": "ඔබ පුහුණු වූ සෑම උප මාතෘකාවකම ඔබේ නිරවද්‍යතාව, දුර්වලම එක මුලින්. එකක් තට්ටු කර එය පුහුණු වන්න.",
+  "masteryTopics": "මාතෘකා",
+  "masteryWeak": "දුර්වල",
+  "masteryAnswered": "{count, plural, =1{1ක් පිළිතුරු දී ඇත} other{{count}ක් පිළිතුරු දී ඇත}}",
   "profileRowSettings": "සැකසුම්",
   "profileRowSettingsMeta": "භාෂාව, තේමාව හා ගිණුම",
 
