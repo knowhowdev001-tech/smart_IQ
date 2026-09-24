@@ -37,6 +37,14 @@ class SupabaseEntitlementRepository implements EntitlementRepository {
     final current = _inMemory;
     if (!force && current != null && !current.needsRefresh) return current;
 
+    // The status check itself: payment-status asks the charging rail and
+    // writes payment_status, which get_entitlement then reads. Best-effort,
+    // because a rail that cannot answer changes nothing server-side, and the
+    // tier already on record is still the right answer to show.
+    try {
+      await _client.functions.invoke('payment-status');
+    } catch (_) {}
+
     final json = await supabaseGuard(
       () => _client.rpc<dynamic>('get_entitlement'),
     );

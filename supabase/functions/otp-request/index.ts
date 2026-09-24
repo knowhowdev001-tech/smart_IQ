@@ -1,8 +1,11 @@
 // POST /functions/v1/otp-request  { msisdn, device_id?, full_name?, login? }
 //
-// Asks the carrier to send an OTP and records that it did. The code itself
-// is the carrier's: it delivers the SMS and checks the answer, and hands
-// back a reference we quote at verify time.
+// Issues a sign-in code and records that it did. Signup asks the carrier:
+// its OTP is the telco rail's subscribe step, it delivers the SMS and
+// checks the answer, and it hands back a reference we quote at verify time.
+// Login mints a code of our own, sends it with send-sms and keeps only its
+// hash, because a returning user is already registered and the carrier
+// would refuse them a second OTP.
 //
 // This function stays in front of that because the carrier knows nothing
 // about the things an account needs -- whether the number may sign up or may
@@ -16,7 +19,6 @@ import {
   ChargingError,
   requestOtp,
   sendSms,
-  subscriberStatus,
   testBypass,
 } from "../_shared/charging.ts";
 import { hashSecret, otpPepper } from "../_shared/tokens.ts";
@@ -204,20 +206,17 @@ serve(async (req) => {
           `otp-request: ${msisdn} is already registered with the carrier; ` +
             "sending a code of our own",
         );
+        // The refusal is the carrier saying this number is subscribed, so
+        // it is recorded as such: verifying our code then grants Basic just
+        // as the carrier's own verify would have.
+        baseline = "REGISTERED";
       }
     }
 
-    if (carrierIssued) {
-      // Taken before the code is verified, because the carrier's verify may
-      // subscribe the number and we need to know which of the two happened.
-      // A failure here must not cost the user their signup, so it records
-      // null and the verify side treats that as "unknown, leave it alone".
-      try {
-        baseline = await subscriberStatus(msisdn);
-      } catch (error) {
-        console.error("otp-request: subscriber status unavailable", error);
-      }
-    } else {
+    // A carrier-issued code needs no status here: the carrier's verify
+    // subscribes the number and says so in its reply, which is what
+    // otp-verify reads.
+    if (!carrierIssued) {
       // Ours to mint, ours to check. Only the hash is stored, so a leaked
       // row is not a code.
       const code = newCode();

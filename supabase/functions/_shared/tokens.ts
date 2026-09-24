@@ -29,8 +29,14 @@ async function hmacKey(secret: string): Promise<CryptoKey> {
     encoder.encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"],
+    ["sign", "verify"],
   );
+}
+
+function fromBase64url(segment: string): Uint8Array {
+  const padded = segment.replace(/-/g, "+").replace(/_/g, "/") +
+    "===".slice((segment.length + 3) % 4);
+  return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
 }
 
 /// Mints the access token PostgREST will accept.
@@ -61,6 +67,45 @@ export async function mintAccessToken(
   );
 
   return `${header}.${payload}.${base64url(new Uint8Array(signature))}`;
+}
+
+/// Checks an access token [mintAccessToken] issued and returns its `sub`,
+/// or null for anything that is not one: a bad signature, another
+/// algorithm, an expired or malformed token.
+///
+/// Used by functions the signed-in app calls. They check the token here
+/// rather than leaning on the gateway's own JWT check, which follows the
+/// project's signing-key setup rather than the secret these are minted with.
+export async function verifyAccessToken(
+  token: string,
+  secret: string,
+): Promise<string | null> {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  const [header, payload, signature] = parts;
+
+  try {
+    const head = JSON.parse(new TextDecoder().decode(fromBase64url(header)));
+    if (head.alg !== "HS256") return null;
+
+    const valid = await crypto.subtle.verify(
+      "HMAC",
+      await hmacKey(secret),
+      fromBase64url(signature),
+      encoder.encode(`${header}.${payload}`),
+    );
+    if (!valid) return null;
+
+    const claims = JSON.parse(new TextDecoder().decode(fromBase64url(payload)));
+    if (typeof claims.exp !== "number" || claims.exp * 1000 <= Date.now()) {
+      return null;
+    }
+    return typeof claims.sub === "string" && claims.sub !== ""
+      ? claims.sub
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 /// A refresh token the client stores and the server only ever sees hashed.

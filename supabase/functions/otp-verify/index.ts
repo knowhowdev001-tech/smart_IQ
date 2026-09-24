@@ -18,12 +18,7 @@ import {
   otpPepper,
   timingSafeEqual,
 } from "../_shared/tokens.ts";
-import {
-  ChargingError,
-  setSubscription,
-  testBypass,
-  verifyOtp,
-} from "../_shared/charging.ts";
+import { ChargingError, testBypass, verifyOtp } from "../_shared/charging.ts";
 import { toE164 } from "../_shared/msisdn.ts";
 
 const ACCESS_TOKEN_TTL_SECONDS = 60 * 60;
@@ -193,33 +188,26 @@ serve(async (req) => {
 
   if (user.status !== "active") return fail(403, "account_suspended");
 
-  const registeredNow = verified.subscriptionStatus === "REGISTERED";
-  const registeredBefore = otp.subscriber_status === "REGISTERED";
-
-  // Logging in must never start a subscription. The charging spec is
-  // ambiguous about whether its verify subscribes on its own; if it did,
-  // this is the number that would be paying for a login it never asked to
-  // be charged for, so it is put back.
-  if (registeredNow && otp.subscriber_status === "UNREGISTERED") {
-    console.error(
-      "otp-verify: carrier subscribed this number during verification -- " +
-        "undoing; the subscribe flow is the only thing allowed to do that",
-    );
-    try {
-      await setSubscription(msisdn, false);
-    } catch (error) {
-      console.error("otp-verify: could not undo the subscription", error);
-    }
-  }
-
-  // The carrier told us, in the verify reply, whether this number was
-  // already subscribed. Acting on it here saves the user a day of free
-  // limits while they wait for the nightly reconcile to notice.
+  // Signup is the telco rail's subscribe step. The carrier's verify
+  // completes the subscription (the charging spec says so), and its reply
+  // carries the result, so a carrier row that comes back REGISTERED is a
+  // Basic subscriber from this moment - charged from day one, no trial
+  // (PRD 7.2).
   //
-  // Only upwards, and only when the subscription predates this login: an
-  // UNREGISTERED answer is left to the reconcile, because cancelling a
-  // paying subscriber over one hiccuping status call is the worse mistake.
-  if (registeredNow && registeredBefore) {
+  // An own-code signup happens only when the carrier refused a second OTP
+  // because the number is already registered; otp-request recorded that
+  // status, so the same grant applies. A login row has no status recorded
+  // and grants nothing here: payment-status keeps an existing subscriber's
+  // tier current from the app.
+  //
+  // Only upwards. An UNREGISTERED answer is left to payment-status, because
+  // downgrading a paying subscriber over one hiccuping reply is the worse
+  // mistake.
+  const subscribed = isCarrierRow
+    ? verified.subscriptionStatus === "REGISTERED"
+    : !isTestRow && otp.subscriber_status === "REGISTERED";
+
+  if (subscribed) {
     const { error: statusError } = await supabase
       .from("payment_status")
       .upsert({
@@ -232,8 +220,8 @@ serve(async (req) => {
       }, { onConflict: "user_id" });
 
     if (statusError) {
-      // Not fatal: the session is what this call is for, and the reconcile
-      // will put the entitlement right.
+      // Not fatal: the session is what this call is for, and payment-status
+      // will put the entitlement right on the next app open.
       console.error("otp-verify: entitlement write failed", statusError);
     }
   }

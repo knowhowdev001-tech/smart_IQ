@@ -62,8 +62,8 @@ Lanka day boundary via `app.sl_today()`, never the server's own date.
 ## What is not built yet
 
 - **The remaining Edge Functions.** `otp-request`, `otp-verify`,
-  `auth-refresh` and `push-dispatch` are built and deployed (see below);
-  `/ai/chat`, `/payment-status` and `/webhooks/revenuecat` are not.
+  `auth-refresh`, `payment-status` and `push-dispatch` are built and
+  deployed (see below); `/ai/chat` and `/webhooks/revenuecat` are not.
 - **The question bank.** Schema and validation are ready; no questions are
   loaded. `assert_question_publishable` refuses to publish anything missing
   a correct option, a stem, an explanation or option content in any of the
@@ -102,6 +102,14 @@ on every call, the session is looked up by its hash rather than by the token,
 and a device idle for 90 days has to sign in again. A refusal
 (`session_expired`, `account_suspended`) clears the local session, while a
 network failure keeps it: being offline is not being signed out.
+
+`functions/payment-status` keeps the telco tier current (PRD 7.3). Signup
+is the rail's subscribe step: the carrier's `otp-verify` subscribes the
+number, and our `otp-verify` grants Basic from its reply. After that the
+app calls `payment-status` on open (debounced to an hour), which asks the
+carrier's `subscriber-status` and moves `payment_status` both ways. A carrier
+that cannot answer changes nothing. It checks the app's HS256 token itself,
+so `verify_jwt` is off for it as for the OTP functions.
 
 `functions/push-dispatch` sends push notifications (PRD 6.8); see
 [Push notifications](#push-notifications) below.

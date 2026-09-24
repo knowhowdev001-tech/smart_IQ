@@ -20,3 +20,10 @@ verify_jwt = false
 # `x-dispatch-secret` header against PUSH_DISPATCH_SECRET instead of a JWT.
 [functions.push-dispatch]
 verify_jwt = false
+
+# Called by the signed-in app, so it does require a token - but it checks
+# our HS256 access token itself (verifyAccessToken), because the gateway's
+# own JWT check follows the project's signing-key setup rather than the
+# secret otp-verify mints with.
+[functions.payment-status]
+verify_jwt = false
