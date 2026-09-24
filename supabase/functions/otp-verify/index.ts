@@ -172,10 +172,18 @@ serve(async (req) => {
   // Signup and login are the same call: the number either has an account or
   // gets one here. `msisdn` is unique, so the conflict path is what makes a
   // returning user a login rather than a duplicate account.
+  //
+  // A carrier code is a signup's, so its reference is recorded on the
+  // account. Our own codes (login) have none and leave it as it was.
   const { data: user, error: userError } = await supabase
     .from("users")
     .upsert(
-      { msisdn, msisdn_verified_at: now, last_login_at: now },
+      {
+        msisdn,
+        msisdn_verified_at: now,
+        last_login_at: now,
+        ...(isCarrierRow ? { referenceNo: otp.reference_no } : {}),
+      },
       { onConflict: "msisdn" },
     )
     .select("id, status")
