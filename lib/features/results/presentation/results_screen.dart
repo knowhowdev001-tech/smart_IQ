@@ -110,8 +110,9 @@ class ResultsScreen extends ConsumerWidget {
                                 : () {
                                     ref
                                         .read(activeQuizRequestProvider.notifier)
-                                        .state = const QuizRequest(
+                                        .state = QuizRequest(
                                       mode: PracticeMode.wrongAnswerDrill,
+                                      questionIds: result.wrongQuestionIds,
                                     );
                                     context.pushReplacement(Routes.quiz);
                                   },

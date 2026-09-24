@@ -253,8 +253,17 @@ class MockPracticeRepository implements PracticeRepository {
   }
 
   @override
-  Future<PracticeSet> wrongAnswerDrill() =>
-      practiceSet(mode: PracticeMode.wrongAnswerDrill, size: 5);
+  Future<PracticeSet> wrongAnswerDrill({List<String>? questionIds}) async {
+    if (questionIds == null) {
+      return practiceSet(mode: PracticeMode.wrongAnswerDrill, size: 5);
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 420));
+    return _issue(
+      mode: PracticeMode.wrongAnswerDrill,
+      size: questionIds.length,
+      onlyIds: questionIds.toSet(),
+    );
+  }
 
   /// Mirrors the server's atomic check-and-increment: the allowance is spent
   /// as the set is issued, not as questions are answered.
@@ -263,6 +272,7 @@ class MockPracticeRepository implements PracticeRepository {
     required int size,
     String? subTopicId,
     String? categoryKey,
+    Set<String>? onlyIds,
   }) {
     final limits = _state.entitlement.limits;
     final remaining = _state.usage.questionsLeft(limits);
@@ -287,7 +297,7 @@ class MockPracticeRepository implements PracticeRepository {
           if (categoryKey == null ||
               categoryKey == 'mock' ||
               q.categoryKey == categoryKey)
-            q,
+            if (onlyIds == null || onlyIds.contains(q.id)) q,
     ];
     final source = pool.isEmpty ? MockContent.questions : pool;
 

@@ -81,8 +81,20 @@ class SupabasePracticeRepository implements PracticeRepository {
   }
 
   @override
-  Future<PracticeSet> wrongAnswerDrill() =>
-      practiceSet(mode: PracticeMode.wrongAnswerDrill);
+  Future<PracticeSet> wrongAnswerDrill({List<String>? questionIds}) async {
+    final json = await _rpc(
+      'get_practice_set',
+      {
+        'p_mode': PracticeMode.wrongAnswerDrill.key,
+        if (questionIds != null) ...{
+          'p_question_ids': questionIds,
+          'p_size': questionIds.length,
+        },
+      },
+      mode: PracticeMode.wrongAnswerDrill,
+    );
+    return PracticeSet.fromJson(json);
+  }
 
   @override
   Future<SessionResult> submitSession({

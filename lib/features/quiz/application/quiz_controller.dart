@@ -277,12 +277,17 @@ class QuizRequest {
     this.subTopicId,
     this.categoryKey,
     this.size,
+    this.questionIds,
   });
 
   final PracticeMode mode;
   final String? subTopicId;
   final String? categoryKey;
   final int? size;
+
+  /// The exact questions to drill, for a wrong-answer drill of one
+  /// session's mistakes. Null leaves the choice to the server.
+  final List<String>? questionIds;
 
   @override
   bool operator ==(Object other) =>
@@ -291,10 +296,17 @@ class QuizRequest {
           other.mode == mode &&
           other.subTopicId == subTopicId &&
           other.categoryKey == categoryKey &&
-          other.size == size;
+          other.size == size &&
+          listEquals(other.questionIds, questionIds);
 
   @override
-  int get hashCode => Object.hash(mode, subTopicId, categoryKey, size);
+  int get hashCode => Object.hash(
+        mode,
+        subTopicId,
+        categoryKey,
+        size,
+        questionIds == null ? null : Object.hashAll(questionIds!),
+      );
 }
 
 /// The session the quiz screen is currently running.
@@ -316,7 +328,8 @@ final quizControllerProvider = StateNotifierProvider.autoDispose<QuizController,
         PracticeMode.dailyChallenge => repository.dailyChallenge(),
         PracticeMode.mockExam =>
           repository.mockExam(length: request.size ?? 50),
-        PracticeMode.wrongAnswerDrill => repository.wrongAnswerDrill(),
+        PracticeMode.wrongAnswerDrill =>
+          repository.wrongAnswerDrill(questionIds: request.questionIds),
         _ => repository.practiceSet(
             mode: request.mode,
             subTopicId: request.subTopicId,

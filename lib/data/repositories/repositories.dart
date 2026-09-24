@@ -181,8 +181,9 @@ abstract interface class PracticeRepository {
 
   Future<PracticeSet> mockExam({required int length});
 
-  /// A set built from the user's wrong-answer bank.
-  Future<PracticeSet> wrongAnswerDrill();
+  /// A set built from the user's wrong-answer bank: [questionIds] when
+  /// given, such as a session's mistakes, otherwise whatever is due.
+  Future<PracticeSet> wrongAnswerDrill({List<String>? questionIds});
 
   /// Scores server-side, writes answers, updates mastery and the
   /// wrong-answer bank.
