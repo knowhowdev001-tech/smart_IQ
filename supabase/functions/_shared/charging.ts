@@ -199,6 +199,9 @@ export interface VerifiedSubscriber {
 
   /// The route that issued [subscriberId], which calls made with it name.
   carrier: string | null;
+
+  /// The reply's `data` as the carrier sent it.
+  raw: Record<string, unknown>;
 }
 
 /// Verifies a code against its reference. The verify also completes the
@@ -219,15 +222,29 @@ export async function verifyOtp(args: {
     subscriptionStatus: (data.subscriptionStatus as string) ?? null,
     subscriberId: (data.subscriberId as string) ?? null,
     carrier,
+    raw: data,
   };
 }
 
-/// Who an SMS goes to. The carrier addresses a subscriber by the id its
-/// verify returned; the phone number is the fallback for one we never got.
+/// A subscriber as the carrier addresses them: by the id its verify
+/// returned, masked where the app is, with the number as the fallback for
+/// one we never got.
 export interface SmsRecipient {
   msisdn: string;
   subscriberId?: string | null;
   carrier?: string | null;
+}
+
+/// How [to] goes on the wire. A masked app refuses the plain number (E1951,
+/// "address invalid"), so the masked id is sent exactly as the carrier gave
+/// it -- toTel would strip it to digits -- and, since it no longer shows a
+/// network, the carrier that issued it is named alongside.
+function addressFor(
+  to: SmsRecipient,
+): { address: string; carrier?: string } {
+  const masked = to.subscriberId ?? null;
+  if (!masked) return { address: toTel(to.msisdn) };
+  return to.carrier ? { address: masked, carrier: to.carrier } : { address: masked };
 }
 
 /// The carrier refuses a second OTP for a number it has already registered.
@@ -258,15 +275,12 @@ export async function sendSms(
   // accepted, so a guessed one would turn every login SMS into a refusal.
   const mask = Deno.env.get("CHARGING_SMS_MASK");
 
-  // The masked id goes out exactly as the carrier gave it: toTel would
-  // strip it to digits. It carries no network prefix to route on, so the
-  // carrier that issued it is named alongside.
-  const masked = to.subscriberId ?? null;
+  const { address, carrier } = addressFor(to);
 
   const { status, body } = await post("send-sms", {
     message,
-    destinationAddresses: [masked ?? toTel(to.msisdn)],
-    ...(masked && to.carrier ? { carrier: to.carrier } : {}),
+    destinationAddresses: [address],
+    ...(carrier ? { carrier } : {}),
     ...(mask ? { sourceAddress: mask } : {}),
   });
 
@@ -332,24 +346,46 @@ export async function sendSms(
 }
 
 /// Mobitel answers "not subscribed" with an error code rather than a
-/// status, and pairs it with "invalid address" in the same code. We build
-/// the address ourselves in [toTel], so between the two readings the
-/// unregistered one is the only one that can be true here.
+/// status, and pairs it with "invalid address" in the same code. Asked by
+/// the right address -- the masked id, on a masked app -- the unregistered
+/// reading is the only one left.
 const NOT_REGISTERED = "E1951";
 
-/// `REGISTERED` or `UNREGISTERED`. Safe to retry.
+/// What subscriber-status said.
+export interface SubscriberStatus {
+  /// The carrier's `subscriptionStatus`. `REGISTERED` and `UNREGISTERED`
+  /// per the spec, but carriers send in-between states too (a first charge
+  /// still pending, a blocked number), so callers treat only `REGISTERED`
+  /// as paid and keep the raw value.
+  status: string;
+
+  /// The reply's `data`, kept as the day's record.
+  raw: Record<string, unknown>;
+}
+
+/// Asks the carrier whether [to] is subscribed. Safe to retry.
 ///
 /// Never throws for a subscriber who simply is not subscribed: that is an
 /// answer, and the billing rail treats it as one.
-export async function subscriberStatus(msisdn: string): Promise<string> {
+export async function subscriberStatus(
+  to: SmsRecipient,
+): Promise<SubscriberStatus> {
+  const { address, carrier } = addressFor(to);
   try {
     const data = await call("subscriber-status", {
-      subscriberId: toTel(msisdn),
+      subscriberId: address,
+      ...(carrier ? { carrier } : {}),
     });
-    return (data.subscriptionStatus as string) ?? "UNREGISTERED";
+    return {
+      status: (data.subscriptionStatus as string) ?? "UNREGISTERED",
+      raw: data,
+    };
   } catch (error) {
     if (error instanceof ChargingError && error.statusCode === NOT_REGISTERED) {
-      return "UNREGISTERED";
+      return {
+        status: "UNREGISTERED",
+        raw: { statusCode: NOT_REGISTERED, statusDetail: error.message },
+      };
     }
     throw error;
   }

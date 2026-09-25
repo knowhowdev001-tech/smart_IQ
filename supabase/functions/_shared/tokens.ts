@@ -33,7 +33,7 @@ async function hmacKey(secret: string): Promise<CryptoKey> {
   );
 }
 
-function fromBase64url(segment: string): Uint8Array {
+function fromBase64url(segment: string): Uint8Array<ArrayBuffer> {
   const padded = segment.replace(/-/g, "+").replace(/_/g, "/") +
     "===".slice((segment.length + 3) % 4);
   return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));

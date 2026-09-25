@@ -18,19 +18,12 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { fail, json, requireEnv, serve } from "../_shared/http.ts";
 import { verifyAccessToken } from "../_shared/tokens.ts";
-import { subscriberStatus, testBypass } from "../_shared/charging.ts";
-
-/// A daily charge renews a day at a time. The extra two hours keep a
-/// subscriber on Basic across the gap between one day's charge and the next
-/// status check, rather than flickering to Free at the 24-hour mark.
-const TELCO_VALIDITY_MS = 26 * 60 * 60 * 1000;
-
-interface PaymentRow {
-  tier: string;
-  source: string | null;
-  status: string;
-  valid_until: string | null;
-}
+import {
+  type SubscriberStatus,
+  subscriberStatus,
+  testBypass,
+} from "../_shared/charging.ts";
+import { type PaymentRow, recordTelcoStatus } from "../_shared/telco_status.ts";
 
 serve(async (req) => {
   if (req.method !== "POST") return fail(405, "method_not_allowed");
@@ -52,7 +45,7 @@ serve(async (req) => {
 
   const { data: user, error: userError } = await supabase
     .from("users")
-    .select("msisdn, status")
+    .select("msisdn, status, Masked_subscriberId, carrier")
     .eq("id", userId)
     .maybeSingle();
 
@@ -93,57 +86,39 @@ serve(async (req) => {
     return unchanged("test_number");
   }
 
-  let subscription: string;
+  // Asked by the id the carrier gave at signup: a masked app answers the
+  // plain number with E1951, which reads as unsubscribed and would drop a
+  // paying user to Free.
+  let result: SubscriberStatus;
   try {
-    subscription = await subscriberStatus(user.msisdn);
+    result = await subscriberStatus({
+      msisdn: user.msisdn,
+      subscriberId: user.Masked_subscriberId,
+      carrier: user.carrier,
+    });
   } catch (error) {
     console.error("payment-status: carrier status unavailable", error);
     return unchanged("carrier_unavailable");
   }
 
-  const now = new Date();
-  let next: Record<string, unknown>;
-
-  if (subscription === "REGISTERED") {
-    next = {
-      tier: "basic",
-      source: "telco",
-      status: "active",
-      valid_until: new Date(now.getTime() + TELCO_VALIDITY_MS).toISOString(),
-      last_checked_at: now.toISOString(),
-    };
-  } else if (current?.source === "telco" && current.status === "active") {
-    // Was paying, is not now: Free Fallback immediately (PRD 7.2).
-    next = {
-      tier: "free",
-      source: "telco",
-      status: "cancelled",
-      valid_until: now.toISOString(),
-      last_checked_at: now.toISOString(),
-    };
-  } else {
-    // Never subscribed, or already lapsed: only the check itself is news.
-    next = {
-      tier: current?.tier ?? "free",
-      source: current?.source ?? null,
-      status: current?.status ?? "none",
-      valid_until: current?.valid_until ?? null,
-      last_checked_at: now.toISOString(),
-    };
-  }
-
-  const { data: written, error: writeError } = await supabase
-    .from("payment_status")
-    .upsert({ user_id: userId, ...next }, { onConflict: "user_id" })
-    .select("tier, source, status, valid_until")
-    .single<PaymentRow>();
-
-  if (writeError) {
-    console.error("payment-status: write failed", writeError);
+  let written: PaymentRow;
+  try {
+    written = await recordTelcoStatus(
+      supabase,
+      { id: userId, msisdn: user.msisdn },
+      user.carrier,
+      result,
+    );
+  } catch (error) {
+    console.error("payment-status: write failed", error);
     return fail(500, "server_error");
   }
 
-  return json({ ...describe(written), checked: true, subscription });
+  return json({
+    ...describe(written),
+    checked: true,
+    subscription: result.status,
+  });
 });
 
 function describe(row: PaymentRow | null) {

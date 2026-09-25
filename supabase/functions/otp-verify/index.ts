@@ -20,10 +20,13 @@ import {
 } from "../_shared/tokens.ts";
 import {
   ChargingError,
+  type SubscriberStatus,
+  subscriberStatus,
   testBypass,
   type VerifiedSubscriber,
   verifyOtp,
 } from "../_shared/charging.ts";
+import { recordTelcoStatus } from "../_shared/telco_status.ts";
 import { toE164 } from "../_shared/msisdn.ts";
 
 const ACCESS_TOKEN_TTL_SECONDS = 60 * 60;
@@ -212,39 +215,61 @@ serve(async (req) => {
 
   // Signup is the telco rail's subscribe step. The carrier's verify
   // completes the subscription (the charging spec says so), and its reply
-  // carries the result, so a carrier row that comes back REGISTERED is a
-  // Basic subscriber from this moment - charged from day one, no trial
-  // (PRD 7.2).
+  // says how far it got: REGISTERED is a Basic subscriber from this moment,
+  // charged from day one with no trial (PRD 7.2). Anything else -- the first
+  // charge still pending, say -- is asked again once, by the masked id the
+  // reply just gave us, so a subscription that settles in those seconds is
+  // not left to the next app open.
   //
   // An own-code signup happens only when the carrier refused a second OTP
-  // because the number is already registered; otp-request recorded that
-  // status, so the same grant applies. A login row has no status recorded
-  // and grants nothing here: payment-status keeps an existing subscriber's
-  // tier current from the app.
+  // because the number is already registered; otp-request recorded that, so
+  // it is Basic too. A login row grants nothing here: payment-status keeps
+  // an existing subscriber's tier current from the app.
   //
-  // Only upwards. An UNREGISTERED answer is left to payment-status, because
-  // downgrading a paying subscriber over one hiccuping reply is the worse
-  // mistake.
-  const subscribed = isCarrierRow
-    ? verified?.subscriptionStatus === "REGISTERED"
-    : !isTestRow && otp.subscriber_status === "REGISTERED";
+  // Whatever the answer, it goes through the same recorder payment-status
+  // uses, so the tier and the day's telco_charges row match on both paths.
+  let telco: SubscriberStatus | null = null;
 
-  if (subscribed) {
-    const { error: statusError } = await supabase
-      .from("payment_status")
-      .upsert({
-        user_id: user.id,
-        tier: "basic",
-        source: "telco",
-        status: "active",
-        valid_until: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        last_checked_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
+  if (isCarrierRow && verified) {
+    console.log(
+      `otp-verify: carrier verify says ${verified.subscriptionStatus} ` +
+        `(${verified.carrier})`,
+    );
+    telco = verified.subscriptionStatus === "REGISTERED"
+      ? { status: "REGISTERED", raw: verified.raw }
+      : null;
 
-    if (statusError) {
+    if (!telco) {
+      try {
+        telco = await subscriberStatus({
+          msisdn,
+          subscriberId: verified.subscriberId,
+          carrier: verified.carrier,
+        });
+      } catch (error) {
+        // Not fatal: payment-status asks again on the first app open.
+        console.error("otp-verify: status re-check failed", error);
+      }
+    }
+  } else if (!isTestRow && otp.subscriber_status === "REGISTERED") {
+    telco = {
+      status: "REGISTERED",
+      raw: { source: "otp-request", note: "carrier refused OTP: already registered" },
+    };
+  }
+
+  if (telco) {
+    try {
+      await recordTelcoStatus(
+        supabase,
+        { id: user.id, msisdn },
+        verified?.carrier ?? null,
+        telco,
+      );
+    } catch (error) {
       // Not fatal: the session is what this call is for, and payment-status
       // will put the entitlement right on the next app open.
-      console.error("otp-verify: entitlement write failed", statusError);
+      console.error("otp-verify: entitlement write failed", error);
     }
   }
 
@@ -320,9 +345,10 @@ serve(async (req) => {
   // sends anyone else to signup rather than into the app.
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
+    // One literal, not a concatenation: the client infers the row's type
+    // from the string, and a computed one leaves it unknown.
     .select(
-      "user_id, full_name, language_preference, theme_preference, " +
-        "current_status, education_level, created_at",
+      "user_id, full_name, language_preference, theme_preference, current_status, education_level, created_at",
     )
     .eq("user_id", user.id)
     .maybeSingle();
