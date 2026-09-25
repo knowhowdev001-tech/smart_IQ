@@ -28,8 +28,9 @@ abstract final class SupabaseConfig {
   ///
   /// On. The question bank is seeded with placeholder content under the same
   /// taxonomy the app shows (migration 0024 and
-  /// `supabase/seed/placeholder_questions.csv`), and the free tier's demo
-  /// limits (migration 0025) make a real set servable. This is what puts
+  /// `supabase/seed/placeholder_questions.csv`). Free carries the PRD 7.5
+  /// limits (migration 0039), so a real set on free is two questions; the
+  /// test number or a telco subscriber (Basic) gets more. This is what puts
   /// progress, the streak, mastery, quota, bookmarks and the wrong-answer
   /// bank on the backend, where they survive a reinstall.
   ///
