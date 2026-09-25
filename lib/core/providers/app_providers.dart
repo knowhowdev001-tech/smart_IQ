@@ -101,6 +101,7 @@ final entitlementRepositoryProvider = Provider<EntitlementRepository>((ref) {
   return SupabaseEntitlementRepository(
     client: Supabase.instance.client,
     prefs: ref.watch(sharedPreferencesProvider),
+    userId: ref.watch(entitlementUserProvider),
   );
 });
 
@@ -144,6 +145,19 @@ final profileProvider =
   (ref) => ProfileController(ref.watch(authRepositoryProvider)),
 );
 
+/// Who the entitlement belongs to, or null when no one is signed in.
+///
+/// The profile says when that changes (sign-in, sign-out), but while it is
+/// still loading on a cold start - or failed to load offline - the stored
+/// session already knows the user, so the status check need not wait on the
+/// profile round trip.
+final entitlementUserProvider = Provider<String?>((ref) {
+  final profile = ref.watch(profileProvider);
+  if (profile.hasValue && profile.value == null) return null;
+  if (!ref.watch(backendReadyProvider)) return profile.valueOrNull?.userId;
+  return ref.watch(sessionStoreProvider).userId ?? profile.valueOrNull?.userId;
+});
+
 /// Resolves the charging status and tier.
 ///
 /// PRD 7.3 calls this on every app open, cold start and resume alike, with a
@@ -152,17 +166,46 @@ final profileProvider =
 /// downgrading a paying user on a flaky connection; once that expires the
 /// user drops to Free Fallback.
 class EntitlementController extends StateNotifier<AsyncValue<Entitlement>> {
-  EntitlementController(this._repository) : super(const AsyncValue.loading()) {
-    refresh();
+  EntitlementController(this._repository, {required bool signedIn})
+      : _signedIn = signedIn,
+        super(
+          signedIn
+              ? const AsyncValue.loading()
+              : const AsyncValue.data(Entitlement.freeFallback),
+        ) {
+    if (signedIn) _start();
   }
 
   final EntitlementRepository _repository;
 
-  Future<void> refresh({bool force = false}) async {
+  /// Signed out there is no one to ask about, and the status check would
+  /// only be refused.
+  final bool _signedIn;
+
+  /// Opens on the last tier the server confirmed, so a paying user is not
+  /// shown Free - and locked out of what they pay for - for the length of
+  /// the status round trip. The live check then replaces it either way.
+  Future<void> _start() async {
     try {
-      state = AsyncValue.data(await _repository.resolve(force: force));
+      final cached = await _repository.cached();
+      if (mounted &&
+          state.isLoading &&
+          cached != null &&
+          !cached.cacheExpired) {
+        state = AsyncValue.data(cached);
+      }
+    } catch (_) {}
+    await refresh();
+  }
+
+  Future<void> refresh({bool force = false}) async {
+    if (!_signedIn || !mounted) return;
+    try {
+      final resolved = await _repository.resolve(force: force);
+      if (mounted) state = AsyncValue.data(resolved);
     } catch (_) {
       final cached = await _repository.cached();
+      if (!mounted) return;
       // A cache that has outlived its TTL is no better than no answer at
       // all, so it drops to Free Fallback rather than silently extending a
       // tier the server never confirmed.
@@ -192,7 +235,14 @@ class EntitlementController extends StateNotifier<AsyncValue<Entitlement>> {
 
 final entitlementProvider =
     StateNotifierProvider<EntitlementController, AsyncValue<Entitlement>>(
-  (ref) => EntitlementController(ref.watch(entitlementRepositoryProvider)),
+  (ref) => EntitlementController(
+    ref.watch(entitlementRepositoryProvider),
+    // The mocks hold one account's tier whatever the sign-in state, and the
+    // screens read it signed out in tests; only a real backend has a user to
+    // ask about.
+    signedIn: !ref.watch(backendReadyProvider) ||
+        ref.watch(entitlementUserProvider) != null,
+  ),
 );
 
 /// The resolved entitlement, falling back to Free while a check is in

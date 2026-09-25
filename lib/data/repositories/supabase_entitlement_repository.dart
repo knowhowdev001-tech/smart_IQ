@@ -19,14 +19,22 @@ class SupabaseEntitlementRepository implements EntitlementRepository {
   SupabaseEntitlementRepository({
     required SupabaseClient client,
     required SharedPreferences prefs,
+    required String? userId,
   })  : _client = client,
-        _prefs = prefs;
+        _prefs = prefs,
+        _userId = userId;
 
   final SupabaseClient _client;
   final SharedPreferences _prefs;
 
+  /// Whose entitlement this is. The cache on disk outlives sign-out, so it
+  /// is stamped with its owner and read back only for the same user; another
+  /// number signing in on this phone never starts on the last one's tier.
+  final String? _userId;
+
   static const _cacheKey = 'entitlement.last';
   static const _cachedAtKey = 'entitlement.checked_at';
+  static const _cachedForKey = 'entitlement.user';
 
   Entitlement? _inMemory;
 
@@ -55,6 +63,7 @@ class SupabaseEntitlementRepository implements EntitlementRepository {
 
     await _prefs.setString(_cacheKey, jsonEncode(map));
     await _prefs.setString(_cachedAtKey, DateTime.now().toIso8601String());
+    if (_userId != null) await _prefs.setString(_cachedForKey, _userId);
     _inMemory = entitlement;
     return entitlement;
   }
@@ -66,7 +75,9 @@ class SupabaseEntitlementRepository implements EntitlementRepository {
   @override
   Future<Entitlement?> cached() async {
     final raw = _prefs.getString(_cacheKey);
-    if (raw == null) return _inMemory;
+    if (raw == null || _prefs.getString(_cachedForKey) != _userId) {
+      return _inMemory;
+    }
 
     try {
       final map = Map<String, dynamic>.from(
