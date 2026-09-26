@@ -137,7 +137,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Routes.tutor,
-                builder: (context, state) => const TutorScreen(),
+                builder: (context, state) => TutorScreen(
+                  explain: state.extra is TutorExplain
+                      ? state.extra! as TutorExplain
+                      : null,
+                ),
               ),
             ],
           ),

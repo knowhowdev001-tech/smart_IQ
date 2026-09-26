@@ -472,6 +472,15 @@ class AppL10nEn extends AppL10n {
   String get tutorTitle => 'AI Tutor';
 
   @override
+  String get tutorTopicIq => 'IQ';
+
+  @override
+  String get tutorTopicGk => 'General knowledge';
+
+  @override
+  String get tutorExplainThis => 'Explain this question';
+
+  @override
   String get tutorNewThread => 'New thread';
 
   @override

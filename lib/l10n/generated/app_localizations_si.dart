@@ -474,6 +474,15 @@ class AppL10nSi extends AppL10n {
   String get tutorTitle => 'AI උපදේශක';
 
   @override
+  String get tutorTopicIq => 'IQ';
+
+  @override
+  String get tutorTopicGk => 'සාමාන්‍ය දැනීම';
+
+  @override
+  String get tutorExplainThis => 'මෙම ප්‍රශ්නය පැහැදිලි කරන්න';
+
+  @override
   String get tutorNewThread => 'නව සංවාදය';
 
   @override

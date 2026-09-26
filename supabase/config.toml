@@ -27,3 +27,8 @@ verify_jwt = false
 # secret otp-verify mints with.
 [functions.payment-status]
 verify_jwt = false
+
+# The AI tutor proxy (PRD 4.5). Same token handling as payment-status: our
+# own HS256 access token, checked inside the function.
+[functions.ai-chat]
+verify_jwt = false

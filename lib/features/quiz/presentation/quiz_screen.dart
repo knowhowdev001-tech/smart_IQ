@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../../app.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/router/app_router.dart';
-import '../../../core/settings/app_settings.dart';
 import '../../../core/theme/app_scale.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
@@ -17,6 +16,7 @@ import '../../../data/repositories/repositories.dart';
 import '../../../domain/enums.dart';
 import '../../billing/presentation/plan_sheet.dart';
 import '../../results/presentation/results_screen.dart';
+import '../../tutor/presentation/tutor_screen.dart';
 import '../application/quiz_controller.dart';
 import 'widgets/question_diagram.dart';
 import 'widgets/question_parts.dart';
@@ -501,11 +501,12 @@ class _ExplanationCard extends ConsumerWidget {
 
   Future<void> _explain(BuildContext context, WidgetRef ref) async {
     final answer = quiz.answers[quiz.question.id];
-    await ref.read(tutorRepositoryProvider).explainQuestion(
-          question: quiz.question,
-          language: ref.read(languageProvider),
-          selectedOptionId: answer?.selectedOptionId,
-        );
-    if (context.mounted) context.push(Routes.tutor);
+    context.push(
+      Routes.tutor,
+      extra: TutorExplain(
+        question: quiz.question,
+        selectedOptionId: answer?.selectedOptionId,
+      ),
+    );
   }
 }

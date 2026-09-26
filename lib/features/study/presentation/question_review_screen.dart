@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../app.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/router/app_router.dart';
-import '../../../core/settings/app_settings.dart';
 import '../../../core/theme/app_scale.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
@@ -15,6 +14,7 @@ import '../../../core/widgets/siq_surfaces.dart';
 import '../../../domain/models/content.dart';
 import '../../quiz/presentation/widgets/question_diagram.dart';
 import '../../quiz/presentation/widgets/question_parts.dart';
+import '../../tutor/presentation/tutor_screen.dart';
 
 /// One saved question, read in full outside a session: the stem, every
 /// option with the correct one marked, and the worked explanation.
@@ -167,11 +167,7 @@ class _ReviewBody extends ConsumerWidget {
   }
 
   Future<void> _explain(BuildContext context, WidgetRef ref) async {
-    await ref.read(tutorRepositoryProvider).explainQuestion(
-          question: question,
-          language: ref.read(languageProvider),
-        );
-    if (context.mounted) context.push(Routes.tutor);
+    context.push(Routes.tutor, extra: TutorExplain(question: question));
   }
 }
 

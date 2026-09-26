@@ -196,6 +196,9 @@
   "resultsHome": "මුල් පිටුව",
 
   "tutorTitle": "AI උපදේශක",
+  "tutorTopicIq": "IQ",
+  "tutorTopicGk": "සාමාන්‍ය දැනීම",
+  "tutorExplainThis": "මෙම ප්‍රශ්නය පැහැදිලි කරන්න",
   "tutorNewThread": "නව සංවාදය",
   "tutorInputHint": "සිංහල, දෙමළ හෝ ඉංග්‍රීසියෙන් අසන්න",
   "tutorQuotaLine": "අද {total} න් {used} ක් භාවිත කර ඇත",

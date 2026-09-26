@@ -784,6 +784,8 @@ class MockTutorRepository implements TutorRepository {
     required String threadId,
     required String content,
     required AppLanguage language,
+    required TutorTopic topic,
+    String? questionId,
   }) async* {
     // The proxy decrements the counter before forwarding and returns a
     // structured refusal when the allowance is gone (PRD 4.5).
@@ -820,19 +822,6 @@ class MockTutorRepository implements TutorRepository {
         streaming: i < words.length - 1,
       );
     }
-  }
-
-  @override
-  Future<ChatThread> explainQuestion({
-    required Question question,
-    required AppLanguage language,
-    String? selectedOptionId,
-  }) async {
-    final thread = await createThread(
-      sourceQuestionId: question.id,
-      topic: question.subTopicName.resolve(language),
-    );
-    return thread;
   }
 
   @override

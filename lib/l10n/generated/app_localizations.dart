@@ -933,6 +933,24 @@ abstract class AppL10n {
   /// **'AI Tutor'**
   String get tutorTitle;
 
+  /// No description provided for @tutorTopicIq.
+  ///
+  /// In en, this message translates to:
+  /// **'IQ'**
+  String get tutorTopicIq;
+
+  /// No description provided for @tutorTopicGk.
+  ///
+  /// In en, this message translates to:
+  /// **'General knowledge'**
+  String get tutorTopicGk;
+
+  /// No description provided for @tutorExplainThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain this question'**
+  String get tutorExplainThis;
+
   /// No description provided for @tutorNewThread.
   ///
   /// In en, this message translates to:

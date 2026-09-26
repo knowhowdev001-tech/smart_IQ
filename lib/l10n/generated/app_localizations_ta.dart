@@ -479,6 +479,15 @@ class AppL10nTa extends AppL10n {
   String get tutorTitle => 'AI ஆசிரியர்';
 
   @override
+  String get tutorTopicIq => 'IQ';
+
+  @override
+  String get tutorTopicGk => 'பொது அறிவு';
+
+  @override
+  String get tutorExplainThis => 'இந்தக் கேள்வியை விளக்குங்கள்';
+
+  @override
   String get tutorNewThread => 'புதிய உரையாடல்';
 
   @override

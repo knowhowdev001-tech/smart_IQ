@@ -196,6 +196,9 @@
   "resultsHome": "முகப்பு",
 
   "tutorTitle": "AI ஆசிரியர்",
+  "tutorTopicIq": "IQ",
+  "tutorTopicGk": "பொது அறிவு",
+  "tutorExplainThis": "இந்தக் கேள்வியை விளக்குங்கள்",
   "tutorNewThread": "புதிய உரையாடல்",
   "tutorInputHint": "சிங்களம், தமிழ் அல்லது ஆங்கிலத்தில் கேளுங்கள்",
   "tutorQuotaLine": "இன்று {total} இல் {used} பயன்படுத்தப்பட்டது",

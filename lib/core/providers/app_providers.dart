@@ -9,6 +9,7 @@ import '../../data/repositories/supabase_content_repository.dart';
 import '../../data/repositories/supabase_entitlement_repository.dart';
 import '../../data/repositories/supabase_notification_repository.dart';
 import '../../data/repositories/supabase_practice_repository.dart';
+import '../../data/repositories/supabase_tutor_repository.dart';
 import '../../domain/enums.dart';
 import '../../domain/models/app_notification.dart';
 import '../../domain/models/content.dart';
@@ -90,9 +91,14 @@ final practiceRepositoryProvider = Provider<PracticeRepository>((ref) {
   );
 });
 
-final tutorRepositoryProvider = Provider<TutorRepository>(
-  (ref) => MockTutorRepository(ref.watch(mockBackendProvider)),
-);
+/// Gated with entitlement, which is where the tutor's quota line reads its
+/// count from: a real tutor over a mock counter would never tick down.
+final tutorRepositoryProvider = Provider<TutorRepository>((ref) {
+  if (!_practiceOnServer(ref)) {
+    return MockTutorRepository(ref.watch(mockBackendProvider));
+  }
+  return SupabaseTutorRepository(client: Supabase.instance.client);
+});
 
 final entitlementRepositoryProvider = Provider<EntitlementRepository>((ref) {
   if (!_practiceOnServer(ref)) {

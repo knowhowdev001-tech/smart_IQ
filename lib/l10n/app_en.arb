@@ -199,6 +199,9 @@
   "resultsHome": "Home",
 
   "tutorTitle": "AI Tutor",
+  "tutorTopicIq": "IQ",
+  "tutorTopicGk": "General knowledge",
+  "tutorExplainThis": "Explain this question",
   "tutorNewThread": "New thread",
   "tutorInputHint": "Ask in Sinhala, Tamil or English",
   "tutorQuotaLine": "{used} of {total} messages used today",

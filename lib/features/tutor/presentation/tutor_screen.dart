@@ -14,7 +14,21 @@ import '../../../core/widgets/siq_surfaces.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../domain/enums.dart';
 import '../../../domain/models/chat.dart';
+import '../../../domain/models/content.dart';
 import '../../billing/presentation/plan_sheet.dart';
+import '../explain_prompt.dart';
+
+/// "Explain this" from a question (PRD 6.4): opens the tutor on a fresh
+/// thread that starts by sending the question's context.
+///
+/// A class rather than a record so the screen can tell a new request from
+/// the same one handed back when its tab is rebuilt: only identity does.
+class TutorExplain {
+  const TutorExplain({required this.question, this.selectedOptionId});
+
+  final Question question;
+  final String? selectedOptionId;
+}
 
 /// The AI tutor.
 ///
@@ -23,7 +37,9 @@ import '../../billing/presentation/plan_sheet.dart';
 /// enforces the message limit itself, and renders whatever the endpoint
 /// sends — streaming or not.
 class TutorScreen extends ConsumerStatefulWidget {
-  const TutorScreen({super.key});
+  const TutorScreen({super.key, this.explain});
+
+  final TutorExplain? explain;
 
   @override
   ConsumerState<TutorScreen> createState() => _TutorScreenState();
@@ -35,10 +51,50 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
 
   final List<ChatMessage> _messages = [];
   String? _threadId;
+  TutorTopic _topic = TutorTopic.iq;
   bool _sending = false;
   bool _exhausted = false;
   String? _error;
   StreamSubscription<ChatMessage>? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _startExplain(widget.explain);
+  }
+
+  @override
+  void didUpdateWidget(TutorScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The tutor is a tab and keeps its state, so a second "Explain this"
+    // arrives here rather than in initState.
+    if (!identical(oldWidget.explain, widget.explain)) {
+      _startExplain(widget.explain);
+    }
+  }
+
+  void _startExplain(TutorExplain? explain) {
+    if (explain == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final question = explain.question;
+      final language = ref.read(languageProvider);
+      _newThread();
+      setState(() => _topic = TutorTopic.fromCategoryKey(question.categoryKey));
+      _submit(
+        content: explainPrompt(
+          question,
+          language,
+          selectedOptionId: explain.selectedOptionId,
+        ),
+        // The bubble shows what the student asked, not the full context
+        // the endpoint needs.
+        shown: '${context.l10n.tutorExplainThis}\n'
+            '${question.stem.resolve(language)}'.trim(),
+        questionId: question.id,
+      );
+    });
+  }
 
   @override
   void dispose() {
@@ -50,19 +106,32 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
 
   Future<void> _send() async {
     final text = _input.text.trim();
-    if (text.isEmpty || _sending) return;
+    if (text.isEmpty) return;
+    await _submit(content: text, shown: text);
+  }
+
+  Future<void> _submit({
+    required String content,
+    required String shown,
+    String? questionId,
+  }) async {
+    if (_sending) return;
 
     final repository = ref.read(tutorRepositoryProvider);
     final language = ref.read(languageProvider);
 
-    _threadId ??= (await repository.createThread()).id;
+    _threadId ??= (await repository.createThread(
+      sourceQuestionId: questionId,
+      topic: _topic.name,
+    ))
+        .id;
 
     setState(() {
       _messages.add(
         ChatMessage(
           id: 'local-${DateTime.now().microsecondsSinceEpoch}',
           role: ChatRole.user,
-          content: text,
+          content: shown,
           createdAt: DateTime.now(),
           language: language,
         ),
@@ -78,8 +147,10 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
       // bubble grows in place rather than the list filling with fragments.
       await for (final message in repository.send(
         threadId: _threadId!,
-        content: text,
+        content: content,
         language: language,
+        topic: _topic,
+        questionId: questionId,
       )) {
         if (!mounted) return;
         setState(() {
@@ -199,6 +270,14 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
                 ),
               ),
             ),
+          _TopicPicker(
+            topic: _topic,
+            // Fixed for the life of a thread: the endpoint's session is one
+            // kind of conversation. "New thread" frees it again.
+            onChanged: _messages.isEmpty && !_sending
+                ? (topic) => setState(() => _topic = topic)
+                : null,
+          ),
           _Composer(
             controller: _input,
             sending: _sending,
@@ -206,6 +285,60 @@ class _TutorScreenState extends ConsumerState<TutorScreen> {
             onSend: _send,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// IQ or GK for the next thread. GK answers can search the web; IQ ones
+/// reason through the problem.
+class _TopicPicker extends StatelessWidget {
+  const _TopicPicker({required this.topic, required this.onChanged});
+
+  final TutorTopic topic;
+  final ValueChanged<TutorTopic>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final l10n = context.l10n;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.lg.dp(context),
+        AppSpacing.sm.dp(context),
+        AppSpacing.lg.dp(context),
+        0,
+      ),
+      child: ContentColumn(
+        child: Wrap(
+          spacing: AppSpacing.sm.dp(context),
+          children: [
+            for (final (value, label) in [
+              (TutorTopic.iq, l10n.tutorTopicIq),
+              (TutorTopic.gk, l10n.tutorTopicGk),
+            ])
+              ChoiceChip(
+                label: Text(
+                  label,
+                  style: context.text(
+                    AppTextStyles.caption,
+                    weight: 700,
+                    color: value == topic ? colors.accentInk : colors.ink,
+                  ),
+                ),
+                selected: value == topic,
+                showCheckmark: false,
+                selectedColor: colors.accent,
+                backgroundColor: colors.surfaceSunken,
+                side: BorderSide(
+                  color: value == topic ? colors.accent : colors.border,
+                ),
+                onSelected:
+                    onChanged == null ? null : (_) => onChanged!(value),
+              ),
+          ],
+        ),
       ),
     );
   }

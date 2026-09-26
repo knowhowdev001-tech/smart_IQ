@@ -213,3 +213,14 @@ class ResultsWindow {
   @override
   int get hashCode => Object.hash(range, days);
 }
+
+/// Which kind of tutor answers a thread. The endpoint reasons through an
+/// IQ question and searches the web for a GK one, so the choice matters.
+/// Category keys already use the same two names.
+enum TutorTopic {
+  iq,
+  gk;
+
+  static TutorTopic fromCategoryKey(String? key) =>
+      key == 'gk' ? TutorTopic.gk : TutorTopic.iq;
+}

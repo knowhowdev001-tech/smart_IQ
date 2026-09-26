@@ -234,17 +234,16 @@ abstract interface class TutorRepository {
   /// Sends a message and yields the reply. The endpoint decides whether to
   /// stream, so this is a stream either way and a non-streaming reply simply
   /// arrives as a single event (PRD 6.4).
+  ///
+  /// [topic] picks the endpoint's IQ or GK mode. [questionId] is set on the
+  /// first message of an "Explain this" thread, whose [content] then carries
+  /// the question's context (see `explainPrompt`).
   Stream<ChatMessage> send({
     required String threadId,
     required String content,
     required AppLanguage language,
-  });
-
-  /// "Explain this", invoked from a question with its context attached.
-  Future<ChatThread> explainQuestion({
-    required Question question,
-    required AppLanguage language,
-    String? selectedOptionId,
+    required TutorTopic topic,
+    String? questionId,
   });
 
   Future<void> deleteThread(String threadId);
